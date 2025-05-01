@@ -1,0 +1,28 @@
+# Node.js
+**/node_modules/
+**/npm-debug.log*
+**/yarn-debug.log*
+**/yarn-error.log*
+**/package-lock.json
+**/yarn.lock
+
+# Environment variables
+**/.env
+
+# Logs
+**/logs
+**/*.log
+
+# Build output
+easyfindwork-frontend/build/
+easyfindwork-frontend/.next/
+easyfindwork-frontend/out/
+
+# IDE/editor
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Misc
+*.local
