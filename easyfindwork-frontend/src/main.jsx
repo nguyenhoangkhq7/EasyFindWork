@@ -11,8 +11,10 @@ import { BrowserRouter } from "react-router-dom";
 const store= createStore(allReducers);
 Modal.setAppElement("#root");
 createRoot(document.getElementById("root")).render(
-
-    <Provider store={store}>
+  <BrowserRouter>
+   <Provider store={store}>
       <App />
     </Provider>
+  </BrowserRouter>
+   
 );
