@@ -1519,6 +1519,15 @@
       "appliedDate": "2025-05-02T19:00:00Z",
       "status": "Đã duyệt",
       "note": "Ứng viên tiềm năng"
+    },
+    {
+      "id": "application_1746285991178",
+      "userId": "user_001",
+      "jobId": "job_006",
+      "resumeId": "resume_1746285991152",
+      "appliedDate": "2025-05-03T15:26:31.178Z",
+      "status": "Đang xử lý",
+      "note": ""
     }
   ],
   "resumes": [
@@ -1601,6 +1610,14 @@
       "fileName": "CV_NguyenVanA_4.pdf",
       "fileSize": 5242880,
       "uploadedAt": "2025-05-02T19:00:00Z"
+    },
+    {
+      "id": "resume_1746285991152",
+      "userId": "user_001",
+      "fileUrl": "https://res.cloudinary.com/dzcodbajo/image/upload/v1746285990/cv_file/xqjtsqlj3gz1hryerelr.pdf",
+      "fileName": "resume-sample.pdf",
+      "fileSize": 301808,
+      "uploadedAt": "2025-05-03T15:26:31.152Z"
     }
   ],
   "careerAdvice": [
@@ -1727,10 +1744,16 @@
       "savedAt": "2025-05-02T14:00:00Z"
     },
     {
-      "id": "savedJob_006",
-      "userId": "user_003",
-      "jobId": "job_013",
-      "savedAt": "2025-05-02T15:00:00Z"
+      "id": "savedJob_1746239838073",
+      "userId": "user_001",
+      "jobId": "job_005",
+      "savedAt": "2025-05-03T02:37:18.073Z"
+    },
+    {
+      "id": "savedJob_1746282799360",
+      "userId": "user_001",
+      "jobId": "job_006",
+      "savedAt": "2025-05-03T14:33:19.360Z"
     }
   ]
 }
