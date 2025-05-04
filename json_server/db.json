@@ -13,7 +13,10 @@
       "desiredSalary": 12000000,
       "experience": "1-2 năm",
       "education": "Đại học",
-      "skills": ["Giao tiếp", "Đàm phán"],
+      "skills": [
+        "Giao tiếp",
+        "Đàm phán"
+      ],
       "createdAt": "2025-04-25T08:00:00Z",
       "updatedAt": "2025-05-01T10:00:00Z"
     },
@@ -30,7 +33,10 @@
       "desiredSalary": 18000000,
       "experience": "3-5 năm",
       "education": "Đại học",
-      "skills": ["Lập trình", "Phân tích"],
+      "skills": [
+        "Lập trình",
+        "Phân tích"
+      ],
       "createdAt": "2025-04-26T09:00:00Z",
       "updatedAt": "2025-05-02T09:00:00Z"
     },
@@ -47,9 +53,78 @@
       "desiredSalary": 10000000,
       "experience": "0-1 năm",
       "education": "Cao đẳng",
-      "skills": ["Quảng cáo", "SEO"],
+      "skills": [
+        "Quảng cáo",
+        "SEO"
+      ],
       "createdAt": "2025-04-27T10:00:00Z",
       "updatedAt": "2025-05-02T11:00:00Z"
+    },
+    {
+      "id": "1247",
+      "fullName": "qqq",
+      "email": "bc1@emailvn.icu",
+      "phone": "1234567891"
+    },
+    {
+      "id": "9a8d",
+      "fullName": "qqq",
+      "email": "bc1@emailvn.icu",
+      "phone": "1234567891"
+    },
+    {
+      "id": "4801",
+      "fullName": "nguyen van a",
+      "email": "bc1@emailvn.icu",
+      "phone": "1223123111"
+    },
+    {
+      "id": "d5cb",
+      "fullName": "Huỳnh Nguyễn Phúc Vinh",
+      "email": "phucvinh20112004@gmail.com",
+      "phone": "0889278071"
+    },
+    {
+      "id": "0262",
+      "fullname": "qqq",
+      "email": "levahu@gmail.com",
+      "phone": "0889278567"
+    },
+    {
+      "id": "487e",
+      "fullname": "Huynh Long c",
+      "email": "abc@gmail.com",
+      "phone": "3456789012"
+    },
+    {
+      "id": "75ed",
+      "fullName": "ádad",
+      "email": "phucvh@gmail.com",
+      "phone": "1231231111"
+    },
+    {
+      "id": "7b9e",
+      "fullName": "qqq",
+      "email": "bc1@emailvn.icu",
+      "phone": "1234562111"
+    },
+    {
+      "id": "e693",
+      "fullName": "huyne",
+      "email": "nguyenvan@gmail.com",
+      "phone": "0889278567"
+    },
+    {
+      "id": "9745",
+      "fullName": "aa",
+      "email": "aaa@gmail.com",
+      "phone": "1111111111"
+    },
+    {
+      "id": "3efa",
+      "fullName": "qqqq",
+      "email": "qqqqqty@gmail.com",
+      "phone": "1111111111"
     }
   ],
   "companies": [
@@ -209,10 +284,15 @@
       "requirements": "Tốt nghiệp trung cấp trở lên, ưu tiên kinh nghiệm bán hàng.",
       "benefits": "Lương cứng + hoa hồng + thưởng, BHXH đầy đủ.",
       "industry": "Kinh doanh, Kỹ thuật",
-      "skillsRequired": ["Giao tiếp", "Đàm phán"],
+      "skillsRequired": [
+        "Giao tiếp",
+        "Đàm phán"
+      ],
       "isActive": true,
       "views": 120,
-      "applicants": ["user_001"]
+      "applicants": [
+        "user_001"
+      ]
     },
     {
       "id": "job_002",
@@ -228,10 +308,15 @@
       "requirements": "Tốt nghiệp đại học, kinh nghiệm 1-2 năm.",
       "benefits": "Lương cạnh tranh, thưởng lễ Tết.",
       "industry": "Ngân hàng",
-      "skillsRequired": ["Phân tích", "Giao tiếp"],
+      "skillsRequired": [
+        "Phân tích",
+        "Giao tiếp"
+      ],
       "isActive": true,
       "views": 150,
-      "applicants": ["user_002"]
+      "applicants": [
+        "user_002"
+      ]
     },
     {
       "id": "job_003",
@@ -247,7 +332,9 @@
       "requirements": "Đào tạo chuyên môn, kỹ năng chăm sóc.",
       "benefits": "Lương + thưởng, môi trường chuyên nghiệp.",
       "industry": "Y tế",
-      "skillsRequired": ["Chăm sóc khách hàng"],
+      "skillsRequired": [
+        "Chăm sóc khách hàng"
+      ],
       "isActive": true,
       "views": 80,
       "applicants": []
@@ -266,10 +353,15 @@
       "requirements": "Tốt nghiệp đại học CNTT, kinh nghiệm 3 năm.",
       "benefits": "Lương cao, bảo hiểm, du lịch.",
       "industry": "Công nghệ thông tin",
-      "skillsRequired": ["Lập trình", "Phân tích"],
+      "skillsRequired": [
+        "Lập trình",
+        "Phân tích"
+      ],
       "isActive": true,
       "views": 200,
-      "applicants": ["user_002"]
+      "applicants": [
+        "user_002"
+      ]
     },
     {
       "id": "job_005",
@@ -285,10 +377,15 @@
       "requirements": "Kinh nghiệm 1-2 năm, kỹ năng sáng tạo.",
       "benefits": "Thưởng hiệu suất, môi trường trẻ.",
       "industry": "Marketing",
-      "skillsRequired": ["Quảng cáo", "SEO"],
+      "skillsRequired": [
+        "Quảng cáo",
+        "SEO"
+      ],
       "isActive": true,
       "views": 180,
-      "applicants": ["user_003"]
+      "applicants": [
+        "user_003"
+      ]
     },
     {
       "id": "job_006",
@@ -304,10 +401,14 @@
       "requirements": "Tốt nghiệp THPT, giao tiếp tốt.",
       "benefits": "Lương + hoa hồng, phụ cấp.",
       "industry": "Bán lẻ",
-      "skillsRequired": ["Giao tiếp"],
+      "skillsRequired": [
+        "Giao tiếp"
+      ],
       "isActive": true,
       "views": 300,
-      "applicants": ["user_001"]
+      "applicants": [
+        "user_001"
+      ]
     },
     {
       "id": "job_007",
@@ -323,7 +424,9 @@
       "requirements": "Kinh nghiệm 1 năm, khỏe mạnh.",
       "benefits": "Lương ổn định, hỗ trợ ăn ở.",
       "industry": "Kho vận",
-      "skillsRequired": ["Quản lý kho"],
+      "skillsRequired": [
+        "Quản lý kho"
+      ],
       "isActive": true,
       "views": 90,
       "applicants": []
@@ -342,10 +445,15 @@
       "requirements": "Tốt nghiệp đại học, kinh nghiệm 2-3 năm.",
       "benefits": "Lương cao, hỗ trợ đi lại.",
       "industry": "Thủy sản",
-      "skillsRequired": ["Nghiên cứu", "Kỹ thuật"],
+      "skillsRequired": [
+        "Nghiên cứu",
+        "Kỹ thuật"
+      ],
       "isActive": true,
       "views": 110,
-      "applicants": ["user_002"]
+      "applicants": [
+        "user_002"
+      ]
     },
     {
       "id": "job_009",
@@ -361,7 +469,9 @@
       "requirements": "Khỏe mạnh, chịu được áp lực.",
       "benefits": "Lương + thưởng, BHXH.",
       "industry": "Thực phẩm",
-      "skillsRequired": ["Sản xuất"],
+      "skillsRequired": [
+        "Sản xuất"
+      ],
       "isActive": true,
       "views": 140,
       "applicants": []
@@ -380,10 +490,15 @@
       "requirements": "Tốt nghiệp đại học, kinh nghiệm 3 năm.",
       "benefits": "Lương cao, hỗ trợ đi lại.",
       "industry": "Xây dựng",
-      "skillsRequired": ["Thiết kế", "Giám sát"],
+      "skillsRequired": [
+        "Thiết kế",
+        "Giám sát"
+      ],
       "isActive": true,
       "views": 160,
-      "applicants": ["user_003"]
+      "applicants": [
+        "user_003"
+      ]
     },
     {
       "id": "job_011",
@@ -399,7 +514,10 @@
       "requirements": "Tốt nghiệp cao đẳng, kỹ năng tổ chức.",
       "benefits": "Lương ổn định, BHXH.",
       "industry": "Hành chính",
-      "skillsRequired": ["Tổ chức", "Giao tiếp"],
+      "skillsRequired": [
+        "Tổ chức",
+        "Giao tiếp"
+      ],
       "isActive": true,
       "views": 100,
       "applicants": []
@@ -418,10 +536,15 @@
       "requirements": "Tốt nghiệp đại học, kinh nghiệm 2 năm.",
       "benefits": "Lương + thưởng, môi trường chuyên nghiệp.",
       "industry": "Tài chính",
-      "skillsRequired": ["Phân tích", "Tài chính"],
+      "skillsRequired": [
+        "Phân tích",
+        "Tài chính"
+      ],
       "isActive": true,
       "views": 130,
-      "applicants": ["user_001"]
+      "applicants": [
+        "user_001"
+      ]
     },
     {
       "id": "job_013",
@@ -437,10 +560,15 @@
       "requirements": "Kinh nghiệm 1 năm, kỹ năng đàm phán.",
       "benefits": "Hoa hồng cao, hỗ trợ đi lại.",
       "industry": "Bất động sản",
-      "skillsRequired": ["Đàm phán", "Giao tiếp"],
+      "skillsRequired": [
+        "Đàm phán",
+        "Giao tiếp"
+      ],
       "isActive": true,
       "views": 170,
-      "applicants": ["user_003"]
+      "applicants": [
+        "user_003"
+      ]
     },
     {
       "id": "job_014",
@@ -456,7 +584,10 @@
       "requirements": "Tốt nghiệp đại học, kinh nghiệm 2-3 năm.",
       "benefits": "Lương cao, hỗ trợ chuyên môn.",
       "industry": "Kỹ thuật",
-      "skillsRequired": ["Điện", "Thiết kế"],
+      "skillsRequired": [
+        "Điện",
+        "Thiết kế"
+      ],
       "isActive": true,
       "views": 140,
       "applicants": []
@@ -475,10 +606,15 @@
       "requirements": "Tốt nghiệp trung cấp, kỹ năng cơ bản.",
       "benefits": "Lương + thưởng, đào tạo.",
       "industry": "Công nghệ thông tin",
-      "skillsRequired": ["Hỗ trợ IT", "Cơ bản"],
+      "skillsRequired": [
+        "Hỗ trợ IT",
+        "Cơ bản"
+      ],
       "isActive": true,
       "views": 110,
-      "applicants": ["user_002"]
+      "applicants": [
+        "user_002"
+      ]
     },
     {
       "id": "job_016",
@@ -494,7 +630,10 @@
       "requirements": "Giao tiếp tốt, kinh nghiệm 1 năm.",
       "benefits": "Lương + thưởng, môi trường thân thiện.",
       "industry": "Ngân hàng",
-      "skillsRequired": ["Giao tiếp", "Quan hệ khách hàng"],
+      "skillsRequired": [
+        "Giao tiếp",
+        "Quan hệ khách hàng"
+      ],
       "isActive": true,
       "views": 90,
       "applicants": []
@@ -513,10 +652,15 @@
       "requirements": "Tốt nghiệp đại học, kinh nghiệm 2 năm.",
       "benefits": "Lương ổn định, BHXH.",
       "industry": "Kế toán",
-      "skillsRequired": ["Kế toán", "Phân tích"],
+      "skillsRequired": [
+        "Kế toán",
+        "Phân tích"
+      ],
       "isActive": true,
       "views": 130,
-      "applicants": ["user_001"]
+      "applicants": [
+        "user_001"
+      ]
     },
     {
       "id": "job_018",
@@ -532,7 +676,10 @@
       "requirements": "Giao tiếp tốt, không cần kinh nghiệm.",
       "benefits": "Lương + hoa hồng, phụ cấp.",
       "industry": "Bán lẻ",
-      "skillsRequired": ["Giao tiếp", "Tư vấn"],
+      "skillsRequired": [
+        "Giao tiếp",
+        "Tư vấn"
+      ],
       "isActive": true,
       "views": 200,
       "applicants": []
@@ -551,10 +698,15 @@
       "requirements": "Tốt nghiệp đại học, kinh nghiệm 3 năm.",
       "benefits": "Lương cao, hỗ trợ đi lại.",
       "industry": "Cơ khí",
-      "skillsRequired": ["Thiết kế", "Sản xuất"],
+      "skillsRequired": [
+        "Thiết kế",
+        "Sản xuất"
+      ],
       "isActive": true,
       "views": 150,
-      "applicants": ["user_002"]
+      "applicants": [
+        "user_002"
+      ]
     },
     {
       "id": "job_020",
@@ -570,10 +722,15 @@
       "requirements": "Kinh nghiệm 1-2 năm, kỹ năng tổ chức.",
       "benefits": "Lương + thưởng, môi trường chuyên nghiệp.",
       "industry": "Nhân sự",
-      "skillsRequired": ["Tổ chức", "Tuyển dụng"],
+      "skillsRequired": [
+        "Tổ chức",
+        "Tuyển dụng"
+      ],
       "isActive": true,
       "views": 110,
-      "applicants": ["user_003"]
+      "applicants": [
+        "user_003"
+      ]
     },
     {
       "id": "job_021",
@@ -589,7 +746,10 @@
       "requirements": "Tốt nghiệp đại học, kinh nghiệm 2 năm.",
       "benefits": "Lương + thưởng, hỗ trợ đi lại.",
       "industry": "Xuất nhập khẩu",
-      "skillsRequired": ["Quản lý", "Ngoại ngữ"],
+      "skillsRequired": [
+        "Quản lý",
+        "Ngoại ngữ"
+      ],
       "isActive": true,
       "views": 100,
       "applicants": []
@@ -608,10 +768,15 @@
       "requirements": "Kinh nghiệm 1-2 năm, kỹ năng phân tích.",
       "benefits": "Lương + thưởng, đào tạo.",
       "industry": "Công nghệ thông tin",
-      "skillsRequired": ["Kiểm định", "Phân tích"],
+      "skillsRequired": [
+        "Kiểm định",
+        "Phân tích"
+      ],
       "isActive": true,
       "views": 120,
-      "applicants": ["user_002"]
+      "applicants": [
+        "user_002"
+      ]
     },
     {
       "id": "job_023",
@@ -627,10 +792,15 @@
       "requirements": "Tốt nghiệp đại học, kinh nghiệm 2-3 năm.",
       "benefits": "Lương cao, hỗ trợ sáng tạo.",
       "industry": "Thiết kế",
-      "skillsRequired": ["Thiết kế", "Sáng tạo"],
+      "skillsRequired": [
+        "Thiết kế",
+        "Sáng tạo"
+      ],
       "isActive": true,
       "views": 130,
-      "applicants": ["user_003"]
+      "applicants": [
+        "user_003"
+      ]
     },
     {
       "id": "job_024",
@@ -646,7 +816,10 @@
       "requirements": "Kinh nghiệm 1 năm, kỹ năng tổ chức.",
       "benefits": "Lương + thưởng, hỗ trợ đi lại.",
       "industry": "Logistics",
-      "skillsRequired": ["Quản lý", "Vận chuyển"],
+      "skillsRequired": [
+        "Quản lý",
+        "Vận chuyển"
+      ],
       "isActive": true,
       "views": 110,
       "applicants": []
@@ -665,10 +838,15 @@
       "requirements": "Tốt nghiệp luật, kinh nghiệm 3 năm.",
       "benefits": "Lương cao, môi trường chuyên nghiệp.",
       "industry": "Pháp chế",
-      "skillsRequired": ["Pháp luật", "Tư vấn"],
+      "skillsRequired": [
+        "Pháp luật",
+        "Tư vấn"
+      ],
       "isActive": true,
       "views": 90,
-      "applicants": ["user_001"]
+      "applicants": [
+        "user_001"
+      ]
     },
     {
       "id": "job_026",
@@ -684,7 +862,10 @@
       "requirements": "Giao tiếp tốt, không cần kinh nghiệm.",
       "benefits": "Lương + hoa hồng, phụ cấp.",
       "industry": "Chăm sóc khách hàng",
-      "skillsRequired": ["Giao tiếp", "Hỗ trợ"],
+      "skillsRequired": [
+        "Giao tiếp",
+        "Hỗ trợ"
+      ],
       "isActive": true,
       "views": 160,
       "applicants": []
@@ -703,10 +884,15 @@
       "requirements": "Tốt nghiệp đại học, kinh nghiệm 2-3 năm.",
       "benefits": "Lương cao, hỗ trợ đi lại.",
       "industry": "Môi trường",
-      "skillsRequired": ["Nghiên cứu", "Kỹ thuật"],
+      "skillsRequired": [
+        "Nghiên cứu",
+        "Kỹ thuật"
+      ],
       "isActive": true,
       "views": 120,
-      "applicants": ["user_002"]
+      "applicants": [
+        "user_002"
+      ]
     },
     {
       "id": "job_028",
@@ -722,10 +908,15 @@
       "requirements": "Kinh nghiệm 1-2 năm, sáng tạo.",
       "benefits": "Lương + thưởng, môi trường trẻ.",
       "industry": "Truyền thông",
-      "skillsRequired": ["Viết lách", "Sáng tạo"],
+      "skillsRequired": [
+        "Viết lách",
+        "Sáng tạo"
+      ],
       "isActive": true,
       "views": 140,
-      "applicants": ["user_003"]
+      "applicants": [
+        "user_003"
+      ]
     },
     {
       "id": "job_029",
@@ -741,7 +932,9 @@
       "requirements": "Khỏe mạnh, kinh nghiệm 1 năm.",
       "benefits": "Lương + thưởng, hỗ trợ ăn ở.",
       "industry": "Kho vận",
-      "skillsRequired": ["Kiểm kho"],
+      "skillsRequired": [
+        "Kiểm kho"
+      ],
       "isActive": true,
       "views": 100,
       "applicants": []
@@ -760,10 +953,14 @@
       "requirements": "Giao tiếp tốt, không cần kinh nghiệm.",
       "benefits": "Lương + hoa hồng, phụ cấp.",
       "industry": "Bán lẻ",
-      "skillsRequired": ["Giao tiếp"],
+      "skillsRequired": [
+        "Giao tiếp"
+      ],
       "isActive": true,
       "views": 180,
-      "applicants": ["user_001"]
+      "applicants": [
+        "user_001"
+      ]
     },
     {
       "id": "job_031",
@@ -779,10 +976,15 @@
       "requirements": "Tốt nghiệp đại học, kinh nghiệm 3 năm.",
       "benefits": "Lương cao, hỗ trợ đi lại.",
       "industry": "Cơ điện",
-      "skillsRequired": ["Thiết kế", "Lắp đặt"],
+      "skillsRequired": [
+        "Thiết kế",
+        "Lắp đặt"
+      ],
       "isActive": true,
       "views": 150,
-      "applicants": ["user_002"]
+      "applicants": [
+        "user_002"
+      ]
     },
     {
       "id": "job_032",
@@ -798,10 +1000,15 @@
       "requirements": "Kinh nghiệm 1-2 năm, sáng tạo.",
       "benefits": "Lương + thưởng, môi trường trẻ.",
       "industry": "Truyền thông",
-      "skillsRequired": ["PR", "Sáng tạo"],
+      "skillsRequired": [
+        "PR",
+        "Sáng tạo"
+      ],
       "isActive": true,
       "views": 130,
-      "applicants": ["user_003"]
+      "applicants": [
+        "user_003"
+      ]
     },
     {
       "id": "job_033",
@@ -817,7 +1024,10 @@
       "requirements": "Khỏe mạnh, có bằng lái xe.",
       "benefits": "Lương + thưởng, hỗ trợ đi lại.",
       "industry": "Logistics",
-      "skillsRequired": ["Vận chuyển", "Quản lý"],
+      "skillsRequired": [
+        "Vận chuyển",
+        "Quản lý"
+      ],
       "isActive": true,
       "views": 110,
       "applicants": []
@@ -836,10 +1046,15 @@
       "requirements": "Tốt nghiệp luật, kinh nghiệm 3 năm.",
       "benefits": "Lương cao, môi trường chuyên nghiệp.",
       "industry": "Pháp chế",
-      "skillsRequired": ["Pháp luật", "Tư vấn"],
+      "skillsRequired": [
+        "Pháp luật",
+        "Tư vấn"
+      ],
       "isActive": true,
       "views": 90,
-      "applicants": ["user_001"]
+      "applicants": [
+        "user_001"
+      ]
     },
     {
       "id": "job_035",
@@ -855,7 +1070,10 @@
       "requirements": "Kinh nghiệm 1-2 năm, cẩn thận.",
       "benefits": "Lương + thưởng, BHXH.",
       "industry": "Chất lượng",
-      "skillsRequired": ["Kiểm tra", "Chất lượng"],
+      "skillsRequired": [
+        "Kiểm tra",
+        "Chất lượng"
+      ],
       "isActive": true,
       "views": 120,
       "applicants": []
@@ -874,10 +1092,15 @@
       "requirements": "Tốt nghiệp đại học, kinh nghiệm 2 năm.",
       "benefits": "Lương cao, hỗ trợ sáng tạo.",
       "industry": "Thiết kế",
-      "skillsRequired": ["Thiết kế", "Đồ họa"],
+      "skillsRequired": [
+        "Thiết kế",
+        "Đồ họa"
+      ],
       "isActive": true,
       "views": 140,
-      "applicants": ["user_003"]
+      "applicants": [
+        "user_003"
+      ]
     },
     {
       "id": "job_037",
@@ -893,7 +1116,10 @@
       "requirements": "Kinh nghiệm 2 năm, kỹ năng tổ chức.",
       "benefits": "Lương + thưởng, hỗ trợ ăn ở.",
       "industry": "Kho vận",
-      "skillsRequired": ["Quản lý kho", "Tổ chức"],
+      "skillsRequired": [
+        "Quản lý kho",
+        "Tổ chức"
+      ],
       "isActive": true,
       "views": 100,
       "applicants": []
@@ -912,10 +1138,15 @@
       "requirements": "Tốt nghiệp đại học, ngoại ngữ tốt.",
       "benefits": "Lương cao, hỗ trợ đi lại.",
       "industry": "Kinh doanh quốc tế",
-      "skillsRequired": ["Ngoại ngữ", "Đàm phán"],
+      "skillsRequired": [
+        "Ngoại ngữ",
+        "Đàm phán"
+      ],
       "isActive": true,
       "views": 130,
-      "applicants": ["user_002"]
+      "applicants": [
+        "user_002"
+      ]
     },
     {
       "id": "job_039",
@@ -931,7 +1162,10 @@
       "requirements": "Kinh nghiệm 1 năm, kỹ năng cơ bản.",
       "benefits": "Lương + thưởng, đào tạo.",
       "industry": "Công nghệ thông tin",
-      "skillsRequired": ["Hỗ trợ", "Kỹ thuật"],
+      "skillsRequired": [
+        "Hỗ trợ",
+        "Kỹ thuật"
+      ],
       "isActive": true,
       "views": 110,
       "applicants": []
@@ -950,10 +1184,15 @@
       "requirements": "Kinh nghiệm 1-2 năm, kỹ năng tổ chức.",
       "benefits": "Lương + thưởng, môi trường chuyên nghiệp.",
       "industry": "Nhân sự",
-      "skillsRequired": ["Tuyển dụng", "Tổ chức"],
+      "skillsRequired": [
+        "Tuyển dụng",
+        "Tổ chức"
+      ],
       "isActive": true,
       "views": 120,
-      "applicants": ["user_003"]
+      "applicants": [
+        "user_003"
+      ]
     },
     {
       "id": "job_041",
@@ -969,10 +1208,15 @@
       "requirements": "Tốt nghiệp đại học, kinh nghiệm 2 năm.",
       "benefits": "Lương cao, môi trường chuyên nghiệp.",
       "industry": "Kiểm toán",
-      "skillsRequired": ["Kiểm toán", "Phân tích"],
+      "skillsRequired": [
+        "Kiểm toán",
+        "Phân tích"
+      ],
       "isActive": true,
       "views": 90,
-      "applicants": ["user_001"]
+      "applicants": [
+        "user_001"
+      ]
     },
     {
       "id": "job_042",
@@ -988,7 +1232,10 @@
       "requirements": "Giao tiếp tốt, không cần kinh nghiệm.",
       "benefits": "Lương + hoa hồng, phụ cấp.",
       "industry": "Bán lẻ",
-      "skillsRequired": ["Giao tiếp", "Online"],
+      "skillsRequired": [
+        "Giao tiếp",
+        "Online"
+      ],
       "isActive": true,
       "views": 170,
       "applicants": []
@@ -1007,10 +1254,15 @@
       "requirements": "Tốt nghiệp đại học, kinh nghiệm 3-5 năm.",
       "benefits": "Lương cao, hỗ trợ đi lại.",
       "industry": "Dầu khí",
-      "skillsRequired": ["Nghiên cứu", "Kỹ thuật"],
+      "skillsRequired": [
+        "Nghiên cứu",
+        "Kỹ thuật"
+      ],
       "isActive": true,
       "views": 140,
-      "applicants": ["user_002"]
+      "applicants": [
+        "user_002"
+      ]
     },
     {
       "id": "job_044",
@@ -1026,10 +1278,15 @@
       "requirements": "Tốt nghiệp đại học, ngoại ngữ tốt.",
       "benefits": "Lương cao, môi trường quốc tế.",
       "industry": "Quan hệ quốc tế",
-      "skillsRequired": ["Ngoại ngữ", "Giao tiếp"],
+      "skillsRequired": [
+        "Ngoại ngữ",
+        "Giao tiếp"
+      ],
       "isActive": true,
       "views": 130,
-      "applicants": ["user_003"]
+      "applicants": [
+        "user_003"
+      ]
     },
     {
       "id": "job_045",
@@ -1045,7 +1302,10 @@
       "requirements": "Kinh nghiệm 2-3 năm, kỹ năng tổ chức.",
       "benefits": "Lương + thưởng, BHXH.",
       "industry": "Sản xuất",
-      "skillsRequired": ["Quản lý", "Sản xuất"],
+      "skillsRequired": [
+        "Quản lý",
+        "Sản xuất"
+      ],
       "isActive": true,
       "views": 110,
       "applicants": []
@@ -1064,10 +1324,15 @@
       "requirements": "Giao tiếp tốt, không cần kinh nghiệm.",
       "benefits": "Lương + thưởng, môi trường thân thiện.",
       "industry": "Chăm sóc khách hàng",
-      "skillsRequired": ["Giao tiếp", "Hỗ trợ"],
+      "skillsRequired": [
+        "Giao tiếp",
+        "Hỗ trợ"
+      ],
       "isActive": true,
       "views": 100,
-      "applicants": ["user_001"]
+      "applicants": [
+        "user_001"
+      ]
     },
     {
       "id": "job_047",
@@ -1083,10 +1348,15 @@
       "requirements": "Tốt nghiệp đại học, kinh nghiệm 3 năm.",
       "benefits": "Lương cao, hỗ trợ đi lại.",
       "industry": "Xây dựng",
-      "skillsRequired": ["Thiết kế", "Hạ tầng"],
+      "skillsRequired": [
+        "Thiết kế",
+        "Hạ tầng"
+      ],
       "isActive": true,
       "views": 140,
-      "applicants": ["user_002"]
+      "applicants": [
+        "user_002"
+      ]
     },
     {
       "id": "job_048",
@@ -1102,10 +1372,15 @@
       "requirements": "Kinh nghiệm 1-2 năm, sáng tạo.",
       "benefits": "Lương + thưởng, môi trường trẻ.",
       "industry": "Truyền thông",
-      "skillsRequired": ["Truyền thông", "Sáng tạo"],
+      "skillsRequired": [
+        "Truyền thông",
+        "Sáng tạo"
+      ],
       "isActive": true,
       "views": 130,
-      "applicants": ["user_003"]
+      "applicants": [
+        "user_003"
+      ]
     },
     {
       "id": "job_049",
@@ -1121,7 +1396,10 @@
       "requirements": "Tốt nghiệp đại học, kinh nghiệm 2 năm.",
       "benefits": "Lương + thưởng, hỗ trợ đi lại.",
       "industry": "Chất lượng",
-      "skillsRequired": ["Kiểm định", "Chất lượng"],
+      "skillsRequired": [
+        "Kiểm định",
+        "Chất lượng"
+      ],
       "isActive": true,
       "views": 110,
       "applicants": []
@@ -1140,10 +1418,15 @@
       "requirements": "Giao tiếp tốt, không cần kinh nghiệm.",
       "benefits": "Lương + hoa hồng, phụ cấp.",
       "industry": "Bán lẻ",
-      "skillsRequired": ["Giao tiếp", "Online"],
+      "skillsRequired": [
+        "Giao tiếp",
+        "Online"
+      ],
       "isActive": true,
       "views": 160,
-      "applicants": ["user_001"]
+      "applicants": [
+        "user_001"
+      ]
     }
   ],
   "applications": [

@@ -3,8 +3,8 @@ import Home from "./pages/Home";
 import Search from "./pages/Search";
 import JobDetail from "./pages/JobDetail";
 import Profile from "./pages/Profile";
-import Login from "./pages/Login";
 import Register from "./pages/Register";
+import Login from "./pages/Login";
 
 function App() {
   return (
