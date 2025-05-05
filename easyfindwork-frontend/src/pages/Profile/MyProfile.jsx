@@ -5,7 +5,9 @@ import { Link } from "react-router-dom";
 import UserInfoModal from "./UserInfoModal ";
 import { updateUser } from "../../service/user";
 import DetailModal from "./DetailModal";
-import RightSideBar from "./RightSideBar";
+import RightSideBar from "./JobRecommendBar";
+import { motion } from "framer-motion";
+
 const MyProfile= ()=>{
 
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -68,7 +70,10 @@ const MyProfile= ()=>{
         <UserInfoModal isOpen={isModalOpen} onRequestClose={closeModal}  user={user} />
         <DetailModal isOpen={isModalOpen2} onRequestClose={closeModal2}  user={user}></DetailModal>
         
-        <div className="flex-1 p-6 space-y-6">
+        <motion.div className="flex-1 p-6 space-y-6"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: "easeOut" }}>
             <div className="bg-white rounded-md shadow-sm p-6">
               <div className="flex justify-between items-start mb-4">
                 <h2 className="text-xl font-bold">Hồ sơ của tôi</h2>
@@ -220,8 +225,15 @@ const MyProfile= ()=>{
                   </button>
                 </div>
             </div>
-          </div>
-          <RightSideBar/>
+          </motion.div>
+          <motion.div
+  initial={{ opacity: 0, y: 20 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ duration: 0.5, ease: "easeOut", delay: 0.1 }}
+  // className="bg-white rounded-md shadow-sm p-6"
+>
+<RightSideBar/>
+</motion.div>
         </>
     )
 }

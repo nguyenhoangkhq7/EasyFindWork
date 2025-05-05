@@ -6,7 +6,7 @@ import UserInfoModal from "./UserInfoModal ";
 import { updateUser } from "../../service/user";
 import DetailModal from "./DetailModal";
 import LeftSideBar from "./LeftSideBar";
-import RigthSideBar from "./RightSideBar";
+import RigthSideBar from "./JobRecommendBar";
 
 
 export default function Profile() {

@@ -1,12 +1,20 @@
 import { useState } from "react";
 import Modal from "react-modal";
+import { motion, AnimatePresence } from "framer-motion";
 import { useDispatch } from "react-redux";
 import { updateUser } from "../../service/user";
 import Swal from "sweetalert2";
 
+const modalVariants = {
+  hidden: { opacity: 0, scale: 0.9 },
+  visible: { opacity: 1, scale: 1 },
+  exit: { opacity: 0, scale: 0.9 },
+};
+
 const UserInfoModal = ({ isOpen, onRequestClose, user }) => {
   const dispatch = useDispatch();
   const [error, setError] = useState("");
+
   const provinces = [
     "An Giang", "Bà Rịa - Vũng Tàu", "Bắc Giang", "Bắc Kạn", "Bạc Liêu",
     "Bắc Ninh", "Bến Tre", "Bình Định", "Bình Dương", "Bình Phước",
@@ -45,10 +53,7 @@ const UserInfoModal = ({ isOpen, onRequestClose, user }) => {
     };
 
     try {
-      // Gửi dữ liệu cập nhật tới API
-      const result = await updateUser(user.id, updatedUser);
-
-      // Cập nhật vào Redux
+      await updateUser(user.id, updatedUser);
       dispatch({ type: "UPDATE", user: updatedUser });
 
       await Swal.fire({
@@ -90,94 +95,111 @@ const UserInfoModal = ({ isOpen, onRequestClose, user }) => {
     <Modal
       isOpen={isOpen}
       onRequestClose={closeModal}
-      className="modal absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-md shadow-lg p-6 w-full max-w-md"
+      overlayClassName="fixed inset-0 bg-black/30 backdrop-blur-sm z-40 flex items-center justify-center"
+
+      className="outline-none"
+      ariaHideApp={false}
     >
-      <form className="relative" onSubmit={handleSubmit}>
-        <h2 className="text-xl font-semibold mb-4">Thông tin cá nhân</h2>
-
-        <button
-          onClick={closeModal}
-          type="button"
-          className="absolute top-0 right-0 text-gray-500 hover:text-gray-700 text-2xl focus:outline-none"
-        >
-          &times;
-        </button>
-
-        <div className="mb-4">
-          <label htmlFor="name" className="block text-sm font-bold mb-2">Họ và tên</label>
-          <input
-            type="text"
-            id="name"
-            defaultValue={user.fullName || ""}
-            className="border rounded w-full py-2 px-3"
-          />
-        </div>
-
-        <div className="mb-4">
-          <label htmlFor="email" className="block text-sm font-bold mb-2">Email</label>
-          <input
-            type="email"
-            id="email"
-            defaultValue={user.email || ""}
-            className="border rounded w-full py-2 px-3"
-          />
-        </div>
-
-        <div className="mb-4">
-          <label htmlFor="phone" className="block text-sm font-bold mb-2">Số điện thoại</label>
-          <input
-            type="tel"
-            id="phone"
-            defaultValue={user.phone || ""}
-            readOnly
-            className="bg-gray-100 border rounded w-full py-2 px-3"
-          />
-        </div>
-
-        <div className="mb-4 flex gap-4">
-          <div className="w-2/3">
-            <label htmlFor="dc" className="block text-sm font-bold mb-2">Địa chỉ hiện tại</label>
-            <input
-              id="dc"
-              defaultValue={user.address?.replace(`, ${user.location}`, "") || ""}
-              placeholder="Số nhà, tên đường, quận/huyện"
-              className="border rounded w-full py-2 px-3"
-            />
-          </div>
-          <div className="w-1/3">
-            <label htmlFor="city" className="block text-sm font-bold mb-2">
-              Tỉnh/TP <span className="text-red-500">{error}</span>
-            </label>
-            <select
-              id="city"
-              defaultValue={user.location || ""}
-              onChange={() => setError("")}
-              className="border rounded w-full py-2 px-3 bg-white"
-            >
-              <option disabled value="">Chọn tỉnh</option>
-              {provinces.map((x, i) => (
-                <option key={i} value={x}>{x}</option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        <div className="flex justify-end">
-          <button
-            type="button"
-            onClick={closeModal}
-            className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded mr-2"
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            key="modal-content"
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            variants={modalVariants}
+            transition={{ duration: 0.3 }}
+            className="bg-white rounded-md shadow-lg p-6 w-full max-w-md relative"
           >
-            Hủy
-          </button>
-          <button
-            type="submit"
-            className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
-          >
-            Lưu thông tin
-          </button>
-        </div>
-      </form>
+            <form className="relative" onSubmit={handleSubmit}>
+              <h2 className="text-xl font-semibold mb-4">Thông tin cá nhân</h2>
+
+              <button
+                onClick={closeModal}
+                type="button"
+                className="absolute top-0 right-0 text-gray-500 hover:text-gray-700 text-2xl focus:outline-none"
+              >
+                &times;
+              </button>
+
+              <div className="mb-4">
+                <label htmlFor="name" className="block text-sm font-bold mb-2">Họ và tên</label>
+                <input
+                  type="text"
+                  id="name"
+                  defaultValue={user?.fullName || ""}
+                  className="border rounded w-full py-2 px-3"
+                />
+              </div>
+
+              <div className="mb-4">
+                <label htmlFor="email" className="block text-sm font-bold mb-2">Email</label>
+                <input
+                  type="email"
+                  id="email"
+                  defaultValue={user?.email || ""}
+                  className="border rounded w-full py-2 px-3"
+                />
+              </div>
+
+              <div className="mb-4">
+                <label htmlFor="phone" className="block text-sm font-bold mb-2">Số điện thoại</label>
+                <input
+                  type="tel"
+                  id="phone"
+                  defaultValue={user?.phone || ""}
+                  readOnly
+                  className="bg-gray-100 border rounded w-full py-2 px-3"
+                />
+              </div>
+
+              <div className="mb-4 flex gap-4">
+                <div className="w-2/3">
+                  <label htmlFor="dc" className="block text-sm font-bold mb-2">Địa chỉ hiện tại</label>
+                  <input
+                    id="dc"
+                    defaultValue={user?.address?.replace(`, ${user.location}`, "") || ""}
+                    placeholder="Số nhà, tên đường, quận/huyện"
+                    className="border rounded w-full py-2 px-3"
+                  />
+                </div>
+                <div className="w-1/3">
+                  <label htmlFor="city" className="block text-sm font-bold mb-2">
+                    Tỉnh/TP <span className="text-red-500">{error}</span>
+                  </label>
+                  <select
+                    id="city"
+                    defaultValue={user?.location || ""}
+                    onChange={() => setError("")}
+                    className="border rounded w-full py-2 px-3 bg-white"
+                  >
+                    <option disabled value="">Chọn tỉnh</option>
+                    {provinces.map((x, i) => (
+                      <option key={i} value={x}>{x}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  onClick={closeModal}
+                  className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded mr-2"
+                >
+                  Hủy
+                </button>
+                <button
+                  type="submit"
+                  className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+                >
+                  Lưu thông tin
+                </button>
+              </div>
+            </form>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </Modal>
   );
 };
