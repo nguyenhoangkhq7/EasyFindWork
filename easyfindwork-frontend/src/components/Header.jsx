@@ -4,6 +4,7 @@ import { FaBell, FaChevronDown, FaUser, FaSignOutAlt } from "react-icons/fa";
 import Modal from "react-modal";
 import { addUser, getUserWithMobilePhoneOrEmail } from "../service/user";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 export default function Header() {
   const [isJobDropdownOpen, setIsJobDropdownOpen] = useState(false);
@@ -123,22 +124,20 @@ export default function Header() {
       setErrorName("Tên không chứa số và kí tự đặc biệt.");
       return;
     }
-    if(loginWithMobile){
+    if (loginWithMobile) {
       if (!emailRegex.test(email)) {
         setErrorEmail("Chưa đúng định dạng email.");
         return;
       }
-    }
-    else{
+    } else {
       if (!phoneRegex.test(phone)) {
         setError("Số điện thoại không hợp lệ. Vui lòng nhập 10 chữ số.");
         return;
-      } 
+      }
     }
-    
+
     // console.log("phone", phone);
-    
-    
+
     const new_user = { fullName, email, phone };
     try {
       const result = addUser(new_user);
@@ -169,10 +168,12 @@ export default function Header() {
     return lastName;
   };
 
+  const navigate = useNavigate();
   const handleLogout = () => {
     dispatch({
       type: "LOGOUT",
     });
+    navigate("/"); // chuyển về trang chủ
   };
 
   // console.log("user: ", user);
@@ -425,9 +426,7 @@ export default function Header() {
                     loginWithMobile ? "bg-gray-100 text-gray-500" : ""
                   }`}
                 />
-                {error && (
-                  <p className="text-red-500 text-sm mb-2">{error}</p>
-                )}
+                {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
               </div>
 
               <div className="mb-4">

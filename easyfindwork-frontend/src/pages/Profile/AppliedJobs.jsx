@@ -8,16 +8,16 @@ import { motion } from "framer-motion";
 import JobRecomend from "../../components/JobRecomend";
 import Swal from "sweetalert2";
 
-const JobSaved = () => {
+const AppliedJobs = () => {
   const user = useSelector((state) => state.user);
-  const [savedJobs, setSavedJobs] = useState([]);
+  const [appliedJobs, setAppliedJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchSavedJobs = async () => {
+    const fetchAppliedJobs = async () => {
       if (!user || !user.id) {
-        setError("Vui lòng đăng nhập để xem công việc đã lưu");
+        setError("Vui lòng đăng nhập để xem công việc đã ứng tuyển");
         setLoading(false);
         return;
       }
@@ -26,24 +26,24 @@ const JobSaved = () => {
         setLoading(true);
         setError(null);
 
-        // Lấy danh sách savedJobs của user
-        const savedJobsResponse = await axios.get(
-          `http://localhost:3000/savedJobs?userId=${user.id}`
+        // Lấy danh sách applications của user
+        const appliedResponse = await axios.get(
+          `http://localhost:3000/applications?userId=${user.id}`
         );
-        const savedJobsData = savedJobsResponse.data;
+        const appliedJobsData = appliedResponse.data;
 
-        if (!savedJobsData || savedJobsData.length === 0) {
-          setSavedJobs([]);
+        if (!appliedJobsData || appliedJobsData.length === 0) {
+          setAppliedJobs([]);
           setLoading(false);
           return;
         }
 
         // Lấy thông tin chi tiết công việc và công ty
         const jobsWithDetails = await Promise.all(
-          savedJobsData.map(async (savedJob) => {
+          appliedJobsData.map(async (appliedJob) => {
             try {
               const jobResponse = await axios.get(
-                `http://localhost:3000/jobs/${savedJob.jobId}`
+                `http://localhost:3000/jobs/${appliedJob.jobId}`
               );
               const job = jobResponse.data;
 
@@ -54,7 +54,10 @@ const JobSaved = () => {
 
               return { job, company };
             } catch (err) {
-              console.error(`Lỗi khi tải job ${savedJob.jobId}:`, err.message);
+              console.error(
+                `Lỗi khi tải job ${appliedJob.jobId}:`,
+                err.message
+              );
               return null; // Bỏ qua job lỗi
             }
           })
@@ -62,16 +65,16 @@ const JobSaved = () => {
 
         // Lọc bỏ các job null (nếu có lỗi)
         const validJobs = jobsWithDetails.filter((item) => item !== null);
-        setSavedJobs(validJobs);
+        setAppliedJobs(validJobs);
         setLoading(false);
       } catch (err) {
-        console.error("Lỗi khi tải công việc đã lưu:", err.message);
+        console.error("Lỗi khi tải công việc đã ứng tuyển:", err.message);
         setError("Không thể tải danh sách công việc. Vui lòng thử lại sau.");
         setLoading(false);
       }
     };
 
-    fetchSavedJobs();
+    fetchAppliedJobs();
   }, [user]);
 
   // Hiển thị thông báo lỗi
@@ -125,16 +128,18 @@ const JobSaved = () => {
               d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
             ></path>
           </svg>
-          Việc làm đã lưu
+          Việc làm đã ứng tuyển
         </h1>
-        {savedJobs.length === 0 ? (
+        {appliedJobs.length === 0 ? (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5 }}
             className="bg-white rounded-xl shadow-lg p-6 text-center"
           >
-            <p className="text-gray-500 text-lg">Bạn chưa lưu công việc nào.</p>
+            <p className="text-gray-500 text-lg">
+              Bạn chưa ứng tuyển công việc nào.
+            </p>
             <Link
               to="/"
               className="mt-4 inline-block text-violet-600 hover:underline"
@@ -144,7 +149,7 @@ const JobSaved = () => {
           </motion.div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {savedJobs.map(({ job, company }, index) => (
+            {appliedJobs.map(({ job, company }, index) => (
               <motion.div
                 key={job.id}
                 initial={{ opacity: 0, y: 20 }}
@@ -161,4 +166,4 @@ const JobSaved = () => {
   );
 };
 
-export default JobSaved;
+export default AppliedJobs;

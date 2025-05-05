@@ -21,23 +21,22 @@ const InputField = ({ id, label, defaultValue, type = "text" }) => (
 );
 
 const DetailModal = ({ isOpen, onRequestClose, user }) => {
-
   const closeModal = async () => {
-      const result = await Swal.fire({
-        title: "Bạn có chắc muốn đóng?",
-        text: "Mọi thay đổi chưa lưu sẽ bị mất!",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonText: "Đồng ý",
-        cancelButtonText: "Hủy",
-        confirmButtonColor: "#d33",
-        cancelButtonColor: "#3085d6",
-      });
-  
-      if (result.isConfirmed) {
-        onRequestClose();
-      }
-    };
+    const result = await Swal.fire({
+      title: "Bạn có chắc muốn đóng?",
+      text: "Mọi thay đổi chưa lưu sẽ bị mất!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Đồng ý",
+      cancelButtonText: "Hủy",
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+    });
+
+    if (result.isConfirmed) {
+      onRequestClose();
+    }
+  };
   const dispatch = useDispatch();
 
   const handleSubmit = async (e) => {
@@ -50,7 +49,10 @@ const DetailModal = ({ isOpen, onRequestClose, user }) => {
       desiredSalary: Number(form.get("desiredSalary")) * 1_000_000,
       experience: form.get("experience"),
       education: form.get("education"),
-      skills: form.get("skills").split(",").map((s) => s.trim()),
+      skills: form
+        .get("skills")
+        .split(",")
+        .map((s) => s.trim()),
     };
 
     try {
@@ -102,7 +104,9 @@ const DetailModal = ({ isOpen, onRequestClose, user }) => {
           id="desiredSalary"
           label="Mức lương mong muốn (triệu/tháng)"
           type="number"
-          defaultValue={user.desiredSalary ? user.desiredSalary / 1_000_000 : ""}
+          defaultValue={
+            user.desiredSalary ? user.desiredSalary / 1_000_000 : ""
+          }
         />
         <InputField
           id="experience"

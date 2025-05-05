@@ -18,7 +18,20 @@ import {
   FiAward,
   FiUsers,
 } from "react-icons/fi";
-import { Input, Select, Button, Card, Skeleton, Row, Col, Tag, Tooltip, Divider, message, Modal } from "antd";
+import {
+  Input,
+  Select,
+  Button,
+  Card,
+  Skeleton,
+  Row,
+  Col,
+  Tag,
+  Tooltip,
+  Divider,
+  message,
+  Modal,
+} from "antd";
 import Anh1 from "../assets/Anh1.png";
 import Anh2 from "../assets/Anh2.png";
 import Anh3 from "../assets/Anh3.png";
@@ -47,8 +60,12 @@ export default function JobPortal() {
   const [showAllProvincesModal, setShowAllProvincesModal] = useState(false);
   const [showAllNewJobsModal, setShowAllNewJobsModal] = useState(false); // Thêm state cho modal "Việc làm mới"
   const jobsPerPage = 9;
-  const visibleIndustries = showAllIndustries ? industries : industries.slice(0, 5);
-  const visibleProvinces = showAllProvinces ? provinceOptions : provinceOptions.slice(0, 5);
+  const visibleIndustries = showAllIndustries
+    ? industries
+    : industries.slice(0, 5);
+  const visibleProvinces = showAllProvinces
+    ? provinceOptions
+    : provinceOptions.slice(0, 5);
 
   // Lọc các công việc có postedDate trong 5 ngày gần nhất
   const currentDate = new Date("2025-05-04"); // Ngày hiện tại
@@ -77,14 +94,14 @@ export default function JobPortal() {
     "Bán lẻ": "🛒",
     "Kỹ thuật": "🔧",
     "Công nghệ thông tin": "💻",
-    "Marketing": "📈",
+    Marketing: "📈",
     "Xây dựng": "🏗️",
     "Tài chính": "💰",
     "Bất động sản": "🏠",
     "Cơ khí": "⚙️",
     "Xuất nhập khẩu": "🚢",
     "Thiết kế": "🎨",
-    "Logistics": "🚚",
+    Logistics: "🚚",
     "Pháp chế": "⚖️",
     "Chất lượng": "✅",
     "Môi trường": "🌱",
@@ -108,7 +125,10 @@ export default function JobPortal() {
     return shuffled.slice(0, Math.min(n, jobs.length));
   }, []);
 
-  const suggestedJobs = useMemo(() => getRandomJobs(jobs, 9), [jobs, getRandomJobs]);
+  const suggestedJobs = useMemo(
+    () => getRandomJobs(jobs, 9),
+    [jobs, getRandomJobs]
+  );
 
   const normalizeProvinceName = useCallback((name) => {
     if (!name) return name;
@@ -142,8 +162,8 @@ export default function JobPortal() {
       try {
         setIsLoading(true);
         const [jobsResponse, companiesResponse] = await Promise.all([
-          axios.get("http://localhost:3001/jobs"),
-          axios.get("http://localhost:3001/companies"),
+          axios.get("http://localhost:3000/jobs"),
+          axios.get("http://localhost:3000/companies"),
         ]);
 
         const jobsData = jobsResponse.data.map((job) => ({
@@ -153,17 +173,20 @@ export default function JobPortal() {
         setJobs(jobsData);
         setCompanies(companiesResponse.data);
 
-        const uniqueIndustries = [...new Set(jobsData.map((job) => job.industry))]
+        const uniqueIndustries = [
+          ...new Set(jobsData.map((job) => job.industry)),
+        ]
           .filter(Boolean)
           .sort();
         setIndustries(uniqueIndustries);
-        console.log("Industries from API:", uniqueIndustries);
 
         const provinceData = provinces.map((province) => ({
           name: province.name,
           normalizedName: normalizeProvinceName(province.name),
         }));
-        const sortedProvinces = provinceData.sort((a, b) => a.name.localeCompare(b.name, "vi"));
+        const sortedProvinces = provinceData.sort((a, b) =>
+          a.name.localeCompare(b.name, "vi")
+        );
         setProvinceOptions(sortedProvinces);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -192,42 +215,52 @@ export default function JobPortal() {
     }));
   }, [jobs, industries]);
 
-  const toggleFavorite = useCallback(
-    (jobId) => {
-      setFavorites((prev) => {
-        if (prev.includes(jobId)) {
-          message.success({
-            content: "Đã xóa khỏi mục yêu thích",
-            duration: 2,
-            style: { marginTop: "20px" },
-          });
-          return prev.filter((id) => id !== jobId);
-        } else {
-          message.success({
-            content: "Đã thêm vào mục yêu thích",
-            duration: 2,
-            style: { marginTop: "20px" },
-          });
-          return [...prev, jobId];
-        }
-      });
-    },
-    []
-  );
+  const toggleFavorite = useCallback((jobId) => {
+    setFavorites((prev) => {
+      if (prev.includes(jobId)) {
+        message.success({
+          content: "Đã xóa khỏi mục yêu thích",
+          duration: 2,
+          style: { marginTop: "20px" },
+        });
+        return prev.filter((id) => id !== jobId);
+      } else {
+        message.success({
+          content: "Đã thêm vào mục yêu thích",
+          duration: 2,
+          style: { marginTop: "20px" },
+        });
+        return [...prev, jobId];
+      }
+    });
+  }, []);
 
   const filteredJobs = useMemo(() => {
     return jobs.filter((job) => {
       const matchesSearch = searchQuery
         ? job.title?.toLowerCase().includes(searchQuery.toLowerCase())
         : true;
-      const matchesProfession = filterProfession ? job.category === filterProfession : true;
+      const matchesProfession = filterProfession
+        ? job.category === filterProfession
+        : true;
       const matchesLocation = filterLocation
         ? normalizeProvinceName(job.location) === filterLocation
         : true;
-      const matchesIndustry = filterIndustry ? job.industry?.includes(filterIndustry) : true;
-      return matchesSearch && matchesProfession && matchesLocation && matchesIndustry;
+      const matchesIndustry = filterIndustry
+        ? job.industry?.includes(filterIndustry)
+        : true;
+      return (
+        matchesSearch && matchesProfession && matchesLocation && matchesIndustry
+      );
     });
-  }, [jobs, searchQuery, filterProfession, filterLocation, filterIndustry, normalizeProvinceName]);
+  }, [
+    jobs,
+    searchQuery,
+    filterProfession,
+    filterLocation,
+    filterIndustry,
+    normalizeProvinceName,
+  ]);
 
   const startIndex = (currentPage - 1) * jobsPerPage;
   const endIndex = startIndex + jobsPerPage;
@@ -264,7 +297,9 @@ export default function JobPortal() {
     const deadlineDate = new Date(deadline);
     const timeDiff = deadlineDate - now;
     const daysRemaining = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
-    const hoursRemaining = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const hoursRemaining = Math.floor(
+      (timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+    );
 
     if (daysRemaining > 0) {
       return `Còn ${daysRemaining} ngày`;
@@ -307,7 +342,12 @@ export default function JobPortal() {
       return;
     }
 
-    navigate(`/job-search${queryParams.toString() ? `?${queryParams.toString()}` : ""}`, { state: { scrollToTop: true } });
+    navigate(
+      `/job-search${
+        queryParams.toString() ? `?${queryParams.toString()}` : ""
+      }`,
+      { state: { scrollToTop: true } }
+    );
   }, [searchQuery, filterProfession, filterLocation, filterIndustry, navigate]);
 
   const handleIndustryChange = useCallback(
@@ -321,12 +361,20 @@ export default function JobPortal() {
         queryParams.set("searchQuery", encodeURIComponent(searchQuery));
       }
       if (filterProfession) {
-        queryParams.set("filterProfession", encodeURIComponent(filterProfession));
+        queryParams.set(
+          "filterProfession",
+          encodeURIComponent(filterProfession)
+        );
       }
       if (filterLocation) {
         queryParams.set("filterLocation", encodeURIComponent(filterLocation));
       }
-      navigate(`/job-search${queryParams.toString() ? `?${queryParams.toString()}` : ""}`, { state: { scrollToTop: true } });
+      navigate(
+        `/job-search${
+          queryParams.toString() ? `?${queryParams.toString()}` : ""
+        }`,
+        { state: { scrollToTop: true } }
+      );
     },
     [searchQuery, filterProfession, filterLocation, navigate]
   );
@@ -335,7 +383,9 @@ export default function JobPortal() {
     (value) => {
       const normalizedValue = normalizeProvinceName(value);
       setFilterLocation(normalizedValue);
-      const province = provinceOptions.find((p) => p.normalizedName === normalizedValue);
+      const province = provinceOptions.find(
+        (p) => p.normalizedName === normalizedValue
+      );
       setDisplayLocation(province ? province.name : normalizedValue);
 
       const queryParams = new URLSearchParams();
@@ -346,14 +396,29 @@ export default function JobPortal() {
         queryParams.set("searchQuery", encodeURIComponent(searchQuery));
       }
       if (filterProfession) {
-        queryParams.set("filterProfession", encodeURIComponent(filterProfession));
+        queryParams.set(
+          "filterProfession",
+          encodeURIComponent(filterProfession)
+        );
       }
       if (filterIndustry) {
         queryParams.set("filterIndustry", encodeURIComponent(filterIndustry));
       }
-      navigate(`/job-search${queryParams.toString() ? `?${queryParams.toString()}` : ""}`, { state: { scrollToTop: true } });
+      navigate(
+        `/job-search${
+          queryParams.toString() ? `?${queryParams.toString()}` : ""
+        }`,
+        { state: { scrollToTop: true } }
+      );
     },
-    [searchQuery, filterProfession, filterIndustry, navigate, provinceOptions, normalizeProvinceName]
+    [
+      searchQuery,
+      filterProfession,
+      filterIndustry,
+      navigate,
+      provinceOptions,
+      normalizeProvinceName,
+    ]
   );
 
   const handleKeyPress = useCallback(
@@ -401,8 +466,12 @@ export default function JobPortal() {
                 >
                   <div className="text-2xl mr-3">{category.icon}</div>
                   <div>
-                    <div className="text-sm font-semibold text-gray-800">{category.name}</div>
-                    <div className="text-xs text-indigo-600 font-medium">{category.count.toLocaleString()} việc</div>
+                    <div className="text-sm font-semibold text-gray-800">
+                      {category.name}
+                    </div>
+                    <div className="text-xs text-indigo-600 font-medium">
+                      {category.count.toLocaleString()} việc
+                    </div>
                   </div>
                 </div>
               </Col>
@@ -434,8 +503,12 @@ export default function JobPortal() {
                 >
                   <div className="text-2xl mr-3">{category.icon}</div>
                   <div>
-                    <div className="text-sm font-semibold text-gray-800">{category.name}</div>
-                    <div className="text-xs text-indigo-600 font-medium">{category.count.toLocaleString()} việc</div>
+                    <div className="text-sm font-semibold text-gray-800">
+                      {category.name}
+                    </div>
+                    <div className="text-xs text-indigo-600 font-medium">
+                      {category.count.toLocaleString()} việc
+                    </div>
                   </div>
                 </div>
               </Col>
@@ -465,7 +538,9 @@ export default function JobPortal() {
                   }}
                   className="flex items-center p-4 rounded-lg border border-gray-100 shadow-sm hover:shadow-md hover:border-indigo-200 transition-all cursor-pointer bg-white"
                 >
-                  <div className="text-sm font-semibold text-gray-800">{province.name}</div>
+                  <div className="text-sm font-semibold text-gray-800">
+                    {province.name}
+                  </div>
                 </div>
               </Col>
             ))}
@@ -486,11 +561,9 @@ export default function JobPortal() {
           {newJobs.length > 0 ? (
             newJobs.map((job, index) => (
               <Col key={index} xs={24}>
-                <div
-                  className="flex items-center p-4 rounded-lg border border-gray-100 shadow-sm hover:shadow-md hover:border-indigo-200 transition-all cursor-pointer bg-white"
-                >
+                <div className="flex items-center p-4 rounded-lg border border-gray-100 shadow-sm hover:shadow-md hover:border-indigo-200 transition-all cursor-pointer bg-white">
                   <div className="text-sm font-semibold text-gray-800 hover:text-indigo-600 transition-colors">
-                    <Link to={`/jobs/${job.id}`}>{job.title}</Link>
+                    <Link to={`/job/${job.id}`}>{job.title}</Link>
                   </div>
                 </div>
               </Col>
@@ -556,8 +629,12 @@ export default function JobPortal() {
                 onChange={(value) => {
                   const normalizedValue = normalizeProvinceName(value);
                   setFilterLocation(normalizedValue);
-                  const province = provinceOptions.find((p) => p.normalizedName === normalizedValue);
-                  setDisplayLocation(province ? province.name : normalizedValue);
+                  const province = provinceOptions.find(
+                    (p) => p.normalizedName === normalizedValue
+                  );
+                  setDisplayLocation(
+                    province ? province.name : normalizedValue
+                  );
                 }}
                 className="w-full"
                 suffixIcon={<FiMapPin className="text-gray-400" />}
@@ -572,7 +649,10 @@ export default function JobPortal() {
               >
                 <Option value="">Tất cả tỉnh thành</Option>
                 {provinceOptions.map((province, index) => (
-                  <Option key={`${province.normalizedName}-${index}`} value={province.normalizedName}>
+                  <Option
+                    key={`${province.normalizedName}-${index}`}
+                    value={province.normalizedName}
+                  >
                     {province.name}
                   </Option>
                 ))}
@@ -609,8 +689,12 @@ export default function JobPortal() {
                     className="flex flex-col items-center justify-center bg-white p-4 rounded-xl border border-gray-100 shadow-md hover:border-indigo-200 hover:shadow-lg transform hover:-translate-y-1 transition-all cursor-pointer h-full"
                   >
                     <div className="text-3xl mb-2">{category.icon}</div>
-                    <div className="text-sm font-semibold text-gray-800 text-center">{category.name}</div>
-                    <div className="text-xs text-indigo-600 font-medium mt-1">{category.count.toLocaleString()} việc</div>
+                    <div className="text-sm font-semibold text-gray-800 text-center">
+                      {category.name}
+                    </div>
+                    <div className="text-xs text-indigo-600 font-medium mt-1">
+                      {category.count.toLocaleString()} việc
+                    </div>
                   </div>
                 </Col>
               ))}
@@ -620,7 +704,9 @@ export default function JobPortal() {
                 className="flex flex-col items-center justify-center bg-gradient-to-br from-indigo-50 to-purple-50 p-4 rounded-xl border border-indigo-100 shadow-md hover:shadow-lg transform hover:-translate-y-1 transition-all cursor-pointer h-full"
               >
                 <div className="text-3xl mb-2 text-indigo-500">➕</div>
-                <div className="text-sm font-semibold text-indigo-700 text-center">Tất cả các ngành</div>
+                <div className="text-sm font-semibold text-indigo-700 text-center">
+                  Tất cả các ngành
+                </div>
               </div>
             </Col>
           </Row>
@@ -636,7 +722,8 @@ export default function JobPortal() {
               </span>
             </div>
             <div className="text-sm text-gray-500 bg-white px-4 py-2 rounded-full shadow-sm border border-gray-100">
-              Trang {currentPage}/{Math.ceil(filteredJobs.length / jobsPerPage) || 1}
+              Trang {currentPage}/
+              {Math.ceil(filteredJobs.length / jobsPerPage) || 1}
             </div>
           </div>
 
@@ -644,7 +731,9 @@ export default function JobPortal() {
             <Button
               onClick={() => handleIndustryChange("")}
               className={`${
-                filterIndustry === "" ? "bg-indigo-600 text-white font-bold" : "bg-indigo-50 text-indigo-700"
+                filterIndustry === ""
+                  ? "bg-indigo-600 text-white font-bold"
+                  : "bg-indigo-50 text-indigo-700"
               } hover:bg-indigo-600 hover:text-white font-medium rounded-full px-4 transition-all duration-200`}
             >
               Tất cả
@@ -654,7 +743,9 @@ export default function JobPortal() {
                 key={index}
                 onClick={() => handleIndustryChange(industry)}
                 className={`${
-                  filterIndustry === industry ? "bg-indigo-600 text-white font-bold" : "bg-indigo-50 text-indigo-700"
+                  filterIndustry === industry
+                    ? "bg-indigo-600 text-white font-bold"
+                    : "bg-indigo-50 text-indigo-700"
                 } hover:bg-indigo-600 hover:text-white font-medium rounded-full px-4 transition-all duration-200`}
               >
                 {industry}
@@ -683,17 +774,34 @@ export default function JobPortal() {
                     bodyStyle={{ padding: 0 }}
                   >
                     <div className="absolute top-4 right-4 z-10">
-                      <Tooltip title={favorites.includes(job.id) ? "Xóa khỏi yêu thích" : "Thêm vào yêu thích"}>
+                      <Tooltip
+                        title={
+                          favorites.includes(job.id)
+                            ? "Xóa khỏi yêu thích"
+                            : "Thêm vào yêu thích"
+                        }
+                      >
                         <Button
                           shape="circle"
-                          icon={<FiHeart size={18} className={favorites.includes(job.id) ? "fill-current" : ""} />}
+                          icon={
+                            <FiHeart
+                              size={18}
+                              className={
+                                favorites.includes(job.id) ? "fill-current" : ""
+                              }
+                            />
+                          }
                           onClick={() => toggleFavorite(job.id)}
                           className={`flex items-center justify-center ${
                             favorites.includes(job.id)
                               ? "bg-red-50 text-red-500 border-red-100"
                               : "bg-gray-50 text-gray-400 hover:bg-gray-100 border-gray-100"
                           }`}
-                          aria-label={favorites.includes(job.id) ? "Xóa khỏi yêu thích" : "Thêm vào yêu thích"}
+                          aria-label={
+                            favorites.includes(job.id)
+                              ? "Xóa khỏi yêu thích"
+                              : "Thêm vào yêu thích"
+                          }
                         />
                       </Tooltip>
                     </div>
@@ -701,39 +809,64 @@ export default function JobPortal() {
                       <div className="flex items-start">
                         <div className="w-14 h-14 bg-gray-50 rounded-lg flex-shrink-0 overflow-hidden border border-gray-100 flex items-center justify-center shadow-sm">
                           <img
-                            src={getCompanyLogo(job.companyId) || "/placeholder.svg"}
+                            src={
+                              getCompanyLogo(job.companyId) ||
+                              "/placeholder.svg"
+                            }
                             alt={getCompanyName(job.companyId)}
                             className="w-full h-full object-cover"
-                            onError={(e) => (e.target.src = "/placeholder.svg?height=48&width=48")}
+                            onError={(e) =>
+                              (e.target.src =
+                                "/placeholder.svg?height=48&width=48")
+                            }
                           />
                         </div>
                         <div className="ml-4 flex-1">
                           <h3 className="font-semibold text-gray-800 line-clamp-2 hover:text-indigo-600 transition-colors text-lg">
-                            <Link to={`/jobs/${job.id}`}>{job.title}</Link>
+                            <Link to={`/job/${job.id}`}>{job.title}</Link>
                           </h3>
-                          <div className="text-sm text-gray-500 mt-1">{getCompanyName(job.companyId)}</div>
+                          <div className="text-sm text-gray-500 mt-1">
+                            {getCompanyName(job.companyId)}
+                          </div>
                           <div className="mt-3">
-                            <Tag color="blue" className="rounded-full px-3 py-1 text-sm font-medium">
+                            <Tag
+                              color="blue"
+                              className="rounded-full px-3 py-1 text-sm font-medium"
+                            >
                               {job.salaryMin && job.salaryMax
-                                ? `${formatSalary(job.salaryMin)} - ${formatSalary(job.salaryMax)}`
+                                ? `${formatSalary(
+                                    job.salaryMin
+                                  )} - ${formatSalary(job.salaryMax)}`
                                 : "Thỏa thuận"}
                             </Tag>
                           </div>
                           <div className="flex items-center mt-3 text-sm text-gray-500">
-                            <FiMapPin size={14} className="mr-1 text-gray-400" />
+                            <FiMapPin
+                              size={14}
+                              className="mr-1 text-gray-400"
+                            />
                             <span>{job.location}</span>
                           </div>
                           <Divider className="my-3" />
                           <div className="flex justify-between items-center">
                             <div className="flex items-center text-sm text-gray-500">
-                              <FiClock size={14} className="mr-1 text-gray-400" />
+                              <FiClock
+                                size={14}
+                                className="mr-1 text-gray-400"
+                              />
                               <span>{getRemainingTime(job.deadline)}</span>
                             </div>
                             <Tag
-                              color={getJobStatus(job.deadline) === "active" ? "success" : "error"}
+                              color={
+                                getJobStatus(job.deadline) === "active"
+                                  ? "success"
+                                  : "error"
+                              }
                               className="rounded-full"
                             >
-                              {getJobStatus(job.deadline) === "active" ? "Đang tuyển" : "Hết hạn"}
+                              {getJobStatus(job.deadline) === "active"
+                                ? "Đang tuyển"
+                                : "Hết hạn"}
                             </Tag>
                           </div>
                         </div>
@@ -747,9 +880,12 @@ export default function JobPortal() {
             <div className="text-center py-16 bg-white rounded-xl shadow-sm border border-gray-100">
               <div className="flex flex-col items-center">
                 <FiSearch size={48} className="text-gray-300 mb-4" />
-                <h3 className="text-xl font-semibold text-gray-700 mb-2">Không tìm thấy công việc</h3>
+                <h3 className="text-xl font-semibold text-gray-700 mb-2">
+                  Không tìm thấy công việc
+                </h3>
                 <p className="text-gray-500 max-w-md mb-6">
-                  Không tìm thấy công việc nào phù hợp với bộ lọc hiện tại. Vui lòng thử lại với các tiêu chí khác.
+                  Không tìm thấy công việc nào phù hợp với bộ lọc hiện tại. Vui
+                  lòng thử lại với các tiêu chí khác.
                 </p>
                 <Button
                   type="primary"
@@ -773,7 +909,9 @@ export default function JobPortal() {
                 <Button
                   icon={<FiChevronLeft size={20} />}
                   disabled={currentPage === 1}
-                  onClick={() => currentPage > 1 && setCurrentPage(currentPage - 1)}
+                  onClick={() =>
+                    currentPage > 1 && setCurrentPage(currentPage - 1)
+                  }
                   className={`rounded-full ${
                     currentPage === 1
                       ? "text-gray-300 border-gray-200"
@@ -782,16 +920,25 @@ export default function JobPortal() {
                   aria-label="Trang trước"
                 />
                 <div className="mx-4 text-gray-600 bg-white px-4 py-2 rounded-full shadow-sm border border-gray-100">
-                  {currentPage} / {Math.ceil(filteredJobs.length / jobsPerPage) || 1}
+                  {currentPage} /{" "}
+                  {Math.ceil(filteredJobs.length / jobsPerPage) || 1}
                 </div>
                 <Button
                   icon={<FiChevronRight size={20} />}
-                  disabled={currentPage === Math.ceil(filteredJobs.length / jobsPerPage) || filteredJobs.length === 0}
+                  disabled={
+                    currentPage ===
+                      Math.ceil(filteredJobs.length / jobsPerPage) ||
+                    filteredJobs.length === 0
+                  }
                   onClick={() =>
-                    currentPage < Math.ceil(filteredJobs.length / jobsPerPage) && setCurrentPage(currentPage + 1)
+                    currentPage <
+                      Math.ceil(filteredJobs.length / jobsPerPage) &&
+                    setCurrentPage(currentPage + 1)
                   }
                   className={`rounded-full ${
-                    currentPage === Math.ceil(filteredJobs.length / jobsPerPage) || filteredJobs.length === 0
+                    currentPage ===
+                      Math.ceil(filteredJobs.length / jobsPerPage) ||
+                    filteredJobs.length === 0
                       ? "text-gray-300 border-gray-200"
                       : "text-gray-700 border-gray-300 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-200"
                   }`}
@@ -799,7 +946,9 @@ export default function JobPortal() {
                 />
               </div>
               <div className="flex justify-center items-center mt-4">
-                {Array.from({ length: Math.ceil(filteredJobs.length / jobsPerPage) }).map((_, index) => (
+                {Array.from({
+                  length: Math.ceil(filteredJobs.length / jobsPerPage),
+                }).map((_, index) => (
                   <button
                     key={index}
                     onClick={() => setCurrentPage(index + 1)}
@@ -825,7 +974,10 @@ export default function JobPortal() {
                 Công ty nổi bật
               </span>
             </div>
-            <Button type="link" className="text-indigo-600 font-semibold flex items-center">
+            <Button
+              type="link"
+              className="text-indigo-600 font-semibold flex items-center"
+            >
               <Link to="/companies">
                 Hiển thị tất cả <FiArrowRight size={16} className="ml-1" />
               </Link>
@@ -843,7 +995,9 @@ export default function JobPortal() {
                     </Col>
                   ))
               : companies.slice(0, 6).map((company) => {
-                  const jobCount = jobs.filter((job) => job.companyId === company.id).length;
+                  const jobCount = jobs.filter(
+                    (job) => job.companyId === company.id
+                  ).length;
                   return (
                     <Col key={company.id} xs={12} sm={8} lg={4}>
                       <Card
@@ -855,13 +1009,21 @@ export default function JobPortal() {
                             src={company.logo || "/placeholder.svg"}
                             alt={company.name}
                             className="w-full h-full object-cover"
-                            onError={(e) => (e.target.src = "/placeholder.svg?height=64&width=64")}
+                            onError={(e) =>
+                              (e.target.src =
+                                "/placeholder.svg?height=64&width=64")
+                            }
                           />
                         </div>
-                        <h3 className="font-semibold text-gray-800 mb-2 line-clamp-1">{company.name}</h3>
-                        <p className="text-xs text-gray-500 mb-3 line-clamp-1">{company.industry}</p>
+                        <h3 className="font-semibold text-gray-800 mb-2 line-clamp-1">
+                          {company.name}
+                        </h3>
+                        <p className="text-xs text-gray-500 mb-3 line-clamp-1">
+                          {company.industry}
+                        </p>
                         <Tag color="blue" className="rounded-full mx-auto">
-                          <span className="font-semibold">{jobCount}</span> vị trí đang tuyển
+                          <span className="font-semibold">{jobCount}</span> vị
+                          trí đang tuyển
                         </Tag>
                       </Card>
                     </Col>
@@ -899,20 +1061,26 @@ export default function JobPortal() {
                         alt={getCompanyName(job.companyId)}
                         className="w-full h-full object-cover transition-opacity duration-200"
                         loading="lazy"
-                        onError={(e) => (e.target.src = "/placeholder.svg?height=56&width=56")}
+                        onError={(e) =>
+                          (e.target.src = "/placeholder.svg?height=56&width=56")
+                        }
                       />
                     </div>
                     <div className="ml-5 flex-1">
                       <h3 className="text-lg font-semibold text-gray-900 hover:text-indigo-600 transition-colors duration-200 line-clamp-2 leading-tight">
-                        <Link to={`/jobs/${job.id}`} className="hover:underline">
+                        <Link to={`/job/${job.id}`} className="hover:underline">
                           {job.title}
                         </Link>
                       </h3>
-                      <p className="text-sm text-gray-600 mt-2 font-medium">{getCompanyName(job.companyId)}</p>
+                      <p className="text-sm text-gray-600 mt-2 font-medium">
+                        {getCompanyName(job.companyId)}
+                      </p>
 
                       <p className="text-sm text-indigo-600 font-semibold mt-2">
                         {job.salaryMin && job.salaryMax
-                          ? `${formatSalary(job.salaryMin)} - ${formatSalary(job.salaryMax)}`
+                          ? `${formatSalary(job.salaryMin)} - ${formatSalary(
+                              job.salaryMax
+                            )}`
                           : "Thỏa thuận"}
                       </p>
                       <div className="flex items-center text-sm text-gray-500 mt-2">
@@ -925,8 +1093,17 @@ export default function JobPortal() {
                             <FiClock className="w-4 h-4 mr-1.5 text-gray-400" />
                             <span>{getRemainingTime(job.deadline)}</span>
                           </div>
-                          <Tag color={job.deadline && new Date(job.deadline) > new Date() ? "green" : "red"}>
-                            {job.deadline && new Date(job.deadline) > new Date() ? "Đang tuyển" : "Hết hạn"}
+                          <Tag
+                            color={
+                              job.deadline &&
+                              new Date(job.deadline) > new Date()
+                                ? "green"
+                                : "red"
+                            }
+                          >
+                            {job.deadline && new Date(job.deadline) > new Date()
+                              ? "Đang tuyển"
+                              : "Hết hạn"}
                           </Tag>
                         </div>
                       </div>
@@ -939,9 +1116,17 @@ export default function JobPortal() {
                         ? "bg-red-100 text-red-500 hover:bg-red-200"
                         : "bg-gray-100 text-gray-400 hover:bg-gray-200"
                     }`}
-                    aria-label={favorites.includes(job.id) ? "Xóa khỏi yêu thích" : "Thêm vào yêu thích"}
+                    aria-label={
+                      favorites.includes(job.id)
+                        ? "Xóa khỏi yêu thích"
+                        : "Thêm vào yêu thích"
+                    }
                   >
-                    <FiHeart className={`w-5 h-5 ${favorites.includes(job.id) ? "fill-current" : ""}`} />
+                    <FiHeart
+                      className={`w-5 h-5 ${
+                        favorites.includes(job.id) ? "fill-current" : ""
+                      }`}
+                    />
                   </button>
                 </div>
               </Card>
@@ -958,9 +1143,13 @@ export default function JobPortal() {
                 Cẩm nang nghề nghiệp
               </span>
             </div>
-            <Button type="link" className="text-indigo-600 font-semibold flex items-center">
+            <Button
+              type="link"
+              className="text-indigo-600 font-semibold flex items-center"
+            >
               <Link to="/guides">
-                Xem thêm cẩm nang nghề nghiệp <FiArrowRight size={16} className="ml-1" />
+                Xem thêm cẩm nang nghề nghiệp{" "}
+                <FiArrowRight size={16} className="ml-1" />
               </Link>
             </Button>
           </div>
@@ -968,7 +1157,8 @@ export default function JobPortal() {
             {[
               {
                 id: 1,
-                title: "Nhân viên part time là gì? 11 công việc part time lương cao đang chờ bạn",
+                title:
+                  "Nhân viên part time là gì? 11 công việc part time lương cao đang chờ bạn",
                 description:
                   "Nhân viên part time là gì? Nếu bạn đang quan tâm những vấn đề này thì bài viết dưới đây của Vieclam24h.vn chắc chắn dành cho bạn!",
                 image: Anh1,
@@ -976,7 +1166,8 @@ export default function JobPortal() {
               },
               {
                 id: 2,
-                title: "Top 7 việc làm remote phổ biến, đem lại thu nhập tốt hiện nay",
+                title:
+                  "Top 7 việc làm remote phổ biến, đem lại thu nhập tốt hiện nay",
                 description:
                   "Làm remote là gì và có những lợi ích nào khi làm việc dưới hình thức remote? Xem ngay bài viết của Vieclam24h để được phổ biến chi tiết nhất!",
                 image: Anh2,
@@ -984,7 +1175,8 @@ export default function JobPortal() {
               },
               {
                 id: 3,
-                title: "Top việc làm thêm ngoài giờ hành chính lương cao, uy tín",
+                title:
+                  "Top việc làm thêm ngoài giờ hành chính lương cao, uy tín",
                 description:
                   "Cần lưu ý gì khi tìm việc làm thêm ngoài giờ? Top việc làm thêm ngoài giờ hành chính, lương cao hiện nay là gì?",
                 image: Anh3,
@@ -1007,9 +1199,14 @@ export default function JobPortal() {
                     <h3 className="font-semibold text-gray-800 text-lg mb-2 line-clamp-2 hover:text-indigo-600 transition-colors">
                       <Link to={`/guides/${article.id}`}>{article.title}</Link>
                     </h3>
-                    <p className="text-sm text-gray-600 mb-4 line-clamp-3">{article.description}</p>
+                    <p className="text-sm text-gray-600 mb-4 line-clamp-3">
+                      {article.description}
+                    </p>
                     <div className="flex items-center justify-between">
-                      <Button type="link" className="text-indigo-600 p-0 h-auto font-semibold flex items-center">
+                      <Button
+                        type="link"
+                        className="text-indigo-600 p-0 h-auto font-semibold flex items-center"
+                      >
                         <Link to={`/guides/${article.id}`}>
                           Đọc thêm <FiArrowRight size={14} className="ml-1" />
                         </Link>
@@ -1021,8 +1218,12 @@ export default function JobPortal() {
                             <FiStar
                               key={i}
                               size={14}
-                              fill={i < article.rating ? "currentColor" : "none"}
-                              className={i < article.rating ? "" : "text-gray-300"}
+                              fill={
+                                i < article.rating ? "currentColor" : "none"
+                              }
+                              className={
+                                i < article.rating ? "" : "text-gray-300"
+                              }
                             />
                           ))}
                       </div>
@@ -1041,7 +1242,9 @@ export default function JobPortal() {
             <Card className="rounded-xl shadow-md border-gray-100 hover:shadow-lg transition-all duration-300 h-full">
               <div className="flex items-center mb-4">
                 <FiBriefcase className="text-indigo-600 mr-2" size={24} />
-                <h3 className="text-lg font-semibold text-gray-800">Việc làm theo ngành nghề</h3>
+                <h3 className="text-lg font-semibold text-gray-800">
+                  Việc làm theo ngành nghề
+                </h3>
               </div>
               <ul className="space-y-3">
                 <li
@@ -1083,7 +1286,9 @@ export default function JobPortal() {
             <Card className="rounded-xl shadow-md border-gray-100 hover:shadow-lg transition-all duration-300 h-full">
               <div className="flex items-center mb-4">
                 <FiMapPin className="text-indigo-600 mr-2" size={24} />
-                <h3 className="text-lg font-semibold text-gray-800">Việc làm theo khu vực</h3>
+                <h3 className="text-lg font-semibold text-gray-800">
+                  Việc làm theo khu vực
+                </h3>
               </div>
               <ul className="space-y-3">
                 <li
@@ -1098,9 +1303,13 @@ export default function JobPortal() {
                 {visibleProvinces.map((province, index) => (
                   <li
                     key={index}
-                    onClick={() => handleLocationChange(province.normalizedName)}
+                    onClick={() =>
+                      handleLocationChange(province.normalizedName)
+                    }
                     className={`text-sm text-gray-700 hover:text-indigo-600 transition-colors cursor-pointer flex items-center group ${
-                      filterLocation === province.normalizedName ? "text-indigo-600" : ""
+                      filterLocation === province.normalizedName
+                        ? "text-indigo-600"
+                        : ""
                     }`}
                   >
                     <div className="w-2 h-2 rounded-full bg-indigo-600 mr-2 group-hover:scale-125 transition-transform"></div>
@@ -1125,7 +1334,9 @@ export default function JobPortal() {
             <Card className="rounded-xl shadow-md border-gray-100 hover:shadow-lg transition-all duration-300 h-full">
               <div className="flex items-center mb-4">
                 <FiTrendingUp className="text-indigo-600 mr-2" size={24} />
-                <h3 className="text-lg font-semibold text-gray-800">Việc làm mới</h3>
+                <h3 className="text-lg font-semibold text-gray-800">
+                  Việc làm mới
+                </h3>
               </div>
               <ul className="space-y-3">
                 {newJobsLimited.length > 0 ? (
@@ -1139,7 +1350,9 @@ export default function JobPortal() {
                     </li>
                   ))
                 ) : (
-                  <li className="text-sm text-gray-500">Không có việc làm mới trong 5 ngày gần đây.</li>
+                  <li className="text-sm text-gray-500">
+                    Không có việc làm mới trong 5 ngày gần đây.
+                  </li>
                 )}
               </ul>
               <Button
@@ -1156,8 +1369,12 @@ export default function JobPortal() {
         {/* Footer */}
         <div className="bg-gradient-to-r from-indigo-900 to-purple-900 text-white p-10 rounded-2xl shadow-2xl">
           <div className="text-center">
-            <h2 className="text-3xl font-bold mb-4">Bắt đầu sự nghiệp mới của bạn ngay hôm nay</h2>
-            <p className="text-indigo-200 mb-6 text-lg">Hàng ngàn cơ hội việc làm đang chờ đợi bạn</p>
+            <h2 className="text-3xl font-bold mb-4">
+              Bắt đầu sự nghiệp mới của bạn ngay hôm nay
+            </h2>
+            <p className="text-indigo-200 mb-6 text-lg">
+              Hàng ngàn cơ hội việc làm đang chờ đợi bạn
+            </p>
             <Button
               type="primary"
               className="bg-white text-indigo-700 hover:bg-indigo-100 font-bold px-10 py-3 h-auto rounded-lg shadow-lg border-0 transform hover:translate-y-[-2px] transition-all duration-300"
