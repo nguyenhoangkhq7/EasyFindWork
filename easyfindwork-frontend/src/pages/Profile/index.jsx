@@ -6,13 +6,12 @@ import UserInfoModal from "./UserInfoModal ";
 import { updateUser } from "../../service/user";
 import DetailModal from "./DetailModal";
 import LeftSideBar from "./LeftSideBar";
-import RigthSideBar from "./JobRecommendBar";
-
+import Header from "../../components/Header";
+import Footer from "../../components/Footer";
 
 export default function Profile() {
-
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isModalOpen2, setOpenModal2]= useState(false);
+  const [isModalOpen2, setOpenModal2] = useState(false);
 
   const openModal = () => {
     setIsModalOpen(true);
@@ -21,17 +20,15 @@ export default function Profile() {
     setOpenModal2(true);
   };
 
-  const closeModal = async() => {
+  const closeModal = async () => {
     setIsModalOpen(false);
   };
-  const closeModal2 =() => {
+  const closeModal2 = () => {
     setOpenModal2(false);
   };
-  
 
   const user = useSelector((state) => state.user);
-  const dispatch= useDispatch();
-
+  const dispatch = useDispatch();
 
   const fileInputRef = useRef(null);
 
@@ -53,32 +50,37 @@ export default function Profile() {
       // Cập nhật ảnh đại diện ở đây (tùy bạn dùng state hay gọi API)
       dispatch({
         type: "UPDATE_IMG",
-        url: base64
+        url: base64,
       });
       const updatedUser = {
-        ...user,        // Sao chép toàn bộ thông tin user cũ
+        ...user, // Sao chép toàn bộ thông tin user cũ
         avatar: base64, // Cập nhật avatar mới
       };
-      
+
       updateUser(user.id, updatedUser);
       console.log(user);
     }
   };
   return (
     <>
-
-      <UserInfoModal isOpen={isModalOpen} onRequestClose={closeModal}  user={user} />
-      <DetailModal isOpen={isModalOpen2} onRequestClose={closeModal2}  user={user}></DetailModal>
+      <Header />
+      <UserInfoModal
+        isOpen={isModalOpen}
+        onRequestClose={closeModal}
+        user={user}
+      />
+      <DetailModal
+        isOpen={isModalOpen2}
+        onRequestClose={closeModal2}
+        user={user}
+      ></DetailModal>
       {user && (
         <div className="flex flex-col md:flex-row min-h-screen bg-gray-100 w-full">
-
-          <LeftSideBar/>
-          
-          <Outlet/>
-
-          
+          <LeftSideBar />
+          <Outlet />
         </div>
       )}
+      <Footer />
     </>
   );
 }

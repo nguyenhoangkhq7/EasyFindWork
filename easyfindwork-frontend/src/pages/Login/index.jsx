@@ -11,8 +11,8 @@ const Login = () => {
   const [error, setError] = useState("");
   const [isShowInfor, setShowInfor] = useState(false);
 
-  const [errorName, setErrorName]= useState();
-  const [errorEmail, setErrorEmail]= useState();
+  const [errorName, setErrorName] = useState();
+  const [errorEmail, setErrorEmail] = useState();
 
   const user = useSelector((state) => state.user);
   const dispatch = useDispatch();
@@ -20,7 +20,7 @@ const Login = () => {
   const openModal = () => {
     reload();
     setShowModal(true);
-  }
+  };
   const closeModal = () => {
     setShowModal(false);
     reload();
@@ -38,11 +38,9 @@ const Login = () => {
     setError("");
   };
 
-  const handleInputName= (e)=>{
+  const handleInputName = (e) => {
     setErrorName("");
-  }
-
-
+  };
 
   const handleContinue = async (e) => {
     e.preventDefault();
@@ -64,51 +62,46 @@ const Login = () => {
           user: user,
         });
       }
-    }
-    else{
-      
+    } else {
     }
   };
 
-  const handleCompleted= (e)=>{
+  const handleCompleted = (e) => {
     e.preventDefault();
-    const fullName= e.target.elements.fullName.value.trim();
-    const email= e.target.elements.email.value.trim();
-    const phone= e.target.elements.phone.value.trim();
+    const fullName = e.target.elements.fullName.value.trim();
+    const email = e.target.elements.email.value.trim();
+    const phone = e.target.elements.phone.value.trim();
     const nameRegex = /^([A-Za-zÀ-ỹà-ỹ]+)(\s[A-Za-zÀ-ỹà-ỹ]+)*$/;
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if(!nameRegex.test(fullName)){
+    if (!nameRegex.test(fullName)) {
       setErrorName("Tên không chứa số và kí tự đặc biệt.");
       return;
     }
-    if(!emailRegex.test(email)){
+    if (!emailRegex.test(email)) {
       setErrorEmail("Chưa đúng định dạng email.");
       return;
     }
-    const user= {fullName, email, phone}
+    const user = { fullName, email, phone };
     try {
-      const result= addUser(user);
+      const result = addUser(user);
       dispatch({
-        type:"LOGIN",
-        user: user
-      })
+        type: "LOGIN",
+        user: user,
+      });
       console.log(user);
-
     } catch (error) {
       console.error("Errol add user");
-      
     }
     // đăng nhập thành cong chuyển trang tài khoản
+  };
 
-  }
-
-  const reload= ()=>{
+  const reload = () => {
     setError("");
     setErrorEmail("");
     setErrorName("");
     setLoginMobile(true);
     setShowInfor(false);
-  }
+  };
   // console.log("dang nhap: ", user);
 
   return (
@@ -153,16 +146,13 @@ const Login = () => {
                   className="w-full border border-gray-300 p-3 rounded mb-2"
                 />
                 {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
-                <button
-                  className="w-full bg-purple-600 text-white p-3 rounded hover:bg-purple-700"
-                >
+                <button className="w-full bg-purple-600 text-white p-3 rounded hover:bg-purple-700">
                   Tiếp tục
                 </button>
               </form>
             )}
 
-
-{/* modal nhập thông tin người dùng khi dăng nhập bằng sdt */}
+            {/* modal nhập thông tin người dùng khi dăng nhập bằng sdt */}
             {isShowInfor && (
               <form onSubmit={handleCompleted}>
                 <div className="mb-2">
@@ -176,7 +166,9 @@ const Login = () => {
                     className="w-full border border-gray-300 p-3 rounded"
                     onChange={handleInputName}
                   />
-                  {errorName && <p className="text-red-500 text-sm mb-2">{errorName}</p>}
+                  {errorName && (
+                    <p className="text-red-500 text-sm mb-2">{errorName}</p>
+                  )}
                 </div>
 
                 <div className="mb-2">
@@ -190,7 +182,6 @@ const Login = () => {
                     disabled
                     className="w-full border border-gray-300 p-3 rounded bg-gray-100 text-gray-500"
                   />
-                  
                 </div>
 
                 <div className="mb-4">
@@ -203,11 +194,11 @@ const Login = () => {
                     placeholder="Nhập email của bạn"
                     className="w-full border border-gray-300 p-3 rounded"
                   />
-                   {errorEmail && <p className="text-red-500 text-sm mb-2">{errorEmail}</p>}
+                  {errorEmail && (
+                    <p className="text-red-500 text-sm mb-2">{errorEmail}</p>
+                  )}
                 </div>
-                <button
-                  className="w-full bg-purple-600 text-white p-3 rounded hover:bg-purple-700"
-                >
+                <button className="w-full bg-purple-600 text-white p-3 rounded hover:bg-purple-700">
                   Hoàn tất
                 </button>
               </form>
@@ -238,7 +229,7 @@ const Login = () => {
                 </button>
               </>
             )}
-          {/* phần chân */}
+            {/* phần chân */}
             <p className="text-xs text-gray-500 mt-4 leading-snug">
               Bằng việc đăng nhập, tôi đồng ý chia sẻ thông tin cá nhân của mình
               với nhà tuyển dụng theo các{" "}

@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux"
 import { updateUser } from "../../service/user"
 
 
-export default function RegistrationInfo() {
+export default function AccountManagement() {
   const [isOpen, setIsOpen] = useState(true)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editType, setEditType] = useState("") // "email" or "phone"

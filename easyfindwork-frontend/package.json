@@ -24,8 +24,10 @@
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.5.3",
     "redux": "^5.0.1",
+    "sub-vn": "^0.0.2",
     "sweetalert2": "^11.21.0",
-    "tailwindcss": "^4.1.4"
+    "tailwindcss": "^4.1.4",
+    "vietnam-provinces": "^0.0.4"
   },
   "devDependencies": {
     "@eslint/js": "^9.22.0",

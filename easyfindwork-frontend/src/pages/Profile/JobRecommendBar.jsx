@@ -14,7 +14,9 @@ const RightSideBar = () => {
       setLoading(true);
       const response = await fetch("http://localhost:3000/jobs");
       const jobs = await response.json();
-      const filtered = jobs.filter((job) => job.location === user.location && job.isActive);
+      const filtered = jobs.filter(
+        (job) => job.location === user.location && job.isActive
+      );
       setJobsRecommend(filtered);
     } catch (error) {
       console.error("Lỗi khi tải công việc:", error);

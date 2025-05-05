@@ -23,7 +23,7 @@ const JobRecomend = ({ job }) => {
       try {
         // console.log(user.id, job.id);
         const saved = await getJobSavedByUserAndJob(user.id, job.id);
-        console.log(saved);
+        // console.log(saved);
         if (saved) { 
           setLiked(true);
           setSavedJobId(saved.id); // lưu lại ID để xoá sau
@@ -47,14 +47,14 @@ const JobRecomend = ({ job }) => {
         savedAt: new Date().toISOString(),
       };
       await addJobSaved(jobSaved);
-      console.log("job", jobSaved);
+      // console.log("job", jobSaved);
       
       setLiked(true);
     } else {
       // Đã lưu → Xoá
       if (savedJobId) {
         await deleteJobSaved(savedJobId);
-        console.log("đã xóa: ", savedJobId);
+        // console.log("đã xóa: ", savedJobId);
         setLiked(false);
         setSavedJobId(null);
       }
@@ -87,7 +87,7 @@ const JobRecomend = ({ job }) => {
         </div>
 
         <div className="flex-1">
-        <Link to={`/job-detail/${job.id}`}>
+        <Link to={`/job/${job.id}`}>
           <h3 className="font-medium text-xl mb-1 hover:text-blue-600">
             {job.title ? job.title : "Job Title"}
           </h3>

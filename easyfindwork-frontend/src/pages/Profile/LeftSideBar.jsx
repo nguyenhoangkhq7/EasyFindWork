@@ -85,7 +85,7 @@ const LeftSideBar = () => {
               }`}
             >
               <NavLink
-                to="/"
+                to="/profile/applied-jobs"
                 className={({ isActive }) =>
                   `block p-2 rounded-md transition-colors duration-200 ${
                     isActive ? "bg-purple-50 text-purple-700 font-medium" : "text-gray-600 hover:bg-gray-100"
@@ -95,7 +95,7 @@ const LeftSideBar = () => {
                 Việc làm đã ứng tuyển
               </NavLink>
               <NavLink
-                to="/profile/job-saved"
+                to="/profile/saved-jobs"
                 className={({ isActive }) =>
                   `block p-2 rounded-md transition-colors duration-200 ${
                     isActive ? "bg-purple-50 text-purple-700 font-medium" : "text-gray-600 hover:bg-gray-100"
@@ -108,7 +108,7 @@ const LeftSideBar = () => {
           </div>
 
           <NavLink
-            to="/profile/account-management"
+            to="/profile/account"
             className={({ isActive }) =>
               `flex items-center p-3 rounded-md transition-colors duration-200 ${
                 isActive ? "bg-purple-50 text-purple-700 font-medium" : "text-gray-700 hover:bg-gray-100"
@@ -116,7 +116,7 @@ const LeftSideBar = () => {
             }
           >
             <div
-              className={`mr-3 ${location.pathname.includes("/profile/account-management") ? "text-purple-700" : "text-gray-500"}`}
+              className={`mr-3 ${location.pathname.includes("/profile/account") ? "text-purple-700" : "text-gray-500"}`}
             >
               <User className="h-5 w-5" />
             </div>
@@ -128,4 +128,4 @@ const LeftSideBar = () => {
   )
 }
 
-export default LeftSideBar
+export default LeftSideBar;

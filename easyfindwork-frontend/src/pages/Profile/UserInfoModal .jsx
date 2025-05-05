@@ -12,6 +12,8 @@ const modalVariants = {
 };
 
 const UserInfoModal = ({ isOpen, onRequestClose, user }) => {
+  // console.log(user);
+  
   const dispatch = useDispatch();
   const [error, setError] = useState("");
 
@@ -44,7 +46,7 @@ const UserInfoModal = ({ isOpen, onRequestClose, user }) => {
       return;
     }
 
-    const updatedUser = {
+    const userNew = {
       ...user,
       fullName: name,
       email,
@@ -53,8 +55,10 @@ const UserInfoModal = ({ isOpen, onRequestClose, user }) => {
     };
 
     try {
-      await updateUser(user.id, updatedUser);
-      dispatch({ type: "UPDATE", user: updatedUser });
+      // console.log("update",userNew);
+      
+      await updateUser(user.id, userNew);
+      dispatch({ type: "UPDATE", user: userNew });
 
       await Swal.fire({
         icon: "success",
