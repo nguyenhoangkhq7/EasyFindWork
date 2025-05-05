@@ -7,14 +7,15 @@ import { createStore } from "redux";
 import { allReducers } from "./reducers";
 import { Provider } from "react-redux";
 import { BrowserRouter } from "react-router-dom";
-// import
-const store= createStore(allReducers);
+
+const store = createStore(allReducers);
 Modal.setAppElement("#root");
 createRoot(document.getElementById("root")).render(
-  <BrowserRouter>
-   <Provider store={store}>
-      <App />
+  <StrictMode>
+    <Provider store={store}>
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
     </Provider>
-  </BrowserRouter>
-   
+  </StrictMode>
 );
