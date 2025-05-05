@@ -63,7 +63,7 @@ export default function Profile() {
   };
   return (
     <>
-      <Header />
+      {/* <Header /> */}
       <UserInfoModal
         isOpen={isModalOpen}
         onRequestClose={closeModal}
@@ -80,7 +80,7 @@ export default function Profile() {
           <Outlet />
         </div>
       )}
-      <Footer />
+      {/* <Footer /> */}
     </>
   );
 }

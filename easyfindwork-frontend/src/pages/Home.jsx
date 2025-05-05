@@ -4,9 +4,9 @@ import JobPortal from "../components/JobPortal";
 export default function Home() {
   return (
     <>
-      <Header />
+      {/* <Header /> */}
       <JobPortal />
-      <Footer />
+      {/* <Footer /> */}
     </>
   );
 }

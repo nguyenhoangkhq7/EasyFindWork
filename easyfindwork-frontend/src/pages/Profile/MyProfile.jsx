@@ -10,8 +10,20 @@ import { motion } from "framer-motion";
 
 const MyProfile= ()=>{
 
-    const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalOpen2, setOpenModal2]= useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [availability, setAvailability] = useState("Sẵn sàng đi làm ngay");
+  const user = useSelector((state) => state.user);
+  const dispatch= useDispatch();
+
+
+  const fileInputRef = useRef(null);
+
+const handleAvailabilityChange = (value) => {
+  setAvailability(value);
+  setIsDropdownOpen(false);
+};
 
   const openModal = () => {
     setIsModalOpen(true);
@@ -26,13 +38,6 @@ const MyProfile= ()=>{
   const closeModal2 =() => {
     setOpenModal2(false);
   };
-  
-
-  const user = useSelector((state) => state.user);
-  const dispatch= useDispatch();
-
-
-  const fileInputRef = useRef(null);
 
   const handleAvatarClick = () => {
     fileInputRef.current.click(); // mở input file khi click ảnh
@@ -111,15 +116,28 @@ const MyProfile= ()=>{
             </div>
 
             <div className="flex-1 space-y-4">
-              <div className="flex items-center gap-2">
-                <div className="flex items-center gap-2">
-                  <div className="bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-sm">
-                    <div className="flex items-center gap-1">
-                      <span>Sẵn sàng đi làm ngay</span>
-                      <ChevronDown className="h-4 w-4" />
-                    </div>
-                  </div>
+              <div className="relative inline-block text-left">
+                <div
+                  className="bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-sm flex items-center gap-1 cursor-pointer"
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                >
+                  <span>{availability}</span>
+                  {isDropdownOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                 </div>
+
+                {isDropdownOpen && (
+                  <div className="absolute z-10 mt-2 w-64 bg-white border border-gray-200 rounded-md shadow-lg">
+                    {["Sẵn sàng đi làm ngay", "Không sẵn sàng", "Cần trao đổi thêm"].map((option) => (
+                      <div
+                        key={option}
+                        className="px-4 py-2 hover:bg-blue-100 cursor-pointer text-sm"
+                        onClick={() => handleAvailabilityChange(option)}
+                      >
+                        {option}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
                   <h3 className="text-3xl font-bold">{user.fullName}</h3>
@@ -146,8 +164,6 @@ const MyProfile= ()=>{
                           />
                           <span>{user.email}</span>
                         </div>
-
-                        {/* <button className="text-blue-500 text-sm">Thêm số điện thoại</button> */}
                       </div>
                     </div>
 

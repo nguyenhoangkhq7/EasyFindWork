@@ -5,9 +5,9 @@ import JobSearch from "../components/JobSearch";
 export default function Search() {
   return (
     <div>
-      <Header />
+      {/* <Header /> */}
       <JobSearch />
-      <Footer />
+      {/* <Footer /> */}
     </div>
   );
 }
