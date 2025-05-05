@@ -20,3 +20,20 @@ export const addUser = async (newUser) => {
     const createdUser = await response.json();
     return createdUser;
   };
+
+  export const updateUser = async (id, updatedFields) => {
+    const response = await fetch(`http://localhost:3000/users/${id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(updatedFields),
+    });
+  
+    if (!response.ok) {
+      throw new Error("Không thể cập nhật người dùng");
+    }
+  
+    const updatedUser = await response.json();
+    return updatedUser;
+  };

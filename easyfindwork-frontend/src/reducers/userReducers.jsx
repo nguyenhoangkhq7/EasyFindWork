@@ -10,6 +10,16 @@ export const userReducers = (state = init, action) => {
       localStorage.removeItem("user");
       return null;
 
+    case "UPDATE":
+      const updatedUser = action.user;
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+      return updatedUser;
+
+    case "UPDATE_IMG":
+      const newState = { ...state, avatar: action.url };
+      localStorage.setItem("user", JSON.stringify(newState));
+      return newState;
+
     default:
       return state;
   }

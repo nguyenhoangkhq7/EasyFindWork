@@ -96,7 +96,7 @@ export default function Header() {
     }
 
     const user_now = await getUserWithMobilePhoneOrEmail(inputValue);
-    console.log(user_now);
+    // console.log(user_now);
 
     if (!user_now) {
       setShowInfor(true); // Chỉ show form nếu đang dùng số điện thoại
@@ -136,7 +136,7 @@ export default function Header() {
       } 
     }
     
-    console.log("phone", phone);
+    // console.log("phone", phone);
     
     
     const new_user = { fullName, email, phone };
@@ -145,9 +145,9 @@ export default function Header() {
       // setToken(true);
       dispatch({
         type: "LOGIN",
-        user: new_user,
+        user: result,
       });
-      console.log(new_user);
+      // console.log(new_user);
     } catch (error) {
       console.error("Errol add user");
     }
@@ -175,7 +175,7 @@ export default function Header() {
     });
   };
 
-  console.log("user: ", user);
+  // console.log("user: ", user);
 
   // end xử lí modal
   return (

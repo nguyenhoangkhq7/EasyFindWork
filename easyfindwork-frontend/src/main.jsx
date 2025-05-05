@@ -10,7 +10,6 @@ import { BrowserRouter } from "react-router-dom";
 
 const store = createStore(allReducers);
 Modal.setAppElement("#root");
-
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <Provider store={store}>
