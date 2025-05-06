@@ -16,12 +16,27 @@ import {
   FiUser,
   FiArrowRight,
 } from "react-icons/fi";
-import { Input, Select, Button, Card, Skeleton, Row, Col, Badge, Tooltip, Tag,message } from "antd";
+import {
+  Input,
+  Select,
+  Button,
+  Card,
+  Skeleton,
+  Row,
+  Col,
+  Badge,
+  Tooltip,
+  Tag,
+  message,
+} from "antd";
 import { provinces } from "vietnam-provinces";
+import { useSelector } from "react-redux"; // Thêm để lấy user từ Redux
 
 const { Option } = Select;
 
 export default function JobSearch() {
+  const user = useSelector((state) => state.user); // Lấy thông tin user từ Redux
+
   // Hàm chọn ngẫu nhiên tối đa n công việc
   const getRandomJobs = useCallback((jobs, n) => {
     if (!jobs || jobs.length === 0) return [];
@@ -41,13 +56,18 @@ export default function JobSearch() {
   const [isLoading, setIsLoading] = useState(true);
   const [favorites, setFavorites] = useState([]);
   const [searchQuery, setSearchQuery] = useState(
-    queryParams.get("searchQuery") ? decodeURIComponent(queryParams.get("searchQuery")) : ""
+    queryParams.get("searchQuery")
+      ? decodeURIComponent(queryParams.get("searchQuery"))
+      : ""
   );
   const [filterIndustry, setFilterIndustry] = useState(
-    queryParams.get("filterIndustry") ? decodeURIComponent(queryParams.get("filterIndustry")) : ""
+    queryParams.get("filterIndustry")
+      ? decodeURIComponent(queryParams.get("filterIndustry"))
+      : ""
   );
-  
-  const [filterLocation, setFilterLocation] = useState(queryParams.get("filterLocation") || "");
+  const [filterLocation, setFilterLocation] = useState(
+    queryParams.get("filterLocation") || ""
+  );
   const [filterExperience, setFilterExperience] = useState("");
   const [filterSalary, setFilterSalary] = useState("");
   const [filterEducation, setFilterEducation] = useState("");
@@ -57,31 +77,72 @@ export default function JobSearch() {
   const [provinceOptions, setProvinceOptions] = useState([]);
   const [activeFiltersCount, setActiveFiltersCount] = useState(0);
   const [showAllIndustries, setShowAllIndustries] = useState(false);
-const visibleIndustries = showAllIndustries ? industries : industries.slice(0, 5); // Hiện 5 cái đầu tiên
-const [showAllProvinces, setShowAllProvinces] = useState(false);
-const visibleProvinces = showAllProvinces ? provinceOptions : provinceOptions.slice(0, 6); // Hiện 6 cái đầu
-const normalizeIndustry = useCallback((industry) => {
-  if (!industry) return industry;
-  return industry.split(" - ")[0].trim();
-}, []);
+  const visibleIndustries = showAllIndustries
+    ? industries
+    : industries.slice(0, 5); // Hiện 5 cái đầu tiên
+  const [showAllProvinces, setShowAllProvinces] = useState(false);
+  const visibleProvinces = showAllProvinces
+    ? provinceOptions
+    : provinceOptions.slice(0, 6); // Hiện 6 cái đầu
+  const normalizeIndustry = useCallback((industry) => {
+    if (!industry) return industry;
+    return industry.split(" - ")[0].trim();
+  }, []);
 
-
-
-  const suggestedJobs = useMemo(() => getRandomJobs(jobs, 9), [jobs, getRandomJobs]);
+  const suggestedJobs = useMemo(
+    () => getRandomJobs(jobs, 9),
+    [jobs, getRandomJobs]
+  );
   const jobsPerPage = 9;
 
   // Danh sách mức lương
   const salaryOptions = [
     { label: "Tất cả mức lương", value: "", range: null },
-    { label: "1 - 3 triệu", value: "1000000-3000000", range: { min: 1000000, max: 3000000 } },
-    { label: "3 - 5 triệu", value: "3000000-5000000", range: { min: 3000000, max: 5000000 } },
-    { label: "5 - 7 triệu", value: "5000000-7000000", range: { min: 5000000, max: 7000000 } },
-    { label: "7 - 10 triệu", value: "7000000-10000000", range: { min: 7000000, max: 10000000 } },
-    { label: "10 - 15 triệu", value: "10000000-15000000", range: { min: 10000000, max: 15000000 } },
-    { label: "15 - 20 triệu", value: "15000000-20000000", range: { min: 15000000, max: 20000000 } },
-    { label: "20 - 30 triệu", value: "20000000-30000000", range: { min: 20000000, max: 30000000 } },
-    { label: "30 - 40 triệu", value: "30000000-40000000", range: { min: 30000000, max: 40000000 } },
-    { label: "Trên 40 triệu", value: "40000000+", range: { min: 40000000, max: Infinity } },
+    {
+      label: "1 - 3 triệu",
+      value: "1000000-3000000",
+      range: { min: 1000000, max: 3000000 },
+    },
+    {
+      label: "3 - 5 triệu",
+      value: "3000000-5000000",
+      range: { min: 3000000, max: 5000000 },
+    },
+    {
+      label: "5 - 7 triệu",
+      value: "5000000-7000000",
+      range: { min: 5000000, max: 7000000 },
+    },
+    {
+      label: "7 - 10 triệu",
+      value: "7000000-10000000",
+      range: { min: 7000000, max: 10000000 },
+    },
+    {
+      label: "10 - 15 triệu",
+      value: "10000000-15000000",
+      range: { min: 10000000, max: 15000000 },
+    },
+    {
+      label: "15 - 20 triệu",
+      value: "15000000-20000000",
+      range: { min: 15000000, max: 20000000 },
+    },
+    {
+      label: "20 - 30 triệu",
+      value: "20000000-30000000",
+      range: { min: 20000000, max: 30000000 },
+    },
+    {
+      label: "30 - 40 triệu",
+      value: "30000000-40000000",
+      range: { min: 30000000, max: 40000000 },
+    },
+    {
+      label: "Trên 40 triệu",
+      value: "40000000+",
+      range: { min: 40000000, max: Infinity },
+    },
     { label: "Thỏa thuận", value: "Thỏa thuận", range: null },
   ];
 
@@ -121,7 +182,8 @@ const normalizeIndustry = useCallback((industry) => {
   const extractExperience = useCallback((requirements) => {
     if (!requirements) return "Không xác định";
     const lowerReq = requirements.toLowerCase();
-    if (lowerReq.includes("không cần kinh nghiệm")) return "Không cần kinh nghiệm";
+    if (lowerReq.includes("không cần kinh nghiệm"))
+      return "Không cần kinh nghiệm";
     const experienceMatch = lowerReq.match(/(\d+)(?:\s*-\s*(\d+))?\s*năm/);
     if (experienceMatch) {
       return `${experienceMatch[2] || experienceMatch[1]} năm`;
@@ -133,10 +195,16 @@ const normalizeIndustry = useCallback((industry) => {
   const extractEducation = useCallback((requirements) => {
     if (!requirements) return "Không yêu cầu";
     const lowerReq = requirements.toLowerCase();
-    if (lowerReq.includes("tốt nghiệp đại học") || lowerReq.includes("đại học")) {
+    if (
+      lowerReq.includes("tốt nghiệp đại học") ||
+      lowerReq.includes("đại học")
+    ) {
       return "Đại học";
     }
-    if (lowerReq.includes("tốt nghiệp cao đẳng") || lowerReq.includes("cao đẳng")) {
+    if (
+      lowerReq.includes("tốt nghiệp cao đẳng") ||
+      lowerReq.includes("cao đẳng")
+    ) {
       return "Cao đẳng";
     }
     if (
@@ -146,22 +214,29 @@ const normalizeIndustry = useCallback((industry) => {
     ) {
       return "Trung cấp";
     }
-    if (lowerReq.includes("tốt nghiệp thpt") || lowerReq.includes("trung học") || lowerReq.includes("thpt")) {
+    if (
+      lowerReq.includes("tốt nghiệp thpt") ||
+      lowerReq.includes("trung học") ||
+      lowerReq.includes("thpt")
+    ) {
       return "Trung học";
     }
     return "Không yêu cầu";
   }, []);
+
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
-  // Fetch dữ liệu
+
+  // Fetch dữ liệu và đồng bộ favorites từ server
   useEffect(() => {
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        const [jobsResponse, companiesResponse] = await Promise.all([
-          axios.get("http://localhost:3001/jobs"),
-          axios.get("http://localhost:3001/companies"),
+        const [jobsResponse, companiesResponse, savedJobsResponse] = await Promise.all([
+          axios.get("http://localhost:3000/jobs"),
+          axios.get("http://localhost:3000/companies"),
+          axios.get(`http://localhost:3000/savedJobs${user && user.id ? `?userId=${user.id}` : ''}`)
         ]);
 
         const jobsData = jobsResponse.data;
@@ -169,12 +244,19 @@ const normalizeIndustry = useCallback((industry) => {
         setFilteredJobs(jobsData);
         setCompanies(companiesResponse.data);
 
-        // Trích xuất danh sách ngành nghề duy nhất
+        // Đồng bộ favorites từ savedJobs cho người dùng hiện tại
+        const savedJobIds = savedJobsResponse.data.map((savedJob) => savedJob.jobId);
+        setFavorites(savedJobIds);
+        localStorage.setItem("jobFavorites", JSON.stringify(savedJobIds));
 
-        const uniqueIndustries = [...new Set(jobsData.map((job) => normalizeIndustry(job.industry)))]
-  .filter(Boolean)
-  .sort((a, b) => a.localeCompare(b, "vi"));
-setIndustries(uniqueIndustries);
+        
+        const uniqueIndustries = [
+          ...new Set(jobsData.map((job) => normalizeIndustry(job.industry))),
+        ]
+          .filter(Boolean)
+          .sort((a, b) => a.localeCompare(b, "vi"));
+        setIndustries(uniqueIndustries);
+
         // Tạo danh sách kinh nghiệm
         const experiences = jobsData
           .map((job) => extractExperience(job.requirements))
@@ -189,9 +271,17 @@ setIndustries(uniqueIndustries);
         setExperienceOptions(uniqueExperiences);
 
         // Tạo danh sách trình độ
-        const educations = jobsData.map((job) => extractEducation(job.requirements));
+        const educations = jobsData.map((job) =>
+          extractEducation(job.requirements)
+        );
         const uniqueEducations = [...new Set(educations)].sort((a, b) => {
-          const order = ["Không yêu cầu", "Trung học", "Trung cấp", "Cao đẳng", "Đại học"];
+          const order = [
+            "Không yêu cầu",
+            "Trung học",
+            "Trung cấp",
+            "Cao đẳng",
+            "Đại học",
+          ];
           return order.indexOf(a) - order.indexOf(b);
         });
         setEducationOptions(uniqueEducations);
@@ -201,23 +291,25 @@ setIndustries(uniqueIndustries);
           name: province.name,
           normalizedName: normalizeProvinceName(province.name),
         }));
-        const sortedProvinces = provinceData.sort((a, b) => a.name.localeCompare(b.name, "vi"));
+        const sortedProvinces = provinceData.sort((a, b) =>
+          a.name.localeCompare(b.name, "vi")
+        );
         setProvinceOptions(sortedProvinces);
       } catch (error) {
         console.error("Error fetching data:", error);
+        message.error("Không thể tải dữ liệu từ server. Vui lòng thử lại sau.");
+        // Fallback to localStorage if server fails
+        const savedFavorites = localStorage.getItem("jobFavorites");
+        if (savedFavorites) {
+          setFavorites(JSON.parse(savedFavorites));
+        }
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchData();
-
-    // Load favorites từ localStorage
-    const savedFavorites = localStorage.getItem("jobFavorites");
-    if (savedFavorites) {
-      setFavorites(JSON.parse(savedFavorites));
-    }
-  }, [normalizeProvinceName, extractExperience, extractEducation]);
+  }, [normalizeProvinceName, extractExperience, extractEducation, user]);
 
   // Lưu favorites vào localStorage
   useEffect(() => {
@@ -234,30 +326,50 @@ setIndustries(uniqueIndustries);
     if (filterSalary) count++;
     if (filterEducation) count++;
     setActiveFiltersCount(count);
-  }, [searchQuery, filterIndustry, filterLocation, filterExperience, filterSalary, filterEducation]);
+  }, [
+    searchQuery,
+    filterIndustry,
+    filterLocation,
+    filterExperience,
+    filterSalary,
+    filterEducation,
+  ]);
 
   // Auto-filter khi các bộ lọc thay đổi
   useEffect(() => {
     if (jobs.length > 0) {
       performSearchAndFilter();
     }
-  }, [jobs, searchQuery, filterIndustry, filterLocation, filterExperience, filterSalary, filterEducation]);
+  }, [
+    jobs,
+    searchQuery,
+    filterIndustry,
+    filterLocation,
+    filterExperience,
+    filterSalary,
+    filterEducation,
+  ]);
 
   // Logic tìm kiếm và lọc
   const performSearchAndFilter = useCallback(() => {
     setCurrentPage(1);
     const keyword = searchQuery.trim().toLowerCase();
     const filtered = jobs.filter((job) => {
-      const matchesSearch = keyword ? job.title?.toLowerCase().includes(keyword) : true;
-      // const matchesIndustry = filterIndustry ? job.industry?.toLowerCase() === filterIndustry.toLowerCase() : true;
+      const matchesSearch = keyword
+        ? job.title?.toLowerCase().includes(keyword)
+        : true;
       const matchesIndustry = filterIndustry
-  ? normalizeIndustry(job.industry) === normalizeIndustry(filterIndustry)
-  : true;
+        ? normalizeIndustry(job.industry) === normalizeIndustry(filterIndustry)
+        : true;
       const matchesLocation = filterLocation
-        ? normalizeJobLocation(job.location) === normalizeProvinceName(filterLocation)
+        ? normalizeJobLocation(job.location) ===
+          normalizeProvinceName(filterLocation)
         : true;
       const matchesExperience = filterExperience
-        ? extractExperience(job.requirements).toString().toLowerCase().includes(filterExperience.toLowerCase())
+        ? extractExperience(job.requirements)
+            .toString()
+            .toLowerCase()
+            .includes(filterExperience.toLowerCase())
         : true;
       const matchesSalary = filterSalary
         ? filterSalary === "Thỏa thuận"
@@ -265,7 +377,9 @@ setIndustries(uniqueIndustries);
           : filterSalary === ""
           ? true
           : (() => {
-              const selectedOption = salaryOptions.find((option) => option.value === filterSalary);
+              const selectedOption = salaryOptions.find(
+                (option) => option.value === filterSalary
+              );
               if (!selectedOption || !selectedOption.range) return false;
               const { min, max } = selectedOption.range;
               return (
@@ -275,9 +389,18 @@ setIndustries(uniqueIndustries);
               );
             })()
         : true;
-      const matchesEducation = filterEducation ? extractEducation(job.requirements) === filterEducation : true;
+      const matchesEducation = filterEducation
+        ? extractEducation(job.requirements) === filterEducation
+        : true;
 
-      return matchesSearch && matchesIndustry && matchesLocation && matchesExperience && matchesSalary && matchesEducation;
+      return (
+        matchesSearch &&
+        matchesIndustry &&
+        matchesLocation &&
+        matchesExperience &&
+        matchesSalary &&
+        matchesEducation
+      );
     });
     setFilteredJobs(filtered);
 
@@ -317,31 +440,53 @@ setIndustries(uniqueIndustries);
     }
   };
 
-  // Toggle favorite
-  // Toggle favorite với thông báo
-const toggleFavorite = useCallback((jobId) => {
-  setFavorites((prev) => {
-    if (prev.includes(jobId)) {
-      message.success({
-        content: "Đã xóa khỏi mục yêu thích",
-        duration: 2,
-        style: {
-          marginTop: "20px",
-        },
-      });
-      return prev.filter((id) => id !== jobId);
-    } else {
-      message.success({
-        content: "Đã thêm vào mục yêu thích",
-        duration: 2,
-        style: {
-          marginTop: "20px",
-        },
-      });
-      return [...prev, jobId];
-    }
-  });
-}, []);
+  // Toggle favorite với đồng bộ server
+  const toggleFavorite = useCallback(
+    async (jobId) => {
+      if (!user || !user.id) {
+        message.error("Vui lòng đăng nhập để lưu công việc yêu thích.");
+        return;
+      }
+
+      const isFavorite = favorites.includes(jobId);
+      try {
+        if (isFavorite) {
+          // Xóa khỏi yêu thích
+          const savedJobResponse = await axios.get(
+            `http://localhost:3000/savedJobs?jobId=${jobId}&userId=${user.id}`
+          );
+          const savedJob = savedJobResponse.data[0];
+          if (savedJob) {
+            await axios.delete(`http://localhost:3000/savedJobs/${savedJob.id}`);
+            setFavorites((prev) => prev.filter((id) => id !== jobId));
+            message.success({
+              content: "Đã xóa khỏi mục yêu thích",
+              duration: 2,
+              style: { marginTop: "20px" },
+            });
+            window.dispatchEvent(new CustomEvent("savedJobsUpdated")); // Thông báo cập nhật
+          }
+        } else {
+          // Thêm vào yêu thích
+          await axios.post("http://localhost:3000/savedJobs", {
+            jobId,
+            userId: user.id,
+          });
+          setFavorites((prev) => [...prev, jobId]);
+          message.success({
+            content: "Đã thêm vào mục yêu thích",
+            duration: 2,
+            style: { marginTop: "20px" },
+          });
+          window.dispatchEvent(new CustomEvent("savedJobsUpdated")); // Thông báo cập nhật
+        }
+      } catch (error) {
+        console.error("Error updating favorite:", error);
+        message.error("Không thể cập nhật yêu thích. Vui lòng thử lại sau.");
+      }
+    },
+    [favorites, user]
+  );
 
   // Xóa tất cả bộ lọc
   const clearAllFilters = useCallback(() => {
@@ -356,18 +501,27 @@ const toggleFavorite = useCallback((jobId) => {
   // Phân trang
   const startIndex = (currentPage - 1) * jobsPerPage;
   const endIndex = startIndex + jobsPerPage;
-  const visibleJobs = useMemo(() => filteredJobs.slice(startIndex, endIndex), [filteredJobs, startIndex, endIndex]);
+  const visibleJobs = useMemo(
+    () => filteredJobs.slice(startIndex, endIndex),
+    [filteredJobs, startIndex, endIndex]
+  );
 
   // Lấy logo và tên công ty
-  const getCompanyLogo = useCallback((companyId) => {
-    const company = companies.find((c) => c.id === companyId);
-    return company?.logo || "/placeholder.svg?height=40&width=40";
-  }, [companies]);
+  const getCompanyLogo = useCallback(
+    (companyId) => {
+      const company = companies.find((c) => c.id === companyId);
+      return company?.logo || "/placeholder.svg?height=40&width=40";
+    },
+    [companies]
+  );
 
-  const getCompanyName = useCallback((companyId) => {
-    const company = companies.find((c) => c.id === companyId);
-    return company?.name || "Unknown Company";
-  }, [companies]);
+  const getCompanyName = useCallback(
+    (companyId) => {
+      const company = companies.find((c) => c.id === companyId);
+      return company?.name || "Unknown Company";
+    },
+    [companies]
+  );
 
   // Format lương
   const formatSalary = useCallback((value) => {
@@ -384,7 +538,9 @@ const toggleFavorite = useCallback((jobId) => {
     const deadlineDate = new Date(deadline);
     const timeDiff = deadlineDate - now;
     const daysRemaining = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
-    const hoursRemaining = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const hoursRemaining = Math.floor(
+      (timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+    );
 
     if (daysRemaining > 0) {
       return `Còn ${daysRemaining} ngày`;
@@ -409,7 +565,7 @@ const toggleFavorite = useCallback((jobId) => {
           <div className="bg-white rounded-xl shadow-xl p-6 transform transition-all duration-300 hover:shadow-2xl animate-slide-up">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="relative">
-                <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <FiSearch className="absolute left-3 top.DOMAIN_SEPARATOR transform -translate-y-1/2 text-gray-400" />
                 <Input
                   placeholder="Tìm kiếm công việc..."
                   className="py-3 pl-10 pr-4 rounded-lg border-gray-200 focus:border-indigo-500 transition-all duration-200 hover:border-gray-300"
@@ -457,7 +613,10 @@ const toggleFavorite = useCallback((jobId) => {
                 >
                   <Option value="">Tất cả tỉnh thành</Option>
                   {provinceOptions.map((province, index) => (
-                    <Option key={`${province.normalizedName}-${index}`} value={province.normalizedName}>
+                    <Option
+                      key={`${province.normalizedName}-${index}`}
+                      value={province.normalizedName}
+                    >
                       {province.name}
                     </Option>
                   ))}
@@ -476,13 +635,19 @@ const toggleFavorite = useCallback((jobId) => {
             <div className="flex flex-wrap gap-2 mt-4 items-center">
               <Button
                 className={`${
-                  showAdvancedFilters ? "bg-indigo-100 text-indigo-700" : "bg-gray-100 text-gray-700"
+                  showAdvancedFilters
+                    ? "bg-indigo-100 text-indigo-700"
+                    : "bg-gray-100 text-gray-700"
                 } px-4 py-2 rounded-lg font-medium hover:bg-indigo-100 hover:text-indigo-700 transition-all duration-200 flex items-center`}
                 onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
               >
                 <FiFilter className="mr-2" /> Lọc nâng cao
                 {activeFiltersCount > 0 && (
-                  <Badge count={activeFiltersCount} className="ml-2" style={{ backgroundColor: "#4f46e5" }} />
+                  <Badge
+                    count={activeFiltersCount}
+                    className="ml-2"
+                    style={{ backgroundColor: "#4f46e5" }}
+                  />
                 )}
               </Button>
               {activeFiltersCount > 0 && (
@@ -523,7 +688,10 @@ const toggleFavorite = useCallback((jobId) => {
                     suffixIcon={<FiDollarSign className="text-gray-400" />}
                   >
                     {salaryOptions.map((option, index) => (
-                      <Option key={`${option.value}-${index}`} value={option.value}>
+                      <Option
+                        key={`${option.value}-${index}`}
+                        value={option.value}
+                      >
                         {option.label}
                       </Option>
                     ))}
@@ -558,19 +726,28 @@ const toggleFavorite = useCallback((jobId) => {
           <div className="flex flex-col md:flex-row md:items-center md:justify-between">
             <div>
               <p className="text-sm text-gray-500 mb-1">
-                <Link to="/" className="hover:text-indigo-600 transition-colors">
+                <Link
+                  to="/"
+                  className="hover:text-indigo-600 transition-colors"
+                >
                   Trang Chủ
                 </Link>{" "}
                 /{" "}
-                <Link to="/tuyen-dung" className="hover:text-indigo-600 transition-colors">
+                <Link
+                  to="/tuyen-dung"
+                  className="hover:text-indigo-600 transition-colors"
+                >
                   Tuyển Dụng
                 </Link>
               </p>
               <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-1">
-                Tuyển dụng <span className="text-indigo-600">4,815</span> việc làm mới nhất năm{" "}
-                <span className="text-indigo-600">2025</span>
+                Tuyển dụng <span className="text-indigo-600">4,815</span> việc
+                làm mới nhất năm <span className="text-indigo-600">2025</span>
               </h2>
-              <a href="#" className="text-indigo-600 text-sm font-medium hover:underline flex items-center">
+              <a
+                href="#"
+                className="text-indigo-600 text-sm font-medium hover:underline flex items-center"
+              >
                 <FiHeart className="mr-1" /> Lưu tìm kiếm này
               </a>
             </div>
@@ -598,7 +775,8 @@ const toggleFavorite = useCallback((jobId) => {
             )}
           </h2>
           <div className="text-sm text-gray-500 bg-white px-3 py-1 rounded-full shadow-sm">
-            Trang {currentPage}/{Math.ceil(filteredJobs.length / jobsPerPage) || 1}
+            Trang {currentPage}/
+            {Math.ceil(filteredJobs.length / jobsPerPage) || 1}
           </div>
         </div>
 
@@ -607,7 +785,10 @@ const toggleFavorite = useCallback((jobId) => {
             {Array(9)
               .fill(0)
               .map((_, index) => (
-                <Card key={index} className="rounded-lg shadow-md border-0 overflow-hidden">
+                <Card
+                  key={index}
+                  className="rounded-lg shadow-md border-0 overflow-hidden"
+                >
                   <Skeleton avatar active paragraph={{ rows: 3 }} />
                 </Card>
               ))}
@@ -618,20 +799,37 @@ const toggleFavorite = useCallback((jobId) => {
               <Card
                 key={job.id}
                 className="rounded-xl shadow-sm border border-gray-100 hover:border-indigo-200 hover:shadow-lg transform hover:-translate-y-1 transition-all duration-300 overflow-hidden"
-                styles={{ body: { padding: 0 } }} // Sửa từ bodyStyle sang styles.body
+                styles={{ body: { padding: 0 } }}
               >
                 <div className="absolute top-4 right-4 z-10">
-                  <Tooltip title={favorites.includes(job.id) ? "Xóa khỏi yêu thích" : "Thêm vào yêu thích"}>
+                  <Tooltip
+                    title={
+                      favorites.includes(job.id)
+                        ? "Xóa khỏi yêu thích"
+                        : "Thêm vào yêu thích"
+                    }
+                  >
                     <Button
                       shape="circle"
-                      icon={<FiHeart size={18} className={favorites.includes(job.id) ? "fill-current" : ""} />}
+                      icon={
+                        <FiHeart
+                          size={18}
+                          className={
+                            favorites.includes(job.id) ? "fill-current" : ""
+                          }
+                        />
+                      }
                       onClick={() => toggleFavorite(job.id)}
                       className={`flex items-center justify-center ${
                         favorites.includes(job.id)
                           ? "bg-red-50 text-red-500 border-red-100"
-                          : "bg-gray-50 text-gray-400 hover:bg-gray-100 border-gray-100"
+                          : "bg-gray-50 text-gray-400 border-gray-100 hover:bg-gray-100"
                       }`}
-                      aria-label={favorites.includes(job.id) ? "Xóa khỏi yêu thích" : "Thêm vào yêu thích"}
+                      aria-label={
+                        favorites.includes(job.id)
+                          ? "Xóa khỏi yêu thích"
+                          : "Thêm vào yêu thích"
+                      }
                     />
                   </Tooltip>
                 </div>
@@ -643,20 +841,29 @@ const toggleFavorite = useCallback((jobId) => {
                         alt={getCompanyName(job.companyId)}
                         className="w-full h-full object-cover"
                         loading="lazy"
-                        onError={(e) => (e.target.src = "/placeholder.svg?height=48&width=48")}
+                        onError={(e) =>
+                          (e.target.src = "/placeholder.svg?height=48&width=48")
+                        }
                       />
                     </div>
                     <div className="ml-4 flex-1">
-                      <h3 className="font-semibold text-gray-800 line-clamp-2 hover:text-indigo-600 transition-colors text-lg">
-  <Link to={`/job-search?searchQuery=${encodeURIComponent(job.title)}`}>
-    {job.title}
-  </Link>
-</h3>
-                      <div className="text-sm text-gray-500 mt-1">{getCompanyName(job.companyId)}</div>
+                      <h3 className="text-lg font-semibold text-gray-900 hover:text-indigo-600 transition-colors duration-200 line-clamp-2 leading-tight">
+                        <Link
+                          to={`/job/${job.id}`}
+                          className="hover:underline"
+                        >
+                          {job.title}
+                        </Link>
+                      </h3>
+                      <div className="text-sm text-gray-500 mt-1">
+                        {getCompanyName(job.companyId)}
+                      </div>
                       <div className="mt-3">
                         <p className="text-sm text-indigo-600 font-semibold">
                           {job.salaryMin && job.salaryMax
-                            ? `${formatSalary(job.salaryMin)} - ${formatSalary(job.salaryMax)}`
+                            ? `${formatSalary(job.salaryMin)} - ${formatSalary(
+                                job.salaryMax
+                              )}`
                             : "Thỏa thuận"}
                         </p>
                       </div>
@@ -669,8 +876,16 @@ const toggleFavorite = useCallback((jobId) => {
                           <FiClock size={14} className="mr-1 text-gray-400" />
                           <span>{getRemainingTime(job.deadline)}</span>
                         </div>
-                        <Tag color={job.deadline && new Date(job.deadline) > new Date() ? "green" : "red"}>
-                          {job.deadline && new Date(job.deadline) > new Date() ? "Đang tuyển" : "Hết hạn"}
+                        <Tag
+                          color={
+                            job.deadline && new Date(job.deadline) > new Date()
+                              ? "green"
+                              : "red"
+                          }
+                        >
+                          {job.deadline && new Date(job.deadline) > new Date()
+                            ? "Đang tuyển"
+                            : "Hết hạn"}
                         </Tag>
                       </div>
                     </div>
@@ -683,7 +898,9 @@ const toggleFavorite = useCallback((jobId) => {
           <div className="text-center py-16 bg-white rounded-xl shadow-sm border border-gray-100 animate-fade-in">
             <div className="flex flex-col items-center">
               <FiSearch size={48} className="text-gray-300 mb-4" />
-              <h3 className="text-xl font-semibold text-gray-700 mb-2">Không tìm thấy công việc</h3>
+              <h3 className="text-xl font-semibold text-gray-700 mb-2">
+                Không tìm thấy công việc
+              </h3>
               <p className="text-gray-500 max-w-md mb-6">
                 Không tìm thấy công việc nào phù hợp với tiêu chí tìm kiếm.
               </p>
@@ -714,15 +931,21 @@ const toggleFavorite = useCallback((jobId) => {
               Trang trước
             </Button>
             <div className="mx-4 text-gray-600 bg-white px-4 py-2 rounded-full shadow-sm border border-gray-100">
-              {currentPage} / {Math.ceil(filteredJobs.length / jobsPerPage) || 1}
+              {currentPage} /{" "}
+              {Math.ceil(filteredJobs.length / jobsPerPage) || 1}
             </div>
             <Button
-              disabled={currentPage === Math.ceil(filteredJobs.length / jobsPerPage) || filteredJobs.length === 0}
+              disabled={
+                currentPage === Math.ceil(filteredJobs.length / jobsPerPage) ||
+                filteredJobs.length === 0
+              }
               onClick={() =>
-                currentPage < Math.ceil(filteredJobs.length / jobsPerPage) && setCurrentPage(currentPage + 1)
+                currentPage < Math.ceil(filteredJobs.length / jobsPerPage) &&
+                setCurrentPage(currentPage + 1)
               }
               className={`rounded-full ${
-                currentPage === Math.ceil(filteredJobs.length / jobsPerPage) || filteredJobs.length === 0
+                currentPage === Math.ceil(filteredJobs.length / jobsPerPage) ||
+                filteredJobs.length === 0
                   ? "text-gray-300 border-gray-200"
                   : "text-gray-700 border-gray-300 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-200"
               }`}
@@ -739,7 +962,10 @@ const toggleFavorite = useCallback((jobId) => {
             <span className="text-yellow-500 mr-3 animate-pulse">⭐</span>
             Việc làm gợi ý
             <span className="ml-auto">
-              <Button type="link" className="text-indigo-600 hover:text-indigo-800 flex items-center text-sm font-medium">
+              <Button
+                type="link"
+                className="text-indigo-600 hover:text-indigo-800 flex items-center text-sm font-medium"
+              >
                 Xem tất cả <FiArrowRight className="ml-1" />
               </Button>
             </span>
@@ -749,7 +975,7 @@ const toggleFavorite = useCallback((jobId) => {
               <Card
                 key={job.id}
                 className="relative rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 hover:-translate-y-1 overflow-hidden"
-                styles={{ body: { padding: 0 } }} // Sửa từ bodyStyle sang styles.body
+                styles={{ body: { padding: 0 } }}
               >
                 <div className="p-5">
                   <div className="flex items-start">
@@ -759,19 +985,28 @@ const toggleFavorite = useCallback((jobId) => {
                         alt={getCompanyName(job.companyId)}
                         className="w-full h-full object-cover transition-opacity duration-200"
                         loading="lazy"
-                        onError={(e) => (e.target.src = "/placeholder.svg?height=56&width=56")}
+                        onError={(e) =>
+                          (e.target.src = "/placeholder.svg?height=56&width=56")
+                        }
                       />
                     </div>
                     <div className="ml-5 flex-1">
                       <h3 className="text-lg font-semibold text-gray-900 hover:text-indigo-600 transition-colors duration-200 line-clamp-2 leading-tight">
-                        <Link to={`/jobs/${job.id}`} className="hover:underline">
+                        <Link
+                          to={`/job/${job.id}`}
+                          className="hover:underline"
+                        >
                           {job.title}
                         </Link>
                       </h3>
-                      <p className="text-sm text-gray-600 mt-2 font-medium">{getCompanyName(job.companyId)}</p>
+                      <p className="text-sm text-gray-600 mt-2 font-medium">
+                        {getCompanyName(job.companyId)}
+                      </p>
                       <p className="text-sm text-indigo-600 font-semibold mt-2">
                         {job.salaryMin && job.salaryMax
-                          ? `${formatSalary(job.salaryMin)} - ${formatSalary(job.salaryMax)}`
+                          ? `${formatSalary(job.salaryMin)} - ${formatSalary(
+                              job.salaryMax
+                            )}`
                           : "Thỏa thuận"}
                       </p>
                       <div className="flex items-center text-sm text-gray-500 mt-2">
@@ -784,8 +1019,17 @@ const toggleFavorite = useCallback((jobId) => {
                             <FiClock className="w-4 h-4 mr-1.5 text-gray-400" />
                             <span>{getRemainingTime(job.deadline)}</span>
                           </div>
-                          <Tag color={job.deadline && new Date(job.deadline) > new Date() ? "green" : "red"}>
-                            {job.deadline && new Date(job.deadline) > new Date() ? "Đang tuyển" : "Hết hạn"}
+                          <Tag
+                            color={
+                              job.deadline &&
+                              new Date(job.deadline) > new Date()
+                                ? "green"
+                                : "red"
+                            }
+                          >
+                            {job.deadline && new Date(job.deadline) > new Date()
+                              ? "Đang tuyển"
+                              : "Hết hạn"}
                           </Tag>
                         </div>
                       </div>
@@ -798,9 +1042,17 @@ const toggleFavorite = useCallback((jobId) => {
                         ? "bg-red-100 text-red-500 hover:bg-red-200"
                         : "bg-gray-100 text-gray-400 hover:bg-gray-200"
                     }`}
-                    aria-label={favorites.includes(job.id) ? "Xóa khỏi yêu thích" : "Thêm vào yêu thích"}
+                    aria-label={
+                      favorites.includes(job.id)
+                        ? "Xóa khỏi yêu thích"
+                        : "Thêm vào yêu thích"
+                    }
                   >
-                    <FiHeart className={`w-5 h-5 ${favorites.includes(job.id) ? "fill-current" : ""}`} />
+                    <FiHeart
+                      className={`w-5 h-5 ${
+                        favorites.includes(job.id) ? "fill-current" : ""
+                      }`}
+                    />
                   </button>
                 </div>
               </Card>
@@ -814,114 +1066,118 @@ const toggleFavorite = useCallback((jobId) => {
         <div className="container mx-auto px-4">
           <Row gutter={[32, 32]}>
             <Col xs={24} md={6}>
-            <h3 className="text-lg font-semibold mb-4 border-b border-indigo-700 pb-2">
-  Việc làm theo ngành nghề
-</h3>
-<div className="flex flex-wrap gap-3">
-  <a
-    href="#"
-    onClick={(e) => {
-      e.preventDefault();
-      setFilterIndustry("");
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }}
-    className={`text-sm font-medium transition hover:text-indigo-600 ${
-      filterIndustry === "" ? "text-indigo-600 underline" : "text-gray-600"
-    }`}
-  >
-    Tất cả ngành nghề
-  </a>
+              <h3 className="text-lg font-semibold mb-4 border-b border-indigo-700 pb-2">
+                Việc làm theo ngành nghề
+              </h3>
+              <div className="flex flex-wrap gap-3">
+                <a
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setFilterIndustry("");
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
+                  className={`text-sm font-medium transition hover:text-indigo-600 ${
+                    filterIndustry === ""
+                      ? "text-indigo-600 underline"
+                      : "text-gray-600"
+                  }`}
+                >
+                  Tất cả ngành nghề
+                </a>
 
-  {visibleIndustries.map((industry, index) => (
-    <a
-      key={index}
-      href="#"
-      onClick={(e) => {
-        e.preventDefault();
-        setFilterIndustry(industry);
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      }}
-      className={`text-sm font-medium transition hover:text-indigo-600 ${
-        filterIndustry === industry
-          ? "text-indigo-600 underline"
-          : "text-gray-600"
-      }`}
-    >
-      {industry}
-    </a>
-  ))}
+                {visibleIndustries.map((industry, index) => (
+                  <a
+                    key={index}
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setFilterIndustry(industry);
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }}
+                    className={`text-sm font-medium transition hover:text-indigo-600 ${
+                      filterIndustry === industry
+                        ? "text-indigo-600 underline"
+                        : "text-gray-600"
+                    }`}
+                  >
+                    {industry}
+                  </a>
+                ))}
 
-  {industries.length > 5 && (
-    <button
-      onClick={() => setShowAllIndustries(!showAllIndustries)}
-      className="text-sm font-medium text-indigo-600 underline focus:outline-none"
-    >
-      {showAllIndustries ? "Thu gọn" : "Hiện tất cả"}
-    </button>
-  )}
-</div>
-
-
-
+                {industries.length > 5 && (
+                  <button
+                    onClick={() => setShowAllIndustries(!showAllIndustries)}
+                    className="text-sm font-medium text-indigo-600 underline focus:outline-none"
+                  >
+                    {showAllIndustries ? "Thu gọn" : "Hiện tất cả"}
+                  </button>
+                )}
+              </div>
             </Col>
-           <Col xs={24} md={6}><h3 className="text-lg font-semibold mb-4 border-b border-indigo-700 pb-2">
-  Việc làm theo khu vực
-</h3>
-<div className="flex flex-wrap gap-3 mt-4">
-  <a
-    href="#"
-    onClick={(e) => {
-      e.preventDefault();
-      setFilterLocation("");
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }}
-    className={`text-sm font-medium transition hover:text-indigo-600 ${
-      filterLocation === "" ? "text-indigo-600 underline" : "text-gray-600"
-    }`}
-  >
-    Tất cả tỉnh thành
-  </a>
-
-  {visibleProvinces.map((province, index) => (
-    <a
-      key={index}
-      href="#"
-      onClick={(e) => {
-        e.preventDefault();
-        setFilterLocation(province.normalizedName);
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      }}
-      className={`text-sm font-medium transition hover:text-indigo-600 ${
-        filterLocation === province.normalizedName
-          ? "text-indigo-600 underline"
-          : "text-gray-600"
-      }`}
-    >
-      {province.name}
-    </a>
-  ))}
-
-  {provinceOptions.length > 6 && (
-    <button
-      onClick={() => setShowAllProvinces(!showAllProvinces)}
-      className="text-sm font-medium text-indigo-600 underline focus:outline-none"
-    >
-      {showAllProvinces ? "Thu gọn" : "Hiện tất cả"}
-    </button>
-  )}
-</div>
-
-
-              
-
-              
-            </Col>
-            
             <Col xs={24} md={6}>
-              <h3 className="text-lg font-semibold mb-4 border-b border-indigo-700 pb-2">Liên hệ</h3>
+              <h3 className="text-lg font-semibold mb-4 border-b border-indigo-700 pb-2">
+                Việc làm theo khu vực
+              </h3>
+              <div className="flex flex-wrap gap-3 mt-4">
+                <a
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setFilterLocation("");
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
+                  className={`text-sm font-medium transition hover:text-indigo-600 ${
+                    filterLocation === ""
+                      ? "text-indigo-600 underline"
+                      : "text-gray-600"
+                  }`}
+                >
+                  Tất cả tỉnh thành
+                </a>
+
+                {visibleProvinces.map((province, index) => (
+                  <a
+                    key={index}
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setFilterLocation(province.normalizedName);
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }}
+                    className={`text-sm font-medium transition hover:text-indigo-600 ${
+                      filterLocation === province.normalizedName
+                        ? "text-indigo-600 underline"
+                        : "text-gray-600"
+                    }`}
+                  >
+                    {province.name}
+                  </a>
+                ))}
+
+                {provinceOptions.length > 6 && (
+                  <button
+                    onClick={() => setShowAllProvinces(!showAllProvinces)}
+                    className="text-sm font-medium text-indigo-600 underline focus:outline-none"
+                  >
+                    {showAllProvinces ? "Thu gọn" : "Hiện tất cả"}
+                  </button>
+                )}
+              </div>
+            </Col>
+
+            <Col xs={24} md={6}>
+              <h3 className="text-lg font-semibold mb-4 border-b border-indigo-700 pb-2">
+                Liên hệ
+              </h3>
               <ul className="space-y-3 text-sm">
                 <li className="flex items-center">
-                  <svg className="w-5 h-5 mr-2 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg
+                    className="w-5 h-5 mr-2 text-indigo-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -932,7 +1188,12 @@ const toggleFavorite = useCallback((jobId) => {
                   HCM: (028) 7309 2434
                 </li>
                 <li className="flex items-center">
-                  <svg className="w-5 h-5 mr-2 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg
+                    className="w-5 h-5 mr-2 text-indigo-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -943,7 +1204,12 @@ const toggleFavorite = useCallback((jobId) => {
                   Hà Nội: (024) 7309 2434
                 </li>
                 <li className="flex items-center">
-                  <svg className="w-5 h-5 mr-2 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg
+                    className="w-5 h-5 mr-2 text-indigo-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -967,18 +1233,39 @@ const toggleFavorite = useCallback((jobId) => {
           <div className="mt-12 pt-6 border-t border-indigo-800 text-center text-sm">
             <p>© 2025 Vieclam24h.vn - Tìm việc làm nhanh, hiệu quả</p>
             <div className="flex justify-center mt-4 space-x-4">
-              <a href="#" className="text-indigo-300 hover:text-white transition-colors">
-                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+              <a
+                href="#"
+                className="text-indigo-300 hover:text-white transition-colors"
+              >
+                <svg
+                  className="w-6 h-6"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
                   <path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" />
                 </svg>
               </a>
-              <a href="#" className="text-indigo-300 hover:text-white transition-colors">
-                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+              <a
+                href="#"
+                className="text-indigo-300 hover:text-white transition-colors"
+              >
+                <svg
+                  className="w-6 h-6"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
                   <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
                 </svg>
               </a>
-              <a href="#" className="text-indigo-300 hover:text-white transition-colors">
-                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+              <a
+                href="#"
+                className="text-indigo-300 hover:text-white transition-colors"
+              >
+                <svg
+                  className="w-6 h-6"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
                   <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" />
                 </svg>
               </a>

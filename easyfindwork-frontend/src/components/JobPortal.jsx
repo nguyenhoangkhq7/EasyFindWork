@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo, useCallback } from "react";
+import { useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import {
@@ -15,7 +16,6 @@ import {
   FiStar,
   FiClock,
   FiTrendingUp,
-  FiAward,
   FiUsers,
 } from "react-icons/fi";
 import { Input, Select, Button, Card, Skeleton, Row, Col, Tag, Tooltip, Divider, message, Modal } from "antd";
@@ -28,8 +28,10 @@ const { Option } = Select;
 
 export default function JobPortal() {
   const navigate = useNavigate();
+  const user = useSelector((state) => state.user); // Lấy user từ Redux
   const [jobs, setJobs] = useState([]);
   const [companies, setCompanies] = useState([]);
+  const [savedJobs, setSavedJobs] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [favorites, setFavorites] = useState([]);
@@ -45,28 +47,68 @@ export default function JobPortal() {
   const [showAllProvinces, setShowAllProvinces] = useState(false);
   const [showAllIndustriesModal, setShowAllIndustriesModal] = useState(false);
   const [showAllProvincesModal, setShowAllProvincesModal] = useState(false);
-  const [showAllNewJobsModal, setShowAllNewJobsModal] = useState(false); // Thêm state cho modal "Việc làm mới"
+  const [showAllNewJobsModal, setShowAllNewJobsModal] = useState(false);
+  const [showAllFeaturedCompaniesModal, setShowAllFeaturedCompaniesModal] = useState(false);
   const jobsPerPage = 9;
   const visibleIndustries = showAllIndustries ? industries : industries.slice(0, 5);
   const visibleProvinces = showAllProvinces ? provinceOptions : provinceOptions.slice(0, 5);
 
-  // Lọc các công việc có postedDate trong 5 ngày gần nhất
-  const currentDate = new Date("2025-05-04"); // Ngày hiện tại
-  const fiveDaysAgo = new Date(currentDate);
-  fiveDaysAgo.setDate(currentDate.getDate() - 5); // 30/04/2025
+  // Hàm chuyển đổi size thành số lượng tối thiểu để so sánh
+  const parseSizeToMinNumber = (size) => {
+    if (size.includes('+')) {
+      return parseInt(size.replace('+ người', ''), 10);
+    } else {
+      const minSize = size.split('-')[0];
+      return parseInt(minSize, 10);
+    }
+  };
+  // Hàm kiểm tra công việc tuyển gấp (deadline còn dưới 10 ngày)
+  const isUrgentJob = useCallback((deadline) => {
+    if (!deadline) return false;
+    const now = new Date("2025-05-05");
+    const deadlineDate = new Date(deadline);
+    const timeDiff = deadlineDate - now;
+    const daysRemaining = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+    return daysRemaining >= 0 && daysRemaining <= 15;
+  }, []);
 
-  const newJobs = jobs
-    .filter((job) => {
-      const postedDate = new Date(job.postedDate);
-      return postedDate >= fiveDaysAgo && postedDate <= currentDate;
-    })
-    .sort((a, b) => {
-      const dateA = new Date(a.postedDate);
-      const dateB = new Date(b.postedDate);
-      return dateB - dateA || a.id.localeCompare(b.id); // Sắp xếp theo ngày giảm dần, nếu trùng thì theo id tăng dần
+  // Lọc các công ty có size từ 1000 người trở lên
+  const featuredCompanies = useMemo(() => {
+    return companies.filter((company) => {
+      const minSize = parseSizeToMinNumber(company.size);
+      return minSize >= 1000 || company.size === "5000+ người";
+    }).slice(0, 6);
+  }, [companies]);
+
+  // Lấy tất cả công ty nổi bật
+  const allFeaturedCompanies = useMemo(() => {
+    return companies.filter((company) => {
+      const minSize = parseSizeToMinNumber(company.size);
+      return minSize >= 1000 || company.size === "5000+ người";
     });
+  }, [companies]);
 
-  const newJobsLimited = newJobs.slice(0, 6); // Giới hạn 5 công việc cho giao diện chính
+  // Lọc các công việc có postedDate trong 5 ngày gần nhất
+  const currentDate = new Date("2025-05-04");
+  const fiveDaysAgo = new Date(currentDate);
+  fiveDaysAgo.setDate(currentDate.getDate() - 5);
+
+  const newJobs = useMemo(() => {
+    return jobs
+      .filter((job) => {
+        const postedDate = new Date(job.postedDate);
+        return postedDate >= fiveDaysAgo && postedDate <= currentDate;
+      })
+      .sort((a, b) => {
+        const dateA = new Date(a.postedDate);
+        const dateB = new Date(b.postedDate);
+        return dateB - dateA || a.id.localeCompare(b.id);
+      });
+  }, [jobs]);
+
+  const newJobsLimited = useMemo(() => {
+    return newJobs.slice(0, 6);
+  }, [newJobs]);
 
   // Ánh xạ icon cho các ngành
   const industryIcons = {
@@ -141,9 +183,10 @@ export default function JobPortal() {
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        const [jobsResponse, companiesResponse] = await Promise.all([
-          axios.get("http://localhost:3001/jobs"),
-          axios.get("http://localhost:3001/companies"),
+        const [jobsResponse, companiesResponse, savedJobsResponse] = await Promise.all([
+          axios.get("http://localhost:3000/jobs"),
+          axios.get("http://localhost:3000/companies"),
+          user?.id ? axios.get(`http://localhost:3000/savedJobs?userId=${user.id}`) : Promise.resolve({ data: [] }),
         ]);
 
         const jobsData = jobsResponse.data.map((job) => ({
@@ -152,12 +195,17 @@ export default function JobPortal() {
         }));
         setJobs(jobsData);
         setCompanies(companiesResponse.data);
+        setSavedJobs(savedJobsResponse.data);
+
+        // Đồng bộ favorites với savedJobs từ server
+        const userSavedJobs = savedJobsResponse.data.map((sj) => sj.jobId);
+        setFavorites(userSavedJobs);
+        localStorage.setItem("jobFavorites", JSON.stringify(userSavedJobs));
 
         const uniqueIndustries = [...new Set(jobsData.map((job) => job.industry))]
           .filter(Boolean)
           .sort();
         setIndustries(uniqueIndustries);
-        console.log("Industries from API:", uniqueIndustries);
 
         const provinceData = provinces.map((province) => ({
           name: province.name,
@@ -167,18 +215,14 @@ export default function JobPortal() {
         setProvinceOptions(sortedProvinces);
       } catch (error) {
         console.error("Error fetching data:", error);
+        message.error("Không thể tải dữ liệu. Vui lòng thử lại.");
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchData();
-
-    const savedFavorites = localStorage.getItem("jobFavorites");
-    if (savedFavorites) {
-      setFavorites(JSON.parse(savedFavorites));
-    }
-  }, [normalizeProvinceName]);
+  }, [normalizeProvinceName, user?.id]);
 
   useEffect(() => {
     localStorage.setItem("jobFavorites", JSON.stringify(favorites));
@@ -193,26 +237,57 @@ export default function JobPortal() {
   }, [jobs, industries]);
 
   const toggleFavorite = useCallback(
-    (jobId) => {
-      setFavorites((prev) => {
-        if (prev.includes(jobId)) {
-          message.success({
-            content: "Đã xóa khỏi mục yêu thích",
-            duration: 2,
-            style: { marginTop: "20px" },
-          });
-          return prev.filter((id) => id !== jobId);
+    async (jobId) => {
+      if (!user?.id) {
+        message.error("Vui lòng đăng nhập để lưu công việc yêu thích.");
+        return;
+      }
+
+      const isFavorite = favorites.includes(jobId);
+      try {
+        if (isFavorite) {
+          // Xóa khỏi yêu thích
+          const savedJobResponse = await axios.get(
+            `http://localhost:3000/savedJobs?jobId=${jobId}&userId=${user.id}`
+          );
+          const savedJob = savedJobResponse.data[0];
+          if (savedJob) {
+            await axios.delete(`http://localhost:3000/savedJobs/${savedJob.id}`);
+            setFavorites((prev) => prev.filter((id) => id !== jobId));
+            setSavedJobs((prev) => prev.filter((sj) => sj.id !== savedJob.id));
+            message.success({
+              content: "Đã xóa khỏi mục yêu thích",
+              duration: 2,
+              style: { marginTop: "20px" },
+            });
+            window.dispatchEvent(new CustomEvent("savedJobsUpdated"));
+          } else {
+            console.error("Không tìm thấy savedJob để xóa:", jobId);
+          }
         } else {
+          // Thêm vào yêu thích
+          const newSavedJob = {
+            jobId,
+            userId: user.id,
+            savedAt: new Date().toISOString(),
+          };
+          const response = await axios.post("http://localhost:3000/savedJobs", newSavedJob);
+          console.log("Đã lưu công việc:", response.data);
+          setFavorites((prev) => [...prev, jobId]);
+          setSavedJobs((prev) => [...prev, response.data]);
           message.success({
             content: "Đã thêm vào mục yêu thích",
             duration: 2,
             style: { marginTop: "20px" },
           });
-          return [...prev, jobId];
+          window.dispatchEvent(new CustomEvent("savedJobsUpdated"));
         }
-      });
+      } catch (error) {
+        console.error("Error updating favorite:", error.response?.data || error.message);
+        message.error("Không thể cập nhật yêu thích. Vui lòng thử lại sau.");
+      }
     },
-    []
+    [favorites, user?.id]
   );
 
   const filteredJobs = useMemo(() => {
@@ -225,9 +300,10 @@ export default function JobPortal() {
         ? normalizeProvinceName(job.location) === filterLocation
         : true;
       const matchesIndustry = filterIndustry ? job.industry?.includes(filterIndustry) : true;
-      return matchesSearch && matchesProfession && matchesLocation && matchesIndustry;
+      const isUrgent = isUrgentJob(job.deadline);
+      return matchesSearch && matchesProfession && matchesLocation && matchesIndustry && isUrgent;
     });
-  }, [jobs, searchQuery, filterProfession, filterLocation, filterIndustry, normalizeProvinceName]);
+  }, [jobs, searchQuery, filterProfession, filterLocation, filterIndustry, normalizeProvinceName, isUrgentJob]);
 
   const startIndex = (currentPage - 1) * jobsPerPage;
   const endIndex = startIndex + jobsPerPage;
@@ -505,6 +581,52 @@ export default function JobPortal() {
         </Row>
       </Modal>
 
+      {/* Modal cho tất cả công ty nổi bật */}
+      <Modal
+        title="Tất cả công ty nổi bật"
+        open={showAllFeaturedCompaniesModal}
+        onCancel={() => setShowAllFeaturedCompaniesModal(false)}
+        footer={null}
+        width={800}
+        style={{ top: 20 }}
+        bodyStyle={{ maxHeight: "70vh", overflowY: "auto" }}
+      >
+        <Row gutter={[16, 16]}>
+          {allFeaturedCompanies.length > 0 ? (
+            allFeaturedCompanies.map((company, index) => (
+              <Col key={index} xs={24} sm={12} md={8}>
+                <div
+                  className="flex items-center p-4 rounded-lg border border-gray-100 shadow-sm hover:shadow-md hover:border-indigo-200 transition-all cursor-pointer bg-white"
+                >
+                  <div className="w-16 h-16 mr-4 rounded-full overflow-hidden border-2 border-indigo-100 shadow-sm flex items-center justify-center bg-white">
+                    <img
+                      src={company.logo || "/placeholder.svg"}
+                      alt={company.name}
+                      className="w-full h-full object-cover"
+                      onError={(e) => (e.target.src = "/placeholder.svg?height=64&width=64")}
+                    />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-800 line-clamp-1">{company.name}</h3>
+                    <p className="text-xs text-gray-500 line-clamp-1">{company.industry}</p>
+                    <Tag color="blue" className="mt-2">
+                      <span className="font-semibold">{jobs.filter((job) => job.companyId === company.id).length}</span>{" "}
+                      vị trí đang tuyển
+                    </Tag>
+                  </div>
+                </div>
+              </Col>
+            ))
+          ) : (
+            <Col xs={24}>
+              <div className="text-sm text-gray-500 p-4 text-center">
+                Không có công ty nổi bật nào.
+              </div>
+            </Col>
+          )}
+        </Row>
+      </Modal>
+
       {/* Job Search Section */}
       <div className="container mx-auto px-4 py-12">
         {/* Filters */}
@@ -642,17 +764,27 @@ export default function JobPortal() {
 
           <div className="mb-6 flex flex-wrap gap-2 bg-white p-4 rounded-xl shadow-sm border border-gray-100">
             <Button
-              onClick={() => handleIndustryChange("")}
+              onClick={() => setFilterIndustry("")}
               className={`${
                 filterIndustry === "" ? "bg-indigo-600 text-white font-bold" : "bg-indigo-50 text-indigo-700"
               } hover:bg-indigo-600 hover:text-white font-medium rounded-full px-4 transition-all duration-200`}
             >
               Tất cả
             </Button>
+            <Button
+              onClick={() => setFilterIndustry("Kinh doanh, Kỹ thuật")}
+              className={`${
+                filterIndustry === "Kinh doanh, Kỹ thuật"
+                  ? "bg-indigo-600 text-white font-bold"
+                  : "bg-indigo-50 text-indigo-700"
+              } hover:bg-indigo-600 hover:text-white font-medium rounded-full px-4 transition-all duration-200`}
+            >
+              Kinh doanh, Kỹ thuật
+            </Button>
             {industries.slice(0, 7).map((industry, index) => (
               <Button
                 key={index}
-                onClick={() => handleIndustryChange(industry)}
+                onClick={() => setFilterIndustry(industry)}
                 className={`${
                   filterIndustry === industry ? "bg-indigo-600 text-white font-bold" : "bg-indigo-50 text-indigo-700"
                 } hover:bg-indigo-600 hover:text-white font-medium rounded-full px-4 transition-all duration-200`}
@@ -709,7 +841,7 @@ export default function JobPortal() {
                         </div>
                         <div className="ml-4 flex-1">
                           <h3 className="font-semibold text-gray-800 line-clamp-2 hover:text-indigo-600 transition-colors text-lg">
-                            <Link to={`/jobs/${job.id}`}>{job.title}</Link>
+                            <Link to={`/job/${job.id}`}>{job.title}</Link>
                           </h3>
                           <div className="text-sm text-gray-500 mt-1">{getCompanyName(job.companyId)}</div>
                           <div className="mt-3">
@@ -749,7 +881,7 @@ export default function JobPortal() {
                 <FiSearch size={48} className="text-gray-300 mb-4" />
                 <h3 className="text-xl font-semibold text-gray-700 mb-2">Không tìm thấy công việc</h3>
                 <p className="text-gray-500 max-w-md mb-6">
-                  Không tìm thấy công việc nào phù hợp với bộ lọc hiện tại. Vui lòng thử lại với các tiêu chí khác.
+                  Không tìm thấy công việc tuyển gấp nào phù hợp với bộ lọc hiện tại. Vui lòng thử lại với các tiêu chí khác.
                 </p>
                 <Button
                   type="primary"
@@ -825,10 +957,12 @@ export default function JobPortal() {
                 Công ty nổi bật
               </span>
             </div>
-            <Button type="link" className="text-indigo-600 font-semibold flex items-center">
-              <Link to="/companies">
-                Hiển thị tất cả <FiArrowRight size={16} className="ml-1" />
-              </Link>
+            <Button
+              type="link"
+              className="text-indigo-600 font-semibold flex items-center"
+              onClick={() => setShowAllFeaturedCompaniesModal(true)}
+            >
+              Hiển thị tất cả <FiArrowRight size={16} className="ml-1" />
             </Button>
           </div>
           <Row gutter={[16, 16]} className="px-6 pb-6">
@@ -842,28 +976,30 @@ export default function JobPortal() {
                       </Card>
                     </Col>
                   ))
-              : companies.slice(0, 6).map((company) => {
+              : featuredCompanies.map((company) => {
                   const jobCount = jobs.filter((job) => job.companyId === company.id).length;
                   return (
                     <Col key={company.id} xs={12} sm={8} lg={4}>
-                      <Card
-                        className="rounded-xl shadow-md border-gray-100 hover:border-indigo-200 hover:shadow-lg transform hover:-translate-y-1 transition-all text-center"
-                        bodyStyle={{ padding: 20 }}
-                      >
-                        <div className="w-16 h-16 mb-4 rounded-full overflow-hidden border-2 border-indigo-100 shadow-sm mx-auto flex items-center justify-center bg-white">
-                          <img
-                            src={company.logo || "/placeholder.svg"}
-                            alt={company.name}
-                            className="w-full h-full object-cover"
-                            onError={(e) => (e.target.src = "/placeholder.svg?height=64&width=64")}
-                          />
-                        </div>
-                        <h3 className="font-semibold text-gray-800 mb-2 line-clamp-1">{company.name}</h3>
-                        <p className="text-xs text-gray-500 mb-3 line-clamp-1">{company.industry}</p>
-                        <Tag color="blue" className="rounded-full mx-auto">
-                          <span className="font-semibold">{jobCount}</span> vị trí đang tuyển
-                        </Tag>
-                      </Card>
+                      <Link to={`/company/${company.id}`} className="block">
+                        <Card
+                          className="rounded-xl shadow-md border-gray-100 hover:border-indigo-200 hover:shadow-lg transform hover:-translate-y-1 transition-all text-center cursor-pointer"
+                          bodyStyle={{ padding: 20 }}
+                        >
+                          <div className="w-16 h-16 mb-4 rounded-full overflow-hidden border-2 border-indigo-100 shadow-sm mx-auto flex items-center justify-center bg-white">
+                            <img
+                              src={company.logo || "/placeholder.svg"}
+                              alt={company.name}
+                              className="w-full h-full object-cover"
+                              onError={(e) => (e.target.src = "/placeholder.svg?height=64&width=64")}
+                            />
+                          </div>
+                          <h3 className="font-semibold text-gray-800 mb-2 line-clamp-1">{company.name}</h3>
+                          <p className="text-xs text-gray-500 mb-3 line-clamp-1">{company.industry}</p>
+                          <Tag color="blue" className="rounded-full mx-auto">
+                            <span className="font-semibold">{jobCount}</span> vị trí đang tuyển
+                          </Tag>
+                        </Card>
+                      </Link>
                     </Col>
                   );
                 })}
@@ -875,14 +1011,6 @@ export default function JobPortal() {
           <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-8 flex items-center tracking-tight">
             <span className="text-yellow-500 mr-3 animate-pulse">⭐</span>
             Việc làm gợi ý
-            <span className="ml-auto">
-              <Button
-                type="link"
-                className="text-indigo-600 hover:text-indigo-800 flex items-center text-sm font-medium"
-              >
-                Xem tất cả <FiArrowRight className="ml-1" />
-              </Button>
-            </span>
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             {suggestedJobs.map((job) => (
@@ -904,12 +1032,11 @@ export default function JobPortal() {
                     </div>
                     <div className="ml-5 flex-1">
                       <h3 className="text-lg font-semibold text-gray-900 hover:text-indigo-600 transition-colors duration-200 line-clamp-2 leading-tight">
-                        <Link to={`/jobs/${job.id}`} className="hover:underline">
+                        <Link to={`/job/${job.id}`} className="hover:underline">
                           {job.title}
                         </Link>
                       </h3>
                       <p className="text-sm text-gray-600 mt-2 font-medium">{getCompanyName(job.companyId)}</p>
-
                       <p className="text-sm text-indigo-600 font-semibold mt-2">
                         {job.salaryMin && job.salaryMax
                           ? `${formatSalary(job.salaryMin)} - ${formatSalary(job.salaryMax)}`
@@ -959,9 +1086,9 @@ export default function JobPortal() {
               </span>
             </div>
             <Button type="link" className="text-indigo-600 font-semibold flex items-center">
-              <Link to="/guides">
-                Xem thêm cẩm nang nghề nghiệp <FiArrowRight size={16} className="ml-1" />
-              </Link>
+              <Link to="/guides/1">Nhân viên part time</Link>
+              <Link to="/guides/2">Việc làm remote</Link>
+              <Link to="/guides/3">Việc làm thêm ngoài giờ</Link>
             </Button>
           </div>
           <Row gutter={[16, 16]} className="px-6 pb-6">
@@ -971,7 +1098,7 @@ export default function JobPortal() {
                 title: "Nhân viên part time là gì? 11 công việc part time lương cao đang chờ bạn",
                 description:
                   "Nhân viên part time là gì? Nếu bạn đang quan tâm những vấn đề này thì bài viết dưới đây của Vieclam24h.vn chắc chắn dành cho bạn!",
-                image: Anh1,
+                image: "https://cdn4.vieclam24h.vn/vie_cc_a3_cc_82c_lam_the_cc_82m_buo_cc_82_cc_89i_to_cc_82i_aa61a95f5e.webp",
                 rating: 4,
               },
               {
@@ -979,15 +1106,15 @@ export default function JobPortal() {
                 title: "Top 7 việc làm remote phổ biến, đem lại thu nhập tốt hiện nay",
                 description:
                   "Làm remote là gì và có những lợi ích nào khi làm việc dưới hình thức remote? Xem ngay bài viết của Vieclam24h để được phổ biến chi tiết nhất!",
-                image: Anh2,
+                image: "https://lptech.asia/uploads/files/2024/09/08/remote-la-gi-uu-diem-va-nhuoc-diem-c-a-lam-remote.jpg",
                 rating: 5,
               },
               {
-                id: 3,
+                id: 2,
                 title: "Top việc làm thêm ngoài giờ hành chính lương cao, uy tín",
                 description:
                   "Cần lưu ý gì khi tìm việc làm thêm ngoài giờ? Top việc làm thêm ngoài giờ hành chính, lương cao hiện nay là gì?",
-                image: Anh3,
+                image: "https://cdn2.fptshop.com.vn/unsafe/1920x0/filters:format(webp):quality(75)/2023_11_3_638346181356369639_shipper.jpg",
                 rating: 4,
               },
             ].map((article) => (
@@ -1120,7 +1247,7 @@ export default function JobPortal() {
             </Card>
           </Col>
 
-          {/* New Jobs */}
+          {/* New Job */}
           <Col xs={24} md={8}>
             <Card className="rounded-xl shadow-md border-gray-100 hover:shadow-lg transition-all duration-300 h-full">
               <div className="flex items-center mb-4">
