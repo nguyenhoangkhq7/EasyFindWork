@@ -84,6 +84,9 @@ export default function Header() {
   const handleInputName = (e) => {
     setErrorName("");
   };
+  const handleInputPhoneChange= (e)=>{
+    setError("");
+  }
 
   const handleContinue = async (e) => {
     e.preventDefault();

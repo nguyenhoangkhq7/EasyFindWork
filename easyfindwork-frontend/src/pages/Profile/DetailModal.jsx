@@ -1,10 +1,11 @@
+import { useDispatch } from "react-redux";
 import { useState } from "react";
 import Modal from "react-modal";
-import { useDispatch } from "react-redux";
+import { motion, AnimatePresence } from "framer-motion";
 import { updateUser } from "../../service/user";
 import Swal from "sweetalert2";
 
-// Reusable Input Field Component
+// Input component như cũ
 const InputField = ({ id, label, defaultValue, type = "text" }) => (
   <div className="mb-4">
     <label htmlFor={id} className="block text-sm font-bold text-gray-700 mb-2">
@@ -20,7 +21,15 @@ const InputField = ({ id, label, defaultValue, type = "text" }) => (
   </div>
 );
 
+const modalVariants = {
+  hidden: { opacity: 0, scale: 0.9 },
+  visible: { opacity: 1, scale: 1 },
+  exit: { opacity: 0, scale: 0.9 },
+};
+
 const DetailModal = ({ isOpen, onRequestClose, user }) => {
+  const dispatch = useDispatch();
+
   const closeModal = async () => {
     const result = await Swal.fire({
       title: "Bạn có chắc muốn đóng?",
@@ -37,7 +46,6 @@ const DetailModal = ({ isOpen, onRequestClose, user }) => {
       onRequestClose();
     }
   };
-  const dispatch = useDispatch();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -49,10 +57,7 @@ const DetailModal = ({ isOpen, onRequestClose, user }) => {
       desiredSalary: Number(form.get("desiredSalary")) * 1_000_000,
       experience: form.get("experience"),
       education: form.get("education"),
-      skills: form
-        .get("skills")
-        .split(",")
-        .map((s) => s.trim()),
+      skills: form.get("skills").split(",").map((s) => s.trim()),
     };
 
     try {
@@ -82,64 +87,78 @@ const DetailModal = ({ isOpen, onRequestClose, user }) => {
     <Modal
       isOpen={isOpen}
       onRequestClose={closeModal}
-      className="modal absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-md shadow-lg p-6 w-full max-w-md"
+      overlayClassName="fixed inset-0 bg-black/30 backdrop-blur-sm z-40 flex items-center justify-center"
+      className="outline-none "
+      ariaHideApp={false}
     >
-      <form className="relative" onSubmit={handleSubmit}>
-        <h2 className="text-xl font-semibold mb-4">Tiêu chí tìm việc</h2>
-
-        <button
-          type="button"
-          onClick={closeModal}
-          className="absolute top-0 right-0 text-gray-500 hover:text-gray-700 text-2xl focus:outline-none"
-        >
-          &times;
-        </button>
-
-        <InputField
-          id="desiredJob"
-          label="Vị trí công việc"
-          defaultValue={user.desiredJob || ""}
-        />
-        <InputField
-          id="desiredSalary"
-          label="Mức lương mong muốn (triệu/tháng)"
-          type="number"
-          defaultValue={
-            user.desiredSalary ? user.desiredSalary / 1_000_000 : ""
-          }
-        />
-        <InputField
-          id="experience"
-          label="Kinh nghiệm"
-          defaultValue={user.experience || ""}
-        />
-        <InputField
-          id="education"
-          label="Trình độ"
-          defaultValue={user.education || ""}
-        />
-        <InputField
-          id="skills"
-          label="Kĩ năng (cách nhau bằng dấu phẩy)"
-          defaultValue={user.skills?.join(", ") || ""}
-        />
-
-        <div className="flex justify-end">
-          <button
-            type="button"
-            onClick={closeModal}
-            className="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow-sm mr-2 focus:outline-none"
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            key="job-modal"
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            variants={modalVariants}
+            transition={{ duration: 0.3 }}
+            className="bg-white rounded-md shadow-lg p-6 w-[40vw] max-w-5xl relative"
           >
-            Hủy
-          </button>
-          <button
-            type="submit"
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow-sm focus:outline-none"
-          >
-            Lưu thông tin
-          </button>
-        </div>
-      </form>
+            <form className="relative" onSubmit={handleSubmit}>
+              <h2 className="text-xl font-semibold mb-4">Tiêu chí tìm việc</h2>
+
+              <button
+                type="button"
+                onClick={closeModal}
+                className="absolute top-0 right-0 text-gray-500 hover:text-gray-700 text-2xl focus:outline-none"
+              >
+                &times;
+              </button>
+
+              <InputField
+                id="desiredJob"
+                label="Vị trí công việc"
+                defaultValue={user.desiredJob || ""}
+              />
+              <InputField
+                id="desiredSalary"
+                label="Mức lương mong muốn (triệu/tháng)"
+                type="number"
+                defaultValue={user.desiredSalary ? user.desiredSalary / 1_000_000 : ""}
+              />
+              <InputField
+                id="experience"
+                label="Kinh nghiệm"
+                defaultValue={user.experience || ""}
+              />
+              <InputField
+                id="education"
+                label="Trình độ"
+                defaultValue={user.education || ""}
+              />
+              <InputField
+                id="skills"
+                label="Kĩ năng (cách nhau bằng dấu phẩy)"
+                defaultValue={user.skills?.join(", ") || ""}
+              />
+
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  onClick={closeModal}
+                  className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded mr-2"
+                >
+                  Hủy
+                </button>
+                <button
+                  type="submit"
+                  className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+                >
+                  Lưu thông tin
+                </button>
+              </div>
+            </form>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </Modal>
   );
 };

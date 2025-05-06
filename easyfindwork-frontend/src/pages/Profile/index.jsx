@@ -6,7 +6,6 @@ import UserInfoModal from "./UserInfoModal ";
 import { updateUser } from "../../service/user";
 import DetailModal from "./DetailModal";
 import LeftSideBar from "./LeftSideBar";
-import RigthSideBar from "./RightSideBar";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 
@@ -64,7 +63,7 @@ export default function Profile() {
   };
   return (
     <>
-      <Header />
+      {/* <Header /> */}
       <UserInfoModal
         isOpen={isModalOpen}
         onRequestClose={closeModal}
@@ -81,7 +80,7 @@ export default function Profile() {
           <Outlet />
         </div>
       )}
-      <Footer />
+      {/* <Footer /> */}
     </>
   );
 }

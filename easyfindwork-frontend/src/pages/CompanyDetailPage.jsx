@@ -5,9 +5,9 @@ import CompanyDetail from "../components/CompanyDetail";
 export default function JobDetailPage() {
   return (
     <div>
-      <Header />
+      {/* <Header /> */}
       <CompanyDetail />
-      <Footer />
+      {/* <Footer /> */}
     </div>
   );
 }
