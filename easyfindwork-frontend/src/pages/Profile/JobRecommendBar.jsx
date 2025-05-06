@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
-import JobRecomend from "../../components/JobItem";
+import {  useEffect, useState } from "react";
+import {  useSelector } from "react-redux";
+import JobItem from "../../components/JobItem";
+import { getJobSaveByUserId } from "../../service/jobsave";
 
-const RightSideBar = () => {
+const JobRecommendBar = () => {
   const user = useSelector((state) => state.user);
   const [jobsRecommend, setJobsRecommend] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -17,7 +18,20 @@ const RightSideBar = () => {
       const filtered = jobs.filter(
         (job) => job.location === user.location && job.isActive
       );
-      setJobsRecommend(filtered);
+      const likedJobs= (await getJobSaveByUserId(user.id)).map(x=>x.id) ||[];
+      const sortedJobs = filtered.sort((a, b) => {
+        const aLiked = likedJobs.includes(a.id); 
+        const bLiked = likedJobs.includes(b.id); 
+      
+        if (aLiked && !bLiked) return -1;
+        if (!aLiked && bLiked) return 1;
+      
+        return 0;
+      });
+      console.log(sortedJobs);
+
+
+      setJobsRecommend(sortedJobs);
     } catch (error) {
       console.error("Lỗi khi tải công việc:", error);
     } finally {
@@ -27,7 +41,7 @@ const RightSideBar = () => {
 
   useEffect(() => {
     fetchRecommendedJobs();
-  }, [user.location]);
+  }, [user.location, user.id]);
 
   return (
     <div className="w-full md:w-96 p-6">
@@ -38,7 +52,7 @@ const RightSideBar = () => {
           <p className="text-gray-500">Đang tải công việc...</p>
         ) : jobsRecommend.length > 0 ? (
           jobsRecommend.map((job) => (
-            <JobRecomend key={job.id} job={job} />
+            <JobItem key={job.id} job={job}/>
           ))
         ) : (
           <p className="text-gray-500">Không có công việc gợi ý.</p>
@@ -48,4 +62,4 @@ const RightSideBar = () => {
   );
 };
 
-export default RightSideBar;
+export default JobRecommendBar;

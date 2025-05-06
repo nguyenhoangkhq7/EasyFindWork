@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 // import {Heart,  ChevronDown,  ChevronUp,  Edit,  Upload, Bell,  User,  Briefcase,Users, Info,FileText,} from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, Outlet } from "react-router-dom";
-import UserInfoModal from "./UserInfoModal ";
+import UserInfoModal from "./UserInfoModal";
 import { updateUser } from "../../service/user";
 import DetailModal from "./DetailModal";
 import LeftSideBar from "./LeftSideBar";

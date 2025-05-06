@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import JobRecomend from '../../components/JobItem';
+import JobItem from '../../components/JobItem';
 import { useSelector } from 'react-redux';
 import { getJobSaveByUserId } from '../../service/jobsave';
 
@@ -37,7 +37,7 @@ const JobSaved = () => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {jobListings.map((job) => (
-            <JobRecomend key={job.id} job={job} />
+            <JobItem key={job.id} job={job} />
           ))}
         </div>
       )}

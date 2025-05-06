@@ -2,11 +2,12 @@ import { useRef, useState } from "react";
 import {Heart,  ChevronDown,  ChevronUp,  Edit,  Upload, Bell,  User,  Briefcase,Users, Info,FileText,} from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import UserInfoModal from "./UserInfoModal ";
+import UserInfoModal from "./UserInfoModal";
 import { updateUser } from "../../service/user";
 import DetailModal from "./DetailModal";
-import RightSideBar from "./JobRecommendBar";
+// import RightSideBar from "./JobRecommendBar";
 import { motion } from "framer-motion";
+import JobRecommendBar from "./JobRecommendBar";
 
 const MyProfile= ()=>{
 
@@ -248,7 +249,7 @@ const handleAvailabilityChange = (value) => {
   transition={{ duration: 0.5, ease: "easeOut", delay: 0.1 }}
   // className="bg-white rounded-md shadow-sm p-6"
 >
-<RightSideBar/>
+<JobRecommendBar/>
 </motion.div>
         </>
     )
