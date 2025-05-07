@@ -28,7 +28,7 @@ const JobRecommendBar = () => {
       
         return 0;
       });
-      console.log(sortedJobs);
+      // console.log(sortedJobs);
 
 
       setJobsRecommend(sortedJobs);
