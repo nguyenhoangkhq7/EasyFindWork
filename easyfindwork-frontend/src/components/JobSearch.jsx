@@ -256,7 +256,6 @@ export default function JobSearch() {
           .filter(Boolean)
           .sort((a, b) => a.localeCompare(b, "vi"));
         setIndustries(uniqueIndustries);
-
         // Tạo danh sách kinh nghiệm
         const experiences = jobsData
           .map((job) => extractExperience(job.requirements))
@@ -439,7 +438,6 @@ export default function JobSearch() {
       performSearchAndFilter();
     }
   };
-
   // Toggle favorite với đồng bộ server
   const toggleFavorite = useCallback(
     async (jobId) => {
@@ -487,7 +485,6 @@ export default function JobSearch() {
     },
     [favorites, user]
   );
-
   // Xóa tất cả bộ lọc
   const clearAllFilters = useCallback(() => {
     setSearchQuery("");

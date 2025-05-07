@@ -5,9 +5,9 @@ import JobDetail from "../components/JobDetail";
 export default function JobDetailPage() {
   return (
     <div>
-      <Header />
+      {/* <Header /> */}
       <JobDetail />
-      <Footer />
+      {/* <Footer /> */}
     </div>
   );
 }

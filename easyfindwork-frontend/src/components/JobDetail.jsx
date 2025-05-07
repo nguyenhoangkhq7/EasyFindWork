@@ -131,7 +131,7 @@ const JobDetail = () => {
   }
 
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat("vi-VN").format(amount);
+    return new Intl.NumberFormat("vi-VN").format(amount/1000000);
   };
 
   const formatDate = (dateString) => {

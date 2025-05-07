@@ -2,14 +2,29 @@ import { useRef, useState } from "react";
 import {Heart,  ChevronDown,  ChevronUp,  Edit,  Upload, Bell,  User,  Briefcase,Users, Info,FileText,} from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import UserInfoModal from "./UserInfoModal ";
+import UserInfoModal from "./UserInfoModal";
 import { updateUser } from "../../service/user";
 import DetailModal from "./DetailModal";
-import RightSideBar from "./RightSideBar";
+// import RightSideBar from "./JobRecommendBar";
+import { motion } from "framer-motion";
+import JobRecommendBar from "./JobRecommendBar";
+
 const MyProfile= ()=>{
 
-    const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalOpen2, setOpenModal2]= useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [availability, setAvailability] = useState("Sẵn sàng đi làm ngay");
+  const user = useSelector((state) => state.user);
+  const dispatch= useDispatch();
+
+
+  const fileInputRef = useRef(null);
+
+const handleAvailabilityChange = (value) => {
+  setAvailability(value);
+  setIsDropdownOpen(false);
+};
 
   const openModal = () => {
     setIsModalOpen(true);
@@ -24,13 +39,6 @@ const MyProfile= ()=>{
   const closeModal2 =() => {
     setOpenModal2(false);
   };
-  
-
-  const user = useSelector((state) => state.user);
-  const dispatch= useDispatch();
-
-
-  const fileInputRef = useRef(null);
 
   const handleAvatarClick = () => {
     fileInputRef.current.click(); // mở input file khi click ảnh
@@ -68,7 +76,10 @@ const MyProfile= ()=>{
         <UserInfoModal isOpen={isModalOpen} onRequestClose={closeModal}  user={user} />
         <DetailModal isOpen={isModalOpen2} onRequestClose={closeModal2}  user={user}></DetailModal>
         
-        <div className="flex-1 p-6 space-y-6">
+        <motion.div className="flex-1 p-6 space-y-6"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: "easeOut" }}>
             <div className="bg-white rounded-md shadow-sm p-6">
               <div className="flex justify-between items-start mb-4">
                 <h2 className="text-xl font-bold">Hồ sơ của tôi</h2>
@@ -106,15 +117,28 @@ const MyProfile= ()=>{
             </div>
 
             <div className="flex-1 space-y-4">
-              <div className="flex items-center gap-2">
-                <div className="flex items-center gap-2">
-                  <div className="bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-sm">
-                    <div className="flex items-center gap-1">
-                      <span>Sẵn sàng đi làm ngay</span>
-                      <ChevronDown className="h-4 w-4" />
-                    </div>
-                  </div>
+              <div className="relative inline-block text-left">
+                <div
+                  className="bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-sm flex items-center gap-1 cursor-pointer"
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                >
+                  <span>{availability}</span>
+                  {isDropdownOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                 </div>
+
+                {isDropdownOpen && (
+                  <div className="absolute z-10 mt-2 w-64 bg-white border border-gray-200 rounded-md shadow-lg">
+                    {["Sẵn sàng đi làm ngay", "Không sẵn sàng", "Cần trao đổi thêm"].map((option) => (
+                      <div
+                        key={option}
+                        className="px-4 py-2 hover:bg-blue-100 cursor-pointer text-sm"
+                        onClick={() => handleAvailabilityChange(option)}
+                      >
+                        {option}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
                   <h3 className="text-3xl font-bold">{user.fullName}</h3>
@@ -141,8 +165,6 @@ const MyProfile= ()=>{
                           />
                           <span>{user.email}</span>
                         </div>
-
-                        {/* <button className="text-blue-500 text-sm">Thêm số điện thoại</button> */}
                       </div>
                     </div>
 
@@ -220,8 +242,15 @@ const MyProfile= ()=>{
                   </button>
                 </div>
             </div>
-          </div>
-          <RightSideBar/>
+          </motion.div>
+          <motion.div
+  initial={{ opacity: 0, y: 20 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ duration: 0.5, ease: "easeOut", delay: 0.1 }}
+  // className="bg-white rounded-md shadow-sm p-6"
+>
+<JobRecommendBar/>
+</motion.div>
         </>
     )
 }
