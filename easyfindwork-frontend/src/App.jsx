@@ -12,9 +12,9 @@ import AppliedJobs from "./pages/Profile/AppliedJobs";
 import Account from "./pages/Profile/Account";
 import AccountManagement from "./pages/Profile/AccountManagement";
 import SearchPage from "./pages/Search";
-import PartTimeGuide from "./pages/PartTimeGuide";
-import RemoteJobsGuide from "./pages/RemoteJobsGuide";
-import ExtraJobsGuide from "./pages/ExtraJobsGuide";
+import PartTimeGuide from "./pages/posts/PartTimeGuide";
+import RemoteJobsGuide from "./pages/posts/RemoteJobsGuide";
+import ExtraJobsGuide from "./pages/posts/ExtraJobsGuide";
 import LayoutDefault from "./pages/LayoutDefault";
 
 function App() {
@@ -27,9 +27,9 @@ function App() {
         <Route path="search" element={<Search />} />
         <Route path="job/:id" element={<JobDetailPage />} />
         <Route path="company/:id" element={<CompanyDetailPage />} />
-        <Route path="guides/1" element={<PartTimeGuide />} />
-        <Route path="guides/2" element={<RemoteJobsGuide />} />
-        <Route path="guides/3" element={<ExtraJobsGuide />} />
+        <Route path="guides/part-time-guide" element={<PartTimeGuide />} />
+        <Route path="guides/remote-job-guide" element={<RemoteJobsGuide />} />
+        <Route path="guides/extra-job-guide" element={<ExtraJobsGuide />} />
         <Route path="profile" element={<Profile />}>
           <Route index element={<MyProfile />} />
           <Route path="saved-jobs" element={<JobSaved />} />
