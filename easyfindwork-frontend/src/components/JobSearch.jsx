@@ -30,10 +30,13 @@ import {
   message,
 } from "antd";
 import { provinces } from "vietnam-provinces";
+import { useSelector } from "react-redux"; // Thêm để lấy user từ Redux
 
 const { Option } = Select;
 
 export default function JobSearch() {
+  const user = useSelector((state) => state.user); // Lấy thông tin user từ Redux
+
   // Hàm chọn ngẫu nhiên tối đa n công việc
   const getRandomJobs = useCallback((jobs, n) => {
     if (!jobs || jobs.length === 0) return [];
@@ -62,7 +65,6 @@ export default function JobSearch() {
       ? decodeURIComponent(queryParams.get("filterIndustry"))
       : ""
   );
-
   const [filterLocation, setFilterLocation] = useState(
     queryParams.get("filterLocation") || ""
   );
@@ -221,17 +223,20 @@ export default function JobSearch() {
     }
     return "Không yêu cầu";
   }, []);
+
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
-  // Fetch dữ liệu
+
+  // Fetch dữ liệu và đồng bộ favorites từ server
   useEffect(() => {
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        const [jobsResponse, companiesResponse] = await Promise.all([
+        const [jobsResponse, companiesResponse, savedJobsResponse] = await Promise.all([
           axios.get("http://localhost:3000/jobs"),
           axios.get("http://localhost:3000/companies"),
+          axios.get(`http://localhost:3000/savedJobs${user && user.id ? `?userId=${user.id}` : ''}`)
         ]);
 
         const jobsData = jobsResponse.data;
@@ -239,8 +244,12 @@ export default function JobSearch() {
         setFilteredJobs(jobsData);
         setCompanies(companiesResponse.data);
 
-        // Trích xuất danh sách ngành nghề duy nhất
+        // Đồng bộ favorites từ savedJobs cho người dùng hiện tại
+        const savedJobIds = savedJobsResponse.data.map((savedJob) => savedJob.jobId);
+        setFavorites(savedJobIds);
+        localStorage.setItem("jobFavorites", JSON.stringify(savedJobIds));
 
+        
         const uniqueIndustries = [
           ...new Set(jobsData.map((job) => normalizeIndustry(job.industry))),
         ]
@@ -287,19 +296,19 @@ export default function JobSearch() {
         setProvinceOptions(sortedProvinces);
       } catch (error) {
         console.error("Error fetching data:", error);
+        message.error("Không thể tải dữ liệu từ server. Vui lòng thử lại sau.");
+        // Fallback to localStorage if server fails
+        const savedFavorites = localStorage.getItem("jobFavorites");
+        if (savedFavorites) {
+          setFavorites(JSON.parse(savedFavorites));
+        }
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchData();
-
-    // Load favorites từ localStorage
-    const savedFavorites = localStorage.getItem("jobFavorites");
-    if (savedFavorites) {
-      setFavorites(JSON.parse(savedFavorites));
-    }
-  }, [normalizeProvinceName, extractExperience, extractEducation]);
+  }, [normalizeProvinceName, extractExperience, extractEducation, user]);
 
   // Lưu favorites vào localStorage
   useEffect(() => {
@@ -348,7 +357,6 @@ export default function JobSearch() {
       const matchesSearch = keyword
         ? job.title?.toLowerCase().includes(keyword)
         : true;
-      // const matchesIndustry = filterIndustry ? job.industry?.toLowerCase() === filterIndustry.toLowerCase() : true;
       const matchesIndustry = filterIndustry
         ? normalizeIndustry(job.industry) === normalizeIndustry(filterIndustry)
         : true;
@@ -430,33 +438,53 @@ export default function JobSearch() {
       performSearchAndFilter();
     }
   };
-
-  // Toggle favorite
-  // Toggle favorite với thông báo
-  const toggleFavorite = useCallback((jobId) => {
-    setFavorites((prev) => {
-      if (prev.includes(jobId)) {
-        message.success({
-          content: "Đã xóa khỏi mục yêu thích",
-          duration: 2,
-          style: {
-            marginTop: "20px",
-          },
-        });
-        return prev.filter((id) => id !== jobId);
-      } else {
-        message.success({
-          content: "Đã thêm vào mục yêu thích",
-          duration: 2,
-          style: {
-            marginTop: "20px",
-          },
-        });
-        return [...prev, jobId];
+  // Toggle favorite với đồng bộ server
+  const toggleFavorite = useCallback(
+    async (jobId) => {
+      if (!user || !user.id) {
+        message.error("Vui lòng đăng nhập để lưu công việc yêu thích.");
+        return;
       }
-    });
-  }, []);
 
+      const isFavorite = favorites.includes(jobId);
+      try {
+        if (isFavorite) {
+          // Xóa khỏi yêu thích
+          const savedJobResponse = await axios.get(
+            `http://localhost:3000/savedJobs?jobId=${jobId}&userId=${user.id}`
+          );
+          const savedJob = savedJobResponse.data[0];
+          if (savedJob) {
+            await axios.delete(`http://localhost:3000/savedJobs/${savedJob.id}`);
+            setFavorites((prev) => prev.filter((id) => id !== jobId));
+            message.success({
+              content: "Đã xóa khỏi mục yêu thích",
+              duration: 2,
+              style: { marginTop: "20px" },
+            });
+            window.dispatchEvent(new CustomEvent("savedJobsUpdated")); // Thông báo cập nhật
+          }
+        } else {
+          // Thêm vào yêu thích
+          await axios.post("http://localhost:3000/savedJobs", {
+            jobId,
+            userId: user.id,
+          });
+          setFavorites((prev) => [...prev, jobId]);
+          message.success({
+            content: "Đã thêm vào mục yêu thích",
+            duration: 2,
+            style: { marginTop: "20px" },
+          });
+          window.dispatchEvent(new CustomEvent("savedJobsUpdated")); // Thông báo cập nhật
+        }
+      } catch (error) {
+        console.error("Error updating favorite:", error);
+        message.error("Không thể cập nhật yêu thích. Vui lòng thử lại sau.");
+      }
+    },
+    [favorites, user]
+  );
   // Xóa tất cả bộ lọc
   const clearAllFilters = useCallback(() => {
     setSearchQuery("");
@@ -534,7 +562,7 @@ export default function JobSearch() {
           <div className="bg-white rounded-xl shadow-xl p-6 transform transition-all duration-300 hover:shadow-2xl animate-slide-up">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="relative">
-                <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <FiSearch className="absolute left-3 top.DOMAIN_SEPARATOR transform -translate-y-1/2 text-gray-400" />
                 <Input
                   placeholder="Tìm kiếm công việc..."
                   className="py-3 pl-10 pr-4 rounded-lg border-gray-200 focus:border-indigo-500 transition-all duration-200 hover:border-gray-300"
@@ -768,7 +796,7 @@ export default function JobSearch() {
               <Card
                 key={job.id}
                 className="rounded-xl shadow-sm border border-gray-100 hover:border-indigo-200 hover:shadow-lg transform hover:-translate-y-1 transition-all duration-300 overflow-hidden"
-                styles={{ body: { padding: 0 } }} // Sửa từ bodyStyle sang styles.body
+                styles={{ body: { padding: 0 } }}
               >
                 <div className="absolute top-4 right-4 z-10">
                   <Tooltip
@@ -792,7 +820,7 @@ export default function JobSearch() {
                       className={`flex items-center justify-center ${
                         favorites.includes(job.id)
                           ? "bg-red-50 text-red-500 border-red-100"
-                          : "bg-gray-50 text-gray-400 hover:bg-gray-100 border-gray-100"
+                          : "bg-gray-50 text-gray-400 border-gray-100 hover:bg-gray-100"
                       }`}
                       aria-label={
                         favorites.includes(job.id)
@@ -816,11 +844,10 @@ export default function JobSearch() {
                       />
                     </div>
                     <div className="ml-4 flex-1">
-                      <h3 className="font-semibold text-gray-800 line-clamp-2 hover:text-indigo-600 transition-colors text-lg">
+                      <h3 className="text-lg font-semibold text-gray-900 hover:text-indigo-600 transition-colors duration-200 line-clamp-2 leading-tight">
                         <Link
-                          to={`/job-search?searchQuery=${encodeURIComponent(
-                            job.title
-                          )}`}
+                          to={`/job/${job.id}`}
+                          className="hover:underline"
                         >
                           {job.title}
                         </Link>
@@ -945,7 +972,7 @@ export default function JobSearch() {
               <Card
                 key={job.id}
                 className="relative rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 hover:-translate-y-1 overflow-hidden"
-                styles={{ body: { padding: 0 } }} // Sửa từ bodyStyle sang styles.body
+                styles={{ body: { padding: 0 } }}
               >
                 <div className="p-5">
                   <div className="flex items-start">
@@ -963,7 +990,7 @@ export default function JobSearch() {
                     <div className="ml-5 flex-1">
                       <h3 className="text-lg font-semibold text-gray-900 hover:text-indigo-600 transition-colors duration-200 line-clamp-2 leading-tight">
                         <Link
-                          to={`/jobs/${job.id}`}
+                          to={`/job/${job.id}`}
                           className="hover:underline"
                         >
                           {job.title}
