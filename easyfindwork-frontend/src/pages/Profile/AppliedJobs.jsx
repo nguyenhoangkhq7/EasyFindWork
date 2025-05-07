@@ -7,6 +7,7 @@ import axios from "axios";
 import { motion } from "framer-motion";
 import JobRecomend from "../../components/JobRecomend";
 import Swal from "sweetalert2";
+import JobItem from "../../components/JobItem";
 
 const AppliedJobs = () => {
   const user = useSelector((state) => state.user);
@@ -156,7 +157,7 @@ const AppliedJobs = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
               >
-                <JobRecomend job={job} company={company} />
+                <JobItem job={job} />
               </motion.div>
             ))}
           </div>
