@@ -5,23 +5,66 @@ import { useSelector, useDispatch } from "react-redux";
 import axios from "axios";
 import { motion } from "framer-motion";
 import { FaTimes } from "react-icons/fa";
+import { uploadFileByUrl } from "../service/cloudinary"; // Giả định bạn đã tạo hàm này trong service/cloudinary.jsx
+import { updateUser } from "../service/user"; // Giả định bạn đã tạo hàm này trong service/userService.jsx
 
-// ApplyJobModal Component
-const ApplyJobModal = ({ isOpen, onClose, jobId, jobTitle }) => {
+export default function ApplyJobModal({ isOpen, onClose, jobId, jobTitle }) {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [cvFile, setCvFile] = useState(null);
   const [selectedResumeId, setSelectedResumeId] = useState("");
+  const [saveCv, setSaveCv] = useState(false);
+  const [cvOption, setCvOption] = useState("existing");
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const user = useSelector((state) => state.user);
   const dispatch = useDispatch();
 
+  const handleCvOptionChange = (option) => {
+    setCvOption(option);
+    if (option === "existing") {
+      setCvFile(null);
+      setSaveCv(false);
+    } else {
+      setSelectedResumeId("");
+    }
+  };
+
+  const handleCvUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const response = await uploadFileByUrl(file, "raw");
+    if (response) {
+      const newCv = {
+        id: `cv_${Date.now()}`,
+        fileName: file.name,
+        fileUrl: response.data.secure_url,
+        publicId: response.data.public_id,
+        fileSize: file.size,
+        uploadedAt: new Date().toISOString(),
+      };
+
+      if (saveCv) {
+        const currentCvs = Array.isArray(user.cvs) ? user.cvs : [];
+        const updatedCvs = [...currentCvs, newCv];
+        const updatedUser = { ...user, cvs: updatedCvs };
+
+        dispatch({ type: "UPDATE_USER", payload: updatedUser });
+        await updateUser(user.id, updatedUser);
+      }
+
+      setSuccessMessage("Tải CV lên thành công!");
+      setTimeout(() => setSuccessMessage(""), 3000);
+      return newCv.fileUrl; // Trả về fileUrl thay vì id
+    }
+    return null;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validate required fields
     if (!fullName || !email || !phone) {
       setErrorMessage(
         "Vui lòng điền đầy đủ thông tin họ tên, email và số điện thoại."
@@ -35,58 +78,40 @@ const ApplyJobModal = ({ isOpen, onClose, jobId, jobTitle }) => {
 
     try {
       const userId = user.id;
-      let resumeId = selectedResumeId;
-      let fileUrl, fileName, fileSize;
+      let fileUrl;
 
-      // If a new file is uploaded
       if (cvFile) {
-        const formData = new FormData();
-        formData.append("file", cvFile);
-        formData.append("upload_preset", "easyfindwork_upload");
-        formData.append("folder", "cv_apply");
-
-        // Upload file to Cloudinary
-        const cloudinaryResponse = await axios.post(
-          "https://api.cloudinary.com/v1_1/dzcodbajo/raw/upload",
-          formData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        );
-
-        fileUrl = cloudinaryResponse.data.secure_url;
-        fileName = cvFile.name;
-        fileSize = cvFile.size;
-
-        // Update user's CVs in Redux state
-        const newCv = {
-          id: `cv_${Date.now()}`,
-          fileName,
-          fileUrl,
-          fileSize,
-          uploadedAt: new Date().toISOString(),
-        };
-        const updatedCvs = [...(user.cvs || []), newCv];
-        dispatch({
-          type: "UPDATE_USER",
-          payload: { ...user, cvs: updatedCvs },
-        });
-
-        resumeId = newCv.id;
+        // Tải lên CV mới
+        fileUrl = await handleCvUpload({ target: { files: [cvFile] } });
+        if (!fileUrl) {
+          setErrorMessage("Tải lên CV thất bại.");
+          return;
+        }
+      } else {
+        // Lấy fileUrl từ CV có sẵn dựa trên selectedResumeId
+        const selectedCv = user.cvs.find((cv) => cv.id === selectedResumeId);
+        fileUrl = selectedCv ? selectedCv.fileUrl : "";
       }
 
-      // Save application to json-server
-      await axios.post("http://localhost:3000/applications", {
+      // Tạo application với fileUrl thay vì cvId
+      const applicationData = {
         id: `application_${Date.now()}`,
         userId,
+        fullName,
+        phone,
+        email,
         jobId,
-        resumeId,
+        fileUrl, // Sử dụng fileUrl thay vì cvId
         appliedDate: new Date().toISOString(),
         status: "Đang xử lý",
         note: "",
-      });
+        interviewDate: null,
+        rejectionReason: null,
+        hiringManagerId: "manager_001",
+        isShortlisted: false,
+      };
+
+      await axios.post("http://localhost:3000/applications", applicationData);
 
       setSuccessMessage("Đã nộp hồ sơ thành công!");
       setErrorMessage("");
@@ -97,6 +122,8 @@ const ApplyJobModal = ({ isOpen, onClose, jobId, jobTitle }) => {
         setPhone("");
         setCvFile(null);
         setSelectedResumeId("");
+        setSaveCv(false);
+        setCvOption("existing");
         setSuccessMessage("");
       }, 2000);
     } catch (error) {
@@ -109,12 +136,10 @@ const ApplyJobModal = ({ isOpen, onClose, jobId, jobTitle }) => {
 
   return (
     <>
-      {/* Overlay mờ */}
       <div
         className="fixed inset-0 bg-gray-900 bg-opacity-70 backdrop-blur-sm z-40"
         onClick={onClose}
       />
-      {/* Modal nội dung */}
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -186,36 +211,97 @@ const ApplyJobModal = ({ isOpen, onClose, jobId, jobTitle }) => {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Chọn CV có sẵn
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Chọn phương thức nộp CV *
               </label>
-              <select
-                value={selectedResumeId}
-                onChange={(e) => setSelectedResumeId(e.target.value)}
-                className="block w-full border border-gray-300 rounded-md py-2 px-3 text-gray-700 focus:ring-2 focus:ring-violet-500 focus:border-violet-500 outline-none transition-all"
-              >
-                <option value="">Chọn CV đã tải lên</option>
-                {(user.cvs || []).map((resume) => (
-                  <option key={resume.id} value={resume.id}>
-                    {resume.fileName} (
-                    {new Date(resume.uploadedAt).toLocaleDateString()})
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Hoặc tải lên CV mới
-              </label>
-              <input
-                type="file"
-                accept=".doc,.docx,.pdf"
-                onChange={(e) => setCvFile(e.target.files[0])}
-                className="block w-full border border-gray-300 rounded-md py-2 px-3 text-gray-700 focus:ring-2 focus:ring-violet-500 focus:border-violet-500 outline-none transition-all"
-              />
-              <p className="text-xs text-gray-500 mt-1">
-                Hỗ trợ định dạng .doc, .docx, .pdf, tối đa 5MB
-              </p>
+              <div className="flex space-x-4 mb-2">
+                <div className="flex items-center">
+                  <input
+                    type="radio"
+                    id="existingCv"
+                    name="cvOption"
+                    value="existing"
+                    checked={cvOption === "existing"}
+                    onChange={() => handleCvOptionChange("existing")}
+                    className="h-4 w-4 text-violet-600 focus:ring-violet-500 border-gray-300"
+                  />
+                  <label
+                    htmlFor="existingCv"
+                    className="ml-2 text-sm text-gray-700"
+                  >
+                    Sử dụng CV có sẵn
+                  </label>
+                </div>
+                <div className="flex items-center">
+                  <input
+                    type="radio"
+                    id="newCv"
+                    name="cvOption"
+                    value="new"
+                    checked={cvOption === "new"}
+                    onChange={() => handleCvOptionChange("new")}
+                    className="h-4 w-4 text-violet-600 focus:ring-violet-500 border-gray-300"
+                  />
+                  <label htmlFor="newCv" className="ml-2 text-sm text-gray-700">
+                    Tải lên CV mới
+                  </label>
+                </div>
+              </div>
+
+              {cvOption === "existing" && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Chọn CV có sẵn
+                  </label>
+                  <select
+                    value={selectedResumeId}
+                    onChange={(e) => setSelectedResumeId(e.target.value)}
+                    className="block w-full border border-gray-300 rounded-md py-2 px-3 text-gray-700 focus:ring-2 focus:ring-violet-500 focus:border-violet-500 outline-none transition-all"
+                  >
+                    <option value="">Chọn CV đã tải lên</option>
+                    {(user.cvs || []).map((resume) => (
+                      <option key={resume.id} value={resume.id}>
+                        {resume.fileName} (
+                        {new Date(resume.uploadedAt).toLocaleDateString()})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {cvOption === "new" && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Tải lên CV mới
+                  </label>
+                  <input
+                    type="file"
+                    accept=".doc,.docx,.pdf"
+                    onChange={(e) => setCvFile(e.target.files[0])}
+                    className="block w-full border border-gray-300 rounded-md py-2 px-3 text-gray-700 focus:ring-2 focus:ring-violet-500 focus:border-violet-500 outline-none transition-all"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Hỗ trợ định dạng .doc, .docx, .pdf, tối đa 5MB
+                  </p>
+                  {cvFile && (
+                    <div className="flex items-center space-x-2 mt-2">
+                      <input
+                        type="checkbox"
+                        id="saveCv"
+                        checked={saveCv}
+                        onChange={(e) => setSaveCv(e.target.checked)}
+                        className="h-4 w-4 text-violet-600 focus:ring-violet-500 border-gray-300 rounded"
+                      />
+                      <label
+                        htmlFor="saveCv"
+                        className="text-sm font-medium text-gray-700"
+                      >
+                        Lưu CV mới vào danh sách CV của bạn
+                      </label>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
             <button
               type="submit"
@@ -239,6 +325,4 @@ const ApplyJobModal = ({ isOpen, onClose, jobId, jobTitle }) => {
       </motion.div>
     </>
   );
-};
-
-export default ApplyJobModal;
+}
