@@ -28,7 +28,6 @@ const JobRecommendBar = () => {
       
         return 0;
       });
-      // console.log(sortedJobs);
 
 
       setJobsRecommend(sortedJobs);
@@ -44,7 +43,7 @@ const JobRecommendBar = () => {
   }, [user.location, user.id]);
 
   return (
-    <div className="w-full md:w-96 p-6">
+    <div className="w-full md:w-96 p-6 pl-0">
       <h2 className="text-xl font-bold mb-4">Việc làm gợi ý cho bạn</h2>
 
       <div className="space-y-4">
