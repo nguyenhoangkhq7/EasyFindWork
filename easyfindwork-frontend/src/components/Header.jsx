@@ -115,7 +115,7 @@ export default function Header() {
     closeModal();
   };
 
-  const handleCompleted = (e) => {
+  const handleCompleted =async (e) => {
     e.preventDefault();
     const fullName = e.target.elements.fullName.value.trim();
     const email = e.target.elements.email.value.trim();
@@ -143,7 +143,7 @@ export default function Header() {
 
     const new_user = { fullName, email, phone };
     try {
-      const result = addUser(new_user);
+      const result = await addUser(new_user);
       // setToken(true);
       dispatch({
         type: "LOGIN",

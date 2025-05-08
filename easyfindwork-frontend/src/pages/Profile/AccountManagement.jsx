@@ -2,6 +2,9 @@ import { useState } from "react"
 import Modal from "react-modal"
 import { useDispatch, useSelector } from "react-redux"
 import { updateUser } from "../../service/user"
+import OTPModal from "../../components/OTPModal"
+import emailjs from '@emailjs/browser'
+import Swal from 'sweetalert2'
 
 
 export default function AccountManagement() {
@@ -11,6 +14,10 @@ export default function AccountManagement() {
   const [newEmail, setNewEmail] = useState("")
   const [newPhone, setNewPhone] = useState("")
   const [error, setError] = useState("") // State để lưu thông báo lỗi
+  const [isModalOTPOpen, setIsModalOTPOpen] = useState(false)
+  // const [optCodeInput, setoptCodeInput]= useState();
+  const [otpCode, setOtpCode]= useState();
+
 
   const user= useSelector(state=>state.user);
   const [email, setEmail] = useState(user.email?user.email:"");
@@ -30,6 +37,18 @@ export default function AccountManagement() {
     setIsModalOpen(true);
   }
 
+  const generateOTP = () => Math.floor(1000 + Math.random() * 9000).toString();
+
+  const updateNewUser= (newUser)=>{
+    updateUser(user.id, newUser);
+      dispatch({
+        type: "UPDATE",
+        user: newUser
+      });
+      setIsModalOpen(false);
+      setError("");
+  }
+
   const handleSave = () => {
     let newUser;
     // Kiểm tra email
@@ -43,10 +62,19 @@ export default function AccountManagement() {
         setError("Email không hợp lệ");
         return;
       }
-      setEmail(newEmail);
-      newUser= {...user, email: newEmail};
-      
-
+      if(newEmail==user.email){
+        setError("Email mới không trùng với email hiện tại");
+        return;
+      }
+      // newUser= {...user, email: newEmail};
+      setIsModalOpen(false);
+      const otp= generateOTP(); 
+      setOtpCode(otp);
+      console.log("đã gửi email");
+    
+      sendOtpToEmail(user.email, otp);
+      console.log("đã gửi");
+      setIsModalOTPOpen(true);
     }
 
     // Kiểm tra số điện thoại
@@ -62,16 +90,69 @@ export default function AccountManagement() {
       }
       setPhone(newPhone);
       newUser= {...user, phone: newPhone};
+      // Nếu không có lỗi, đóng modal và reset thông báo lỗi
+      updateNewUser(newUser);
     }
 
-    // Nếu không có lỗi, đóng modal và reset thông báo lỗi
-    updateUser(user.id, newUser);
-      dispatch({
-        type: "UPDATE",
-        user: newUser
+  }
+
+  const openModalOTP = () => setIsModalOTPOpen(true);
+  const closeModalOTP = () => {
+    setIsModalOTPOpen(false);
+  }
+
+  const onBack= ()=>{
+    setIsModalOTPOpen(false);
+    setIsModalOpen(true);
+  }
+
+  const sendOtpToEmail = (email, otp) => {
+    const currentTime = new Date();
+    const expireTime = new Date(currentTime.getTime() + 5 * 60000); // +15 phút
+    const timeString = expireTime.toLocaleTimeString([], {
+    hour: '2-digit',
+    minute: '2-digit',
+    });
+    const templateParams = {
+      passcode: otp,
+      time: timeString,
+      email: email,
+    }
+  
+    emailjs
+      .send('service_sq59oz9', 'template_hoz8l46', templateParams, '4uQ6aucAqBeA9wf1u')
+      .then((response) => {
+        console.log('Email sent!', response.status, response.text);
+      })
+      .catch((err) => {
+        console.error('Failed to send email:', err);
+        Swal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: "Lỗi khi gửi email!",
+          footer: "Kiểm tra lại email của bạn"
+        });
       });
-    setIsModalOpen(false);
-    setError("");
+  };
+
+  const handleOtp= (otp)=>{
+    if(otp== otpCode){
+      console.log("otp ddungs");
+      const newUser= {...user, email: newEmail};
+      updateNewUser(newUser);
+      setEmail(newEmail);
+      closeModalOTP();
+
+        Swal.fire({
+          title: "Cập nhật thành công!",
+          icon: "success",
+          draggable: true
+        });
+    }
+    else{
+      console.log("otp sai");
+      
+    }
   }
 
   const customStyles = {
@@ -92,6 +173,7 @@ export default function AccountManagement() {
 
   return (
     <div className="w-full mx-auto p-4 bg-gray-50">
+      
       <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
         <button onClick={toggleOpen} className="w-full flex items-center justify-between p-4 text-left">
           <h2 className="text-lg font-bold text-gray-900">Thông tin đăng ký</h2>
@@ -188,6 +270,8 @@ export default function AccountManagement() {
           </div>
         </div>
       </Modal>
+
+      <OTPModal isOpen={isModalOTPOpen} onClose={closeModalOTP} email={newEmail} otpCode={otpCode} sentParent= {handleOtp} onBack={onBack}/>
     </div>
   )
 }

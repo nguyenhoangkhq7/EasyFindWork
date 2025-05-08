@@ -137,12 +137,13 @@ const UserInfoModal = ({ isOpen, onRequestClose, user }) => {
               </div>
 
               <div className="mb-4">
-                <label htmlFor="email" className="block text-sm font-bold mb-2">Email</label>
+                <label htmlFor="email" className=" block text-sm font-bold mb-2">Email</label>
                 <input
                   type="email"
                   id="email"
                   defaultValue={user?.email || ""}
-                  className="border rounded w-full py-2 px-3"
+                  disabled
+                  className="border rounded w-full py-2 px-3 bg-gray-100"
                 />
               </div>
 
