@@ -1,66 +1,88 @@
 "use client";
 
 import { useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import axios from "axios";
 import { motion } from "framer-motion";
 import { FaTimes } from "react-icons/fa";
-import { useSelector } from "react-redux";
+
 // ApplyJobModal Component
 const ApplyJobModal = ({ isOpen, onClose, jobId, jobTitle }) => {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [cvFile, setCvFile] = useState(null);
+  const [selectedResumeId, setSelectedResumeId] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const user = useSelector((state) => state.user);
+  const dispatch = useDispatch();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!cvFile) {
-      setErrorMessage("Vui lòng chọn tệp CV để upload.");
+
+    // Validate required fields
+    if (!fullName || !email || !phone) {
+      setErrorMessage(
+        "Vui lòng điền đầy đủ thông tin họ tên, email và số điện thoại."
+      );
+      return;
+    }
+    if (!selectedResumeId && !cvFile) {
+      setErrorMessage("Vui lòng chọn CV có sẵn hoặc tải lên CV mới.");
       return;
     }
 
-    const formData = new FormData();
-    formData.append("file", cvFile);
-    formData.append("upload_preset", "easyfindwork_upload");
-    formData.append("folder", "cv_file");
-
     try {
-      const userId = user.id; // Giả lập userId, trong thực tế lấy từ context hoặc auth
+      const userId = user.id;
+      let resumeId = selectedResumeId;
+      let fileUrl, fileName, fileSize;
 
-      // Upload file lên Cloudinary
-      const cloudinaryResponse = await axios.post(
-        "https://api.cloudinary.com/v1_1/dzcodbajo/upload",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      // If a new file is uploaded
+      if (cvFile) {
+        const formData = new FormData();
+        formData.append("file", cvFile);
+        formData.append("upload_preset", "easyfindwork_upload");
+        formData.append("folder", "cv_apply");
 
-      const fileUrl = cloudinaryResponse.data.secure_url;
-      const fileName = cvFile.name;
-      const fileSize = cvFile.size;
+        // Upload file to Cloudinary
+        const cloudinaryResponse = await axios.post(
+          "https://api.cloudinary.com/v1_1/dzcodbajo/raw/upload",
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
 
-      // Lưu metadata vào json-server
-      const resumeResponse = await axios.post("http://localhost:3000/resumes", {
-        id: `resume_${Date.now()}`,
-        userId,
-        fileUrl,
-        fileName,
-        fileSize,
-        uploadedAt: new Date().toISOString(),
-      });
+        fileUrl = cloudinaryResponse.data.secure_url;
+        fileName = cvFile.name;
+        fileSize = cvFile.size;
 
-      // Lưu thông tin ứng tuyển vào json-server
+        // Update user's CVs in Redux state
+        const newCv = {
+          id: `cv_${Date.now()}`,
+          fileName,
+          fileUrl,
+          fileSize,
+          uploadedAt: new Date().toISOString(),
+        };
+        const updatedCvs = [...(user.cvs || []), newCv];
+        dispatch({
+          type: "UPDATE_USER",
+          payload: { ...user, cvs: updatedCvs },
+        });
+
+        resumeId = newCv.id;
+      }
+
+      // Save application to json-server
       await axios.post("http://localhost:3000/applications", {
         id: `application_${Date.now()}`,
         userId,
         jobId,
-        resumeId: resumeResponse.data.id,
+        resumeId,
         appliedDate: new Date().toISOString(),
         status: "Đang xử lý",
         note: "",
@@ -74,6 +96,7 @@ const ApplyJobModal = ({ isOpen, onClose, jobId, jobTitle }) => {
         setEmail("");
         setPhone("");
         setCvFile(null);
+        setSelectedResumeId("");
         setSuccessMessage("");
       }, 2000);
     } catch (error) {
@@ -164,14 +187,31 @@ const ApplyJobModal = ({ isOpen, onClose, jobId, jobTitle }) => {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                CV ứng tuyển *
+                Chọn CV có sẵn
+              </label>
+              <select
+                value={selectedResumeId}
+                onChange={(e) => setSelectedResumeId(e.target.value)}
+                className="block w-full border border-gray-300 rounded-md py-2 px-3 text-gray-700 focus:ring-2 focus:ring-violet-500 focus:border-violet-500 outline-none transition-all"
+              >
+                <option value="">Chọn CV đã tải lên</option>
+                {(user.cvs || []).map((resume) => (
+                  <option key={resume.id} value={resume.id}>
+                    {resume.fileName} (
+                    {new Date(resume.uploadedAt).toLocaleDateString()})
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Hoặc tải lên CV mới
               </label>
               <input
                 type="file"
                 accept=".doc,.docx,.pdf"
                 onChange={(e) => setCvFile(e.target.files[0])}
                 className="block w-full border border-gray-300 rounded-md py-2 px-3 text-gray-700 focus:ring-2 focus:ring-violet-500 focus:border-violet-500 outline-none transition-all"
-                required
               />
               <p className="text-xs text-gray-500 mt-1">
                 Hỗ trợ định dạng .doc, .docx, .pdf, tối đa 5MB

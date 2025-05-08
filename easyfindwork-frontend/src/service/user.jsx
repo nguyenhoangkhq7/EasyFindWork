@@ -1,8 +1,10 @@
-export const getUserWithMobilePhoneOrEmail= async (requestF)=>{
-  const response= await fetch("http://localhost:3000/users");
-  const users= await response.json();
-  return users.find(user => user.phone === requestF || user.email=== requestF);
-}
+export const getUserWithMobilePhoneOrEmail = async (requestF) => {
+  const response = await fetch("http://localhost:3000/users");
+  const users = await response.json();
+  return users.find(
+    (user) => user.phone === requestF || user.email === requestF
+  );
+};
 
 export const addUser = async (newUser) => {
   const response = await fetch("http://localhost:3000/users", {

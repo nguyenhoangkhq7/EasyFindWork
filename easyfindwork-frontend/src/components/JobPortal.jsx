@@ -1300,9 +1300,9 @@ export default function JobPortal() {
               type="link"
               className="text-indigo-600 font-semibold flex items-center"
             >
-              <Link to="/guides/part-time-guide">Nhân viên part time</Link>
-              <Link to="/guides/remote-job-guide">Việc làm remote</Link>
-              <Link to="/guides/extra-job-guide">Việc làm thêm ngoài giờ</Link>
+              <Link to="/guides/1">Nhân viên part time</Link>
+              <Link to="/guides/2">Việc làm remote</Link>
+              <Link to="/guides/3">Việc làm thêm ngoài giờ</Link>
             </Button>
           </div>
           <Row gutter={[16, 16]} className="px-6 pb-6">

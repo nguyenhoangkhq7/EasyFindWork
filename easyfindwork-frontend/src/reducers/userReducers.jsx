@@ -1,24 +1,37 @@
-const init = JSON.parse(localStorage.getItem("user")) || null;
-
+const init = null;
 export const userReducers = (state = init, action) => {
   switch (action.type) {
     case "LOGIN":
-      localStorage.setItem("user", JSON.stringify(action.user));
-      return action.user;
+      localStorage.setItem("userId", action.user.id);
+      return {
+        ...action.user,
+        cvs: Array.isArray(action.user.cvs) ? action.user.cvs : [],
+      };
 
     case "LOGOUT":
-      localStorage.removeItem("user");
+      localStorage.removeItem("userId");
       return null;
 
-    case "UPDATE":
-      const updatedUser = action.user;
-      localStorage.setItem("user", JSON.stringify(updatedUser));
-      return updatedUser;
+    case "SET_USER":
+      return {
+        ...action.user,
+        cvs: Array.isArray(action.user.cvs) ? action.user.cvs : [],
+      };
+
+    case "UPDATE_USER":
+      return {
+        ...state,
+        ...action.payload,
+        cvs: Array.isArray(action.payload.cvs)
+          ? action.payload.cvs
+          : state.cvs || [],
+      };
 
     case "UPDATE_IMG":
-      const newState = { ...state, avatar: action.url };
-      localStorage.setItem("user", JSON.stringify(newState));
-      return newState;
+      return {
+        ...state,
+        avatar: action.url,
+      };
 
     default:
       return state;
