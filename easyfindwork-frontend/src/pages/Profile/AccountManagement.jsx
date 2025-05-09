@@ -3,8 +3,8 @@ import Modal from "react-modal";
 import { useDispatch, useSelector } from "react-redux";
 import { updateUser } from "../../service/user";
 import OTPModal from "../../components/OTPModal";
-import emailjs from "@emailjs/browser";
 import Swal from "sweetalert2";
+import { sendOtpToEmail } from "../../untils/email";
 
 export default function AccountManagement() {
   const [isOpen, setIsOpen] = useState(true);
@@ -90,6 +90,10 @@ export default function AccountManagement() {
       newUser = { ...user, phone: newPhone };
       // Nếu không có lỗi, đóng modal và reset thông báo lỗi
       updateNewUser(newUser);
+      dispatch({
+        type: "UPDATE_USER",
+        payload: newUser
+      })
     }
   };
 
@@ -103,46 +107,51 @@ export default function AccountManagement() {
     setIsModalOpen(true);
   };
 
-  const sendOtpToEmail = (email, otp) => {
-    const currentTime = new Date();
-    const expireTime = new Date(currentTime.getTime() + 5 * 60000); // +15 phút
-    const timeString = expireTime.toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-    const templateParams = {
-      passcode: otp,
-      time: timeString,
-      email: email,
-    };
+  // const sendOtpToEmail = (email, otp) => {
+  //   const currentTime = new Date();
+  //   const expireTime = new Date(currentTime.getTime() + 5 * 60000); // +15 phút
+  //   const timeString = expireTime.toLocaleTimeString([], {
+  //     hour: "2-digit",
+  //     minute: "2-digit",
+  //   });
+  //   const templateParams = {
+  //     passcode: otp,
+  //     time: timeString,
+  //     email: email,
+  //   };
 
-    emailjs
-      .send(
-        "service_sq59oz9",
-        "template_hoz8l46",
-        templateParams,
-        "4uQ6aucAqBeA9wf1u"
-      )
-      .then((response) => {
-        console.log("Email sent!", response.status, response.text);
-      })
-      .catch((err) => {
-        console.error("Failed to send email:", err);
-        Swal.fire({
-          icon: "error",
-          title: "Oops...",
-          text: "Lỗi khi gửi email!",
-          footer: "Kiểm tra lại email của bạn",
-        });
-      });
-  };
+  //   emailjs
+  //     .send(
+  //       "service_sq59oz9",
+  //       "template_hoz8l46",
+  //       templateParams,
+  //       "4uQ6aucAqBeA9wf1u"
+  //     )
+  //     .then((response) => {
+  //       console.log("Email sent!", response.status, response.text);
+  //     })
+  //     .catch((err) => {
+  //       console.error("Failed to send email:", err);
+  //       Swal.fire({
+  //         icon: "error",
+  //         title: "Oops...",
+  //         text: "Lỗi khi gửi email!",
+  //         footer: "Kiểm tra lại email của bạn",
+  //       });
+  //     });
+  // };
 
   const handleOtp = (otp) => {
     if (otp == otpCode) {
       console.log("otp ddungs");
       const newUser = { ...user, email: newEmail };
       updateNewUser(newUser);
+      dispatch({
+        type: "UPDATE_USER",
+        payload: newUser
+      });
       setEmail(newEmail);
+      setNewEmail("");
       closeModalOTP();
 
       Swal.fire({
@@ -172,7 +181,7 @@ export default function AccountManagement() {
   };
 
   return (
-    <div className="w-full mx-auto p-4 bg-gray-50">
+    <div className="flex-1 p-6 space-y-6 bg-gray-50">
       <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
         <button
           onClick={toggleOpen}
@@ -190,13 +199,13 @@ export default function AccountManagement() {
                   <span className="font-medium text-gray-700 min-w-24">
                     Email
                   </span>
-                  <div className="w-[350px] flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-md">
+                  <div className="w-[300px] flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-md">
                     <span className="text-gray-900">{email}</span>
                   </div>
                 </div>
                 <button
                   onClick={() => handleEditClick("email")}
-                  className="w-[200px] flex items-center justify-center px-4 py-2 rounded-md bg-purple-50 text-purple-700 hover:bg-purple-100"
+                  className="w-[180px] flex items-center justify-center px-4 py-2 rounded-md bg-purple-50 text-purple-700 hover:bg-purple-100"
                 >
                   Sửa email
                 </button>
@@ -210,13 +219,13 @@ export default function AccountManagement() {
                   <span className="font-medium text-gray-700 min-w-24">
                     Số điện thoại
                   </span>
-                  <div className="w-[350px] flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-md">
+                  <div className="w-[300px] flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-md">
                     <span className="text-gray-900">{phone}</span>
                   </div>
                 </div>
                 <button
                   onClick={() => handleEditClick("phone")}
-                  className="w-[200px] flex items-center justify-center px-4 py-2 rounded-md bg-purple-50 text-purple-700 hover:bg-purple-100"
+                  className="w-[180px] flex items-center justify-center px-4 py-2 rounded-md bg-purple-50 text-purple-700 hover:bg-purple-100"
                 >
                   Sửa số điện thoại
                 </button>
@@ -295,7 +304,7 @@ export default function AccountManagement() {
       <OTPModal
         isOpen={isModalOTPOpen}
         onClose={closeModalOTP}
-        email={newEmail}
+        email={user.email}
         otpCode={otpCode}
         sentParent={handleOtp}
         onBack={onBack}

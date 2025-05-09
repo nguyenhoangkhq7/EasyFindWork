@@ -26,7 +26,7 @@ const JobItem = ({ job }) => {
         // console.log(saved);
         if (saved) { 
           setLiked(true);
-          setSavedJobId(saved.id); // lưu lại ID để xoá sau
+          setSavedJobId(saved.id);
         }
       } catch (error) {
         console.error("Lỗi khi kiểm tra job đã lưu:", error);
@@ -53,6 +53,8 @@ const JobItem = ({ job }) => {
     } else {
       // Đã lưu → Xoá
       if (savedJobId) {
+        // console.log("xoas");
+        
         await deleteJobSaved(savedJobId);
         // console.log("đã xóa: ", savedJobId);
         setLiked(false);
@@ -67,13 +69,12 @@ const JobItem = ({ job }) => {
 
   return (
     <div className="bg-white border-2 border-gray-200 rounded-md p-5 relative hover:shadow-xl hover:border-blue-300 transition-all duration-300 ease-in-out group">
-  {/* Icon tim */}
-  <div className="absolute top-3 right-3">
-    <Heart
-      className={`h-5 w-5 transition-colors duration-200 ${liked ? 'text-red-500' : 'text-gray-300'} group-hover: cursor-pointer`}
-      onClick={handleHeartClick}
-    />
-  </div>
+    <div className="absolute top-3 right-3">
+      <Heart
+        className={`h-5 w-5 transition-colors duration-200 ${liked ? 'text-red-500' : 'text-gray-300'} group-hover: cursor-pointer`}
+        onClick={handleHeartClick}
+      />
+    </div>
 
   {/* Nội dung job */}
   <div className="flex gap-4">
@@ -117,8 +118,10 @@ const JobItem = ({ job }) => {
       <div className="flex items-center gap-1 text-sm text-gray-500">
         <img src="/time.png" alt="deadline" className="w-4 h-4" />
         <span>
-          {job.deadline
-            ? `Còn ${calculateDaysLeft(job.deadline)} ngày`
+          {job.deadline ? 
+            new Date(job.deadline) < new Date() 
+              ? "Hết hạn" 
+              : `Còn ${calculateDaysLeft(job.deadline)} ngày` 
             : "Deadline info"}
         </span>
       </div>

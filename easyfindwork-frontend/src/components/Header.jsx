@@ -5,11 +5,15 @@ import Modal from "react-modal";
 import { addUser, getUserWithMobilePhoneOrEmail } from "../service/user";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { getIndustryJobIsActive } from "../service/job";
+import OTPModal from "./OTPModal";
+import { sendOtpToEmail } from "../untils/email";
 
 export default function Header() {
   const [isJobDropdownOpen, setIsJobDropdownOpen] = useState(false);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState();
+  const [otpCode, setOtpCode]= useState();
 
   let timeoutId = null;
 
@@ -45,7 +49,6 @@ export default function Header() {
   };
 
   // xử lí modal
-  const [token, setToken] = useState(false);
 
   const [placeholderText, setPlaceholderText] = useState("Nhập Số điện thoại");
   const [loginWithMobile, setLoginMobile] = useState(true);
@@ -53,9 +56,14 @@ export default function Header() {
   const [inputValue, setInputValue] = useState("");
   const [error, setError] = useState("");
   const [isShowInfor, setShowInfor] = useState(false);
+  const [isShowOTPModal, setShowOTPModal]= useState(false);
+  const [usserSingIn, setUserSignIn]= useState(null);
+  const [emailReceivedOtp, setEmailReceiveOTP] = useState("");
 
   const [errorName, setErrorName] = useState();
   const [errorEmail, setErrorEmail] = useState();
+
+  const [jobIndustry, setJobIndustry]= useState();
 
   const user = useSelector((state) => state.user);
   const dispatch = useDispatch();
@@ -68,6 +76,14 @@ export default function Header() {
     setShowModal(false);
     reload();
   };
+
+  const openOtpModal= ()=>{
+    setShowOTPModal(true);
+  };
+  const closeOtpModal=()=>{
+    setShowOTPModal(false);
+  }
+  
 
   const handleLoginWithMethod = () => {
     setLoginMobile(!loginWithMobile);
@@ -99,11 +115,15 @@ export default function Header() {
       return;
     }
 
-    const user_now = await getUserWithMobilePhoneOrEmail(inputValue);
-    // console.log(user_now);
+    else if(!isPhoneLogin && inputValue==""){
+      setError("Vui lòng nhập email.");
+      return;
+    }
 
+    const user_now = await getUserWithMobilePhoneOrEmail(inputValue);
     if (!user_now) {
       setShowInfor(true); // Chỉ show form nếu đang dùng số điện thoại
+      setEmailReceiveOTP(inputValue);
       return;
     }
 
@@ -115,10 +135,13 @@ export default function Header() {
     closeModal();
   };
 
+  const generateOTP = () => Math.floor(1000 + Math.random() * 9000).toString();
+
   const handleCompleted =async (e) => {
     e.preventDefault();
     const fullName = e.target.elements.fullName.value.trim();
     const email = e.target.elements.email.value.trim();
+    setEmailReceiveOTP(email);
     const phone = e.target.elements.phone.value.trim();
     const nameRegex = /^([A-Za-zÀ-ỹà-ỹ]+)(\s[A-Za-zÀ-ỹà-ỹ]+)*$/;
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -127,34 +150,60 @@ export default function Header() {
       setErrorName("Tên không chứa số và kí tự đặc biệt.");
       return;
     }
+    const new_user = { fullName, email, phone };
+    setUserSignIn(new_user);
+    console.log("new",usserSingIn);
+    
+    // đăng nhập bằng sdt
     if (loginWithMobile) {
       if (!emailRegex.test(email)) {
         setErrorEmail("Chưa đúng định dạng email.");
         return;
       }
-    } else {
+      const checkUser=await getUserWithMobilePhoneOrEmail(email);
+      if(checkUser!=null){
+        setErrorEmail("Email đã được sử dụng.");
+        return;
+      }
+      
+      await addNewUserWhenSignIn(new_user);
+      closeModal();
+    } 
+    // đăng nhập bằng email 
+    else {
       if (!phoneRegex.test(phone)) {
         setError("Số điện thoại không hợp lệ. Vui lòng nhập 10 chữ số.");
         return;
       }
+      const checkUser= await getUserWithMobilePhoneOrEmail(phone);
+      if(checkUser!=null){
+        // console.log(checkUser);
+        setError("Số điện thoãi đã được sử dụng.");
+        return;
+      }
+      //xử lí thêm user
+      
+      const otp_gener= generateOTP();
+      setOtpCode(otp_gener);
+      sendOtpToEmail(emailReceivedOtp, otp_gener);
+      console.log("ma otp: ",otp_gener);
+      
+      openOtpModal();
     }
-
-    // console.log("phone", phone);
-
-    const new_user = { fullName, email, phone };
-    try {
-      const result = await addUser(new_user);
-      // setToken(true);
-      dispatch({
-        type: "LOGIN",
-        user: result,
-      });
-      // console.log(new_user);
-    } catch (error) {
-      console.error("Errol add user");
-    }
-    closeModal();
+    
   };
+
+  const addNewUserWhenSignIn=async (new_user)=> {
+      try {
+        const result = await addUser(new_user);
+        dispatch({
+          type: "LOGIN",
+          user: result,
+        });
+      } catch (error) {
+        console.error("Errol add user");
+      }
+  }
 
   const reload = () => {
     setError("");
@@ -165,25 +214,62 @@ export default function Header() {
     setPlaceholderText("Nhập số điện thoại");
   };
 
-  const getName = (fullName) => {
-    const parts = fullName.trim().split(" ");
-    const lastName = parts[parts.length - 1];
-    return lastName;
-  };
 
   const navigate = useNavigate();
   const handleLogout = () => {
     dispatch({
       type: "LOGOUT",
     });
-    navigate("/"); // chuyển về trang chủ
+    navigate("/"); 
   };
 
-  // console.log("user: ", user);
-
   // end xử lí modal
+
+  // xử lí cơ hội việc làm
+  useEffect(() => {
+    const fetchJobIndustry = async () => {
+      try {
+        const jobIsActive = await getIndustryJobIsActive();
+        setJobIndustry(jobIsActive);
+      } catch (error) {
+        console.error("Error fetching job industries:", error);
+        setJobIndustry([]); // fallback tránh undefined
+      }
+    };
+  
+    fetchJobIndustry();
+  }, []);
+  // end xử lí cơ hội việc làm
+
+  // xử lí otp
+const handleOtp = async (otp) => {
+    if(otp==otpCode){
+      closeModal();
+      closeOtpModal();
+      addNewUserWhenSignIn(usserSingIn);
+      // console.log(usserSingIn);
+    }
+    else{
+      Swal.fire({
+        icon: "error",
+        title: "Đăng kí thất bại...",
+        text: "Vui lòng thử lại!",
+        footer: '<a href="#">Why do I have this issue?</a>'
+      });
+    }
+  };
+  // end xử lí otp
+
   return (
     <div className="w-full shadow-md">
+      <OTPModal
+              isOpen={isShowOTPModal}
+              onClose={closeOtpModal}
+              email={emailReceivedOtp}
+              otpCode={otpCode}
+              sentParent={handleOtp}
+              onBack={closeOtpModal}
+            />
       {/* Top banner */}
       <div className="flex items-center justify-between px-6 py-3 bg-gradient-to-r from-blue-50 to-gray-50">
         <div className="flex items-center gap-3">
@@ -237,53 +323,19 @@ export default function Header() {
                 }`}
               />
             </button>
-            {isJobDropdownOpen && (
+            {(isJobDropdownOpen && jobIndustry) && (
+
               <div className="absolute top-full left-0 mt-0 bg-white text-gray-800 rounded-xl shadow-2xl p-4 w-64 z-10 animate-fadeIn">
-                <Link
-                  to="/jobs/marketing"
-                  className="flex items-center gap-2 px-4 py-3 text-sm font-medium hover:bg-violet-100 rounded-lg transition-all duration-300 hover:text-violet-700"
-                  onMouseEnter={handleMouseEnterJob}
-                  onMouseLeave={handleMouseLeaveJob}
-                >
-                  <span className="w-2 h-2 bg-violet-500 rounded-full"></span>
-                  Marketing
-                </Link>
-                <Link
-                  to="/jobs/it"
-                  className="flex items-center gap-2 px-4 py-3 text-sm font-medium hover:bg-violet-100 rounded-lg transition-all duration-300 hover:text-violet-700"
-                  onMouseEnter={handleMouseEnterJob}
-                  onMouseLeave={handleMouseLeaveJob}
-                >
-                  <span className="w-2 h-2 bg-violet-500 rounded-full"></span>
-                  Công nghệ thông tin (IT)
-                </Link>
-                <Link
-                  to="/jobs/sales"
-                  className="flex items-center gap-2 px-4 py-3 text-sm font-medium hover:bg-violet-100 rounded-lg transition-all duration-300 hover:text-violet-700"
-                  onMouseEnter={handleMouseEnterJob}
-                  onMouseLeave={handleMouseLeaveJob}
-                >
-                  <span className="w-2 h-2 bg-violet-500 rounded-full"></span>
-                  Kinh doanh - Bán hàng
-                </Link>
-                <Link
-                  to="/jobs/design"
-                  className="flex items-center gap-2 px-4 py-3 text-sm font-medium hover:bg-violet-100 rounded-lg transition-all duration-300 hover:text-violet-700"
-                  onMouseEnter={handleMouseEnterJob}
-                  onMouseLeave={handleMouseLeaveJob}
-                >
-                  <span className="w-2 h-2 bg-violet-500 rounded-full"></span>
-                  Thiết kế - Đa phương tiện
-                </Link>
-                <Link
-                  to="/jobs/hr"
-                  className="flex items-center gap-2 px-4 py-3 text-sm font-medium hover:bg-violet-100 rounded-lg transition-all duration-300 hover:text-violet-700"
-                  onMouseEnter={handleMouseEnterJob}
-                  onMouseLeave={handleMouseLeaveJob}
-                >
-                  <span className="w-2 h-2 bg-violet-500 rounded-full"></span>
-                  Nhân sự - Hành chính
-                </Link>
+                <div className="max-h-96 overflow-y-auto">
+                  {jobIndustry.map((item, index)=>(
+                    <JobOpportunityLink
+                      key={index}
+                      item={item}
+                      handleMouseEnterJob={handleMouseEnterJob}
+                      handleMouseLeaveJob={handleMouseLeaveJob}
+                    />
+                ))}
+                </div>
               </div>
             )}
           </div>
@@ -513,3 +565,26 @@ export default function Header() {
     </div>
   );
 }
+
+const JobOpportunityLink = ({ item, handleMouseEnterJob, handleMouseLeaveJob }) => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const handleClickJobOpp = () => {
+    dispatch({ type: "SET_SELECTED_INDUSTRY", payload: item });
+    navigate("/job-opportunities");
+  };
+
+  return (
+    <div
+      onClick={handleClickJobOpp}
+      onMouseEnter={handleMouseEnterJob}
+      onMouseLeave={handleMouseLeaveJob}
+      className="cursor-pointer flex items-center gap-2 px-4 py-3 text-sm font-medium hover:bg-violet-100 rounded-lg transition-all duration-300 hover:text-violet-700"
+    >
+      <span className="w-2 h-2 bg-violet-500 rounded-full"></span>
+      {item}
+    </div>
+  );
+};
+

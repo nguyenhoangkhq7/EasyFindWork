@@ -12,11 +12,12 @@ const JobRecommendBar = () => {
     if (!user?.location) return;
 
     try {
+      const currentDate= new Date();
       setLoading(true);
       const response = await fetch("http://localhost:3000/jobs");
       const jobs = await response.json();
       const filtered = jobs.filter(
-        (job) => job.location === user.location && job.isActive
+        (job) => job.location === user.location && job.isActive && new Date(job.deadline) >= currentDate
       );
       const likedJobs= (await getJobSaveByUserId(user.id)).map(x=>x.id) ||[];
       const sortedJobs = filtered.sort((a, b) => {

@@ -25,11 +25,11 @@ const JobSaved = () => {
   }, [user?.id]);
 
   return (
-    <motion.div className=""
+    <motion.div className="w-full"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: "easeOut" }}>
-        <div className="min-h-screen bg-gray-100 p-6 ">
+        <div className="min-h-screen bg-gray-100 flex-1 p-6 space-y-6">
           <h1 className="text-2xl font-bold text-gray-800 mb-6 flex items-center">
             <svg className="w-6 h-6 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>

@@ -114,6 +114,104 @@
       "createdAt": "2025-04-27T10:00:00Z",
       "updatedAt": "2025-05-02T11:00:00Z",
       "csv": []
+    },
+    {
+      "id": "d424",
+      "fullName": "Huỳnh Nguyễn Phúc Vinh",
+      "email": "hakootamonsters@gmail.com",
+      "phone": "1234567891",
+      "cvs": [
+        {
+          "id": "cv_1746722298760",
+          "fileName": "Chuong01_Tongquan_CNPM.pdf",
+          "fileUrl": "https://res.cloudinary.com/dzcodbajo/raw/upload/v1746722298/cv_file/ryxhjd5nhbxbwynwfes9.pdf",
+          "publicId": "cv_file/ryxhjd5nhbxbwynwfes9.pdf",
+          "fileSize": 4675114,
+          "uploadedAt": "2025-05-08T16:38:18.760Z"
+        }
+      ],
+      "avatar": "https://res.cloudinary.com/dzcodbajo/image/upload/v1746718785/cv_file/nu1cjehxa7qqoz0humm5.jpg",
+      "location": "TP.HCM",
+      "address": "Bình Thạnh, TP.HCM",
+      "desiredJob": "Kỹ sư phần mềm",
+      "desiredSalary": 20000000,
+      "experience": "3-5 năm",
+      "education": "Đại học",
+      "skills": [
+        "Lập trình",
+        "Phân tích",
+        "Tiếng Anh"
+      ]
+    },
+    {
+      "id": "e7d5",
+      "fullName": "Huỳnh Nguyễn Phúc Vinh",
+      "email": "phucvinh20112004@gmail.com",
+      "phone": "0889278071"
+    },
+    {
+      "id": "79d2",
+      "fullName": "aaa",
+      "email": "aaa@gmail.com",
+      "phone": "6666666661"
+    },
+    {
+      "id": "f51f",
+      "fullName": "aaa",
+      "email": "aaaa@gmail.com",
+      "phone": "1920902981",
+      "cvs": [],
+      "location": "TP.HCM",
+      "address": "Bình Thạnh, TP.HCM",
+      "avatar": "https://res.cloudinary.com/dzcodbajo/image/upload/v1746770964/cv_file/blz2hgqn9ykev13knpwm.jpg"
+    },
+    {
+      "id": "4892",
+      "fullName": "Huỳnh Nguyễn Phúc Vinh",
+      "email": "sss@gmail.com",
+      "phone": "4444444444"
+    },
+    {
+      "id": "9cee",
+      "fullName": "qqq",
+      "email": "pv@gmail.com",
+      "phone": "3222222222"
+    },
+    {
+      "id": "6673",
+      "fullName": "qqq",
+      "email": "pv1@gmail.com",
+      "phone": "1111111111"
+    },
+    {
+      "id": "6870",
+      "fullName": "aaa",
+      "email": "p3v@gmail.com",
+      "phone": "2222222222"
+    },
+    {
+      "id": "5a4a",
+      "fullName": "qqq",
+      "email": "bc1@emailvn.icu",
+      "phone": "4444444441"
+    },
+    {
+      "id": "9f8d",
+      "fullName": "qqq",
+      "email": "p1v@gmail.com",
+      "phone": "2222222251"
+    },
+    {
+      "id": "50b1",
+      "fullName": "qqq",
+      "email": "pc1@gmail.com",
+      "phone": "1234567892"
+    },
+    {
+      "id": "f59f",
+      "fullName": "ta la ai",
+      "email": "a1aa@gmail.com",
+      "phone": "1221112121"
     }
   ],
   "companies": [
@@ -1712,6 +1810,54 @@
       "jobId": "job_004",
       "userId": "90b9",
       "savedAt": "2025-05-07T03:27:43.496Z"
+    },
+    {
+      "id": "1cb8",
+      "userId": "d424",
+      "jobId": "job_001",
+      "savedAt": "2025-05-09T02:41:09.461Z"
+    },
+    {
+      "id": "953a",
+      "userId": "d424",
+      "jobId": "job_039",
+      "savedAt": "2025-05-09T05:14:32.201Z"
+    },
+    {
+      "id": "bd04",
+      "userId": "d424",
+      "jobId": "job_005",
+      "savedAt": "2025-05-09T05:20:53.170Z"
+    },
+    {
+      "id": "8327",
+      "userId": "d424",
+      "jobId": "job_003",
+      "savedAt": "2025-05-09T05:32:40.412Z"
+    },
+    {
+      "id": "9d12",
+      "userId": "d424",
+      "jobId": "job_006",
+      "savedAt": "2025-05-09T05:40:01.647Z"
+    },
+    {
+      "id": "0a95",
+      "jobId": "job_002",
+      "userId": "d424",
+      "savedAt": "2025-05-09T05:41:17.888Z"
+    },
+    {
+      "id": "1490",
+      "userId": "f51f",
+      "jobId": "job_003",
+      "savedAt": "2025-05-09T06:07:07.647Z"
+    },
+    {
+      "id": "90fc",
+      "userId": "f51f",
+      "jobId": "job_005",
+      "savedAt": "2025-05-09T06:07:21.770Z"
     }
   ]
 }

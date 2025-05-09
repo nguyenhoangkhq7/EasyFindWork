@@ -17,6 +17,7 @@ import ExtraJobsGuide from "./pages/posts/ExtraJobsGuide";
 import LayoutDefault from "./pages/LayoutDefault";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
+import JobOpportunity from "./pages/JobOpportunity";
 function App() {
   const dispatch = useDispatch();
   // Kiểm tra xem người dùng đã đăng nhập hay chưa
@@ -57,6 +58,7 @@ function App() {
         </Route>
         <Route path="login" element={<Login />} />
         <Route path="register" element={<Register />} />
+        <Route path="job-opportunities" element={<JobOpportunity/>}/>
       </Route>
     </Routes>
   );

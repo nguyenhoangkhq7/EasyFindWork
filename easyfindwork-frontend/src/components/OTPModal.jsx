@@ -2,17 +2,20 @@ import { useState, useRef, useEffect } from "react"
 import { FaTimes, FaShieldAlt, FaUser } from "react-icons/fa"
 import { IoIosArrowBack } from "react-icons/io";
 
-export default function OTPModal({ isOpen, onClose, email , sentParent, onBack}) {
-  const [timer, setTimer] = useState({ minutes: 4, seconds: 49 })
-  const [otp, setOtp] = useState(["", "", "", ""])
-  const inputRefs = [useRef(null), useRef(null), useRef(null), useRef(null)]
-  const modalRef = useRef(null)
+export default function OTPModal({ isOpen, onClose, email , otpCode,sentParent, onBack}) {
+  const [timer, setTimer] = useState({ minutes: 4, seconds: 49 });
+  const [otp, setOtp] = useState(["", "", "", ""]);
+  const inputRefs = [useRef(null), useRef(null), useRef(null), useRef(null)];
+  const modalRef = useRef(null);
+  const [erOtp,setErOtp]= useState();
+  const [hasExpired, setHasExpired] = useState(false);
 
   // Reset OTP when modal opens
   useEffect(() => {
     if (isOpen) {
       setOtp(["", "", "", ""])
       setTimer({ minutes: 4, seconds: 49 })
+      setErOtp("");
     }
   }, [isOpen])
 
@@ -28,6 +31,7 @@ export default function OTPModal({ isOpen, onClose, email , sentParent, onBack})
         inputRefs[index + 1].current.focus()
       }
     }
+    setErOtp("");
   }
 
   // Handle backspace key
@@ -50,7 +54,7 @@ export default function OTPModal({ isOpen, onClose, email , sentParent, onBack})
         newOtp[index] = value
       }
     })
-
+    setErOtp("");
     setOtp(newOtp)
 
     // Focus last filled input or first input
@@ -70,7 +74,6 @@ export default function OTPModal({ isOpen, onClose, email , sentParent, onBack})
   // Timer countdown
   useEffect(() => {
     if (!isOpen) return
-
     const interval = setInterval(() => {
       setTimer((prevTimer) => {
         if (prevTimer.seconds > 0) {
@@ -86,6 +89,22 @@ export default function OTPModal({ isOpen, onClose, email , sentParent, onBack})
 
     return () => clearInterval(interval)
   }, [isOpen])
+
+  useEffect(() => {
+    if (timer.minutes === 0 && timer.seconds === 0 && !hasExpired) {
+      setErOtp("Mã OTP đã hết hạn, vui lòng yêu cầu lại.");
+      setHasExpired(true);
+      sentParent("-1000");
+    }
+  }, [timer, hasExpired]);
+  useEffect(() => {
+    if (isOpen) {
+      setOtp(["", "", "", ""]);
+      setTimer({ minutes: 4, seconds: 49 });
+      setErOtp("");
+      setHasExpired(false); // Reset khi mở lại modal
+    }
+  }, [isOpen]);
 
   // Format timer display
   const formatTime = () => {
@@ -117,15 +136,27 @@ export default function OTPModal({ isOpen, onClose, email , sentParent, onBack})
 
   
   useEffect(()=>{
+    if (timer.minutes === 0 && timer.seconds === 0) {
+      setErOtp("Mã OTP đã hết hạn, vui lòng yêu cầu lại.");
+    }
       const isComplete= otp.every((digit)=> digit!="");
       if(isComplete){
-          const otpCode= otp.join("");
-          sentParent(otpCode);
-        }
+          const enterOTP= otp.join("");
+          if(otpCode==enterOTP)
+            sentParent(enterOTP);
+          else{
+            setErOtp("Mã OTP sai, nhập lại");
+            setOtp(["", "", "", ""]); // Xóa ô nhập
+            setTimeout(() => {
+              inputRefs[0].current.focus(); // Focus lại ô đầu tiên
+            }, 100);
+                }
+              }
     }, [otp])
     
     if (!isOpen) return null
   
+
   return (
     <div
       className="fixed inset-0 bg-black/30 bg-opacity-50 flex items-center justify-center p-4 z-50"
@@ -173,6 +204,7 @@ export default function OTPModal({ isOpen, onClose, email , sentParent, onBack})
               />
             ))}
           </div>
+          {erOtp && <p className="text-red-500 text-sm mb-2 text-center">{erOtp}</p>}
 
           {/* Timer */}
           <div className="text-center">

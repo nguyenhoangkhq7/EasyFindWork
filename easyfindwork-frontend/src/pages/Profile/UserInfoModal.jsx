@@ -58,7 +58,7 @@ const UserInfoModal = ({ isOpen, onRequestClose, user }) => {
       // console.log("update",userNew);
       
       await updateUser(user.id, userNew);
-      dispatch({ type: "UPDATE", user: userNew });
+      dispatch({ type: "UPDATE_USER", payload: userNew });
 
       await Swal.fire({
         icon: "success",
