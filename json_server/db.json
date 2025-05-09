@@ -147,7 +147,10 @@
       "id": "e7d5",
       "fullName": "Huỳnh Nguyễn Phúc Vinh",
       "email": "phucvinh20112004@gmail.com",
-      "phone": "0889278071"
+      "phone": "0889278071",
+      "cvs": [],
+      "location": "TP.HCM",
+      "address": "Bình Thạnh, TP.HCM"
     },
     {
       "id": "79d2",
@@ -212,6 +215,12 @@
       "fullName": "ta la ai",
       "email": "a1aa@gmail.com",
       "phone": "1221112121"
+    },
+    {
+      "id": "0c79",
+      "fullName": "vinh day ne",
+      "email": "pc@gmail.com",
+      "phone": "1234567895"
     }
   ],
   "companies": [
@@ -1858,6 +1867,18 @@
       "userId": "f51f",
       "jobId": "job_005",
       "savedAt": "2025-05-09T06:07:21.770Z"
+    },
+    {
+      "id": "3e51",
+      "userId": "e7d5",
+      "jobId": "job_003",
+      "savedAt": "2025-05-09T08:10:32.015Z"
+    },
+    {
+      "id": "9790",
+      "userId": "e7d5",
+      "jobId": "job_005",
+      "savedAt": "2025-05-09T08:10:32.937Z"
     }
   ]
 }
