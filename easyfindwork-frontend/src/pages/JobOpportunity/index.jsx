@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { getAllJobByIndustry } from "../../service/job";
 
 const JobOpportunity= ()=>{
+    const user= useSelector(state=> state.user);
     const jobIdus= useSelector(state=> state.jobIndusOpp);
     const [jobListings, setJobListings]= useState([]);
     const getJobListings= async()=>{
@@ -26,7 +27,13 @@ const JobOpportunity= ()=>{
     
 
     return (<>
-        {jobIdus && (
+        {!user && (
+          <>
+          <p className="text-gray-500 text-center">Vui lòng đăng nhập để sử dụng tính năng này</p>
+          <div className="h-[50vh]"></div>
+          </>
+        )}
+        {jobIdus && user && (
             <motion.div className=""
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
