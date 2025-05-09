@@ -48,9 +48,14 @@ export const addJobSaved = async (jobSaved) => {
   
     if (!response.ok) {
       throw new Error("Không thể thêm người dùng mới");
-    }};
+    };
+    const savedJob = await response.json();
+    return savedJob;
+}
 
 export const deleteJobSaved = async (jobSavedId) => {
+    // console.log("đang xóa: ", jobSavedId);
+    
     const response = await fetch(`http://localhost:3000/savedJobs/${jobSavedId}`, {
         method: "DELETE",
     });

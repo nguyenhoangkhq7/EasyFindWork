@@ -8,7 +8,7 @@ const JobItem = ({ job }) => {
   const user= useSelector(state=>state.user);
   const [company, setCompany] = useState();
   const [liked, setLiked] = useState(false);
-  const [savedJobId, setSavedJobId] = useState(null); // để lưu id khi cần xóa
+  const [savedJob, setSavedJob] = useState(null); // để lưu job khi cần xóa
 
   useEffect(() => {
     fetch("http://localhost:3000/companies")
@@ -26,7 +26,7 @@ const JobItem = ({ job }) => {
         // console.log(saved);
         if (saved) { 
           setLiked(true);
-          setSavedJobId(saved.id);
+          setSavedJob(saved);
         }
       } catch (error) {
         console.error("Lỗi khi kiểm tra job đã lưu:", error);
@@ -46,19 +46,19 @@ const JobItem = ({ job }) => {
         jobId: job.id,
         savedAt: new Date().toISOString(),
       };
-      await addJobSaved(jobSaved);
-      // console.log("job", jobSaved);
-      
+      const jobResult=  await addJobSaved(jobSaved);
+
+      setSavedJob(jobResult);
       setLiked(true);
     } else {
       // Đã lưu → Xoá
-      if (savedJobId) {
-        // console.log("xoas");
+      if (savedJob) {
+        console.log("xoas", savedJob);
         
-        await deleteJobSaved(savedJobId);
-        // console.log("đã xóa: ", savedJobId);
+        await deleteJobSaved(savedJob.id);
+        // console.log("đã xóa: ", savedJob);
         setLiked(false);
-        setSavedJobId(null);
+        setSavedJob(null);
       }
     }
    
