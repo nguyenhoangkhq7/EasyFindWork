@@ -84,11 +84,11 @@ export default function JobPortal() {
   // Hàm kiểm tra công việc tuyển gấp (deadline còn dưới 10 ngày)
   const isUrgentJob = useCallback((deadline) => {
     if (!deadline) return false;
-    const now = new Date("2025-05-05");
+    const now = new Date();
     const deadlineDate = new Date(deadline);
     const timeDiff = deadlineDate - now;
     const daysRemaining = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
-    return daysRemaining >= 0 && daysRemaining <= 15;
+    return daysRemaining >= 0 && daysRemaining <= 15; // Chỉ hiển thị nếu chưa hết hạn và còn dưới 15 ngày
   }, []);
 
   // Lọc các công ty có size từ 1000 người trở lên
