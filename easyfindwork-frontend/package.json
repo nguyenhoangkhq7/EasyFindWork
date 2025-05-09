@@ -20,6 +20,7 @@
     "framer-motion": "^12.9.4",
     "lucide-react": "^0.507.0",
     "react": "^19.1.0",
+    "react-chatbotify": "^2.0.0-beta.33",
     "react-dom": "^19.1.0",
     "react-icons": "^5.5.0",
     "react-modal": "^3.16.3",

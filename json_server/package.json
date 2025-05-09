@@ -1,16 +1,18 @@
 {
   "name": "json_server",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
-    "start": "json-server --watch db.json",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "concurrently \"npm run json-server\" \"npm run express\"",
+    "json-server": "json-server --watch db.json --port 3000",
+    "express": "node server.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
   "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
     "json-server": "^1.0.0-beta.3"
   }
 }
