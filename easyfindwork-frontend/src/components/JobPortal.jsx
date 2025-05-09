@@ -4,8 +4,6 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import { useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import ChatBot from "react-chatbotify";
-import { JobCard } from "./JobCard";
 import {
   FiSearch,
   FiMapPin,
@@ -38,6 +36,7 @@ import Anh1 from "../assets/Anh1.png";
 import Anh2 from "../assets/Anh2.png";
 import Anh3 from "../assets/Anh3.png";
 import { provinces } from "vietnam-provinces";
+import MyChatBot from "./MyChatBot";
 
 const { Option } = Select;
 
@@ -1542,74 +1541,7 @@ export default function JobPortal() {
           </div>
         </div>
       </div>
-      <ChatBot
-        settings={{
-          general: {
-            embedded: false,
-            showFooter: true,
-            primaryColor: "#4f46e5",
-          },
-          chatHistory: {
-            storageKey: "job_portal_chat",
-          },
-          tooltip: {
-            text: "Tìm việc nhanh!",
-            mode: "ALWAYS",
-          },
-          botBubble: {
-            showAvatar: true,
-            avatar: "https://cdn-icons-png.flaticon.com/512/8649/8649602.png",
-          },
-        }}
-        components={{
-          message: (msg) => {
-            console.log("Message received:", msg); // Debug dữ liệu
-            if (msg.type === "jobs") {
-              return (
-                <div className="space-y-2">
-                  {msg.data.map((job) => (
-                    <JobCard key={job.id} job={job} />
-                  ))}
-                </div>
-              );
-            }
-            return <div>{msg.content || msg.message}</div>; // Hiển thị văn bản
-          },
-        }}
-        flow={{
-          start: {
-            message:
-              'Chào bạn! Hãy nhập tên công việc hoặc địa điểm bạn muốn tìm (ví dụ: "IT", "Hà Nội"):',
-            path: "search_jobs",
-          },
-          search_jobs: {
-            message: async (params) => {
-              try {
-                const response = await axios.post(
-                  "http://localhost:5000/api/chatbot/search-jobs",
-                  {
-                    keyword: params.userInput,
-                    userId: user?.id || "guest",
-                  }
-                );
-                console.log("API response:", response.data); // Debug phản hồi API
-                const { type, data, message } = response.data;
-                if (type === "jobs") {
-                  return { type: "jobs", data };
-                }
-                return { type: "text", content: message };
-              } catch (error) {
-                console.error("Error:", error);
-                return {
-                  type: "text",
-                  content: "Xin lỗi, đã có lỗi xảy ra. Vui lòng thử lại!",
-                };
-              }
-            },
-            path: "search_jobs",
-          },
-        }}
-      />
+      <MyChatBot />
     </div>
   );
 }
