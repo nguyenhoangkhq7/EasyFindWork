@@ -8,6 +8,7 @@ import { motion } from "framer-motion";
 import JobRecomend from "../../components/JobRecomend";
 import Swal from "sweetalert2";
 import JobItem from "../../components/JobItem";
+import JobApplied from "../../components/JobApplied";
 
 const AppliedJobs = () => {
   const user = useSelector((state) => state.user);
@@ -157,7 +158,7 @@ const AppliedJobs = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
               >
-                <JobItem job={job} />
+                <JobApplied job={job} company= {company} />
               </motion.div>
             ))}
           </div>

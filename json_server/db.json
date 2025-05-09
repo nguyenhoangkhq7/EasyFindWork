@@ -146,11 +146,21 @@
     {
       "id": "e7d5",
       "fullName": "Huỳnh Nguyễn Phúc Vinh",
-      "email": "phucvinh20112004@gmail.com",
+      "email": "hakootamonsters@gmail.com",
       "phone": "0889278071",
-      "cvs": [],
+      "cvs": [
+        {
+          "id": "cv_1746803682876",
+          "fileName": "Chuong01_Tongquan_CNPM.pdf",
+          "fileUrl": "https://res.cloudinary.com/dzcodbajo/raw/upload/v1746803683/cv_file/mf10uezkxuep5hi4zq1t.pdf",
+          "publicId": "cv_file/mf10uezkxuep5hi4zq1t.pdf",
+          "fileSize": 4675114,
+          "uploadedAt": "2025-05-09T15:14:42.876Z"
+        }
+      ],
       "location": "TP.HCM",
-      "address": "Bình Thạnh, TP.HCM"
+      "address": "Bình Thạnh, TP.HCM",
+      "avatar": "https://res.cloudinary.com/dzcodbajo/image/upload/v1746803582/cv_file/ir2pjshadmlkrtlcc7dz.jpg"
     },
     {
       "id": "79d2",
@@ -1653,6 +1663,54 @@
       "rejectionReason": null,
       "hiringManagerId": "manager_001",
       "isShortlisted": false
+    },
+    {
+      "id": "application_1746803682893",
+      "userId": "e7d5",
+      "fullName": "Huỳnh Nguyễn Phúc Vinh",
+      "phone": "0889278071",
+      "email": "phucvinh20112004@gmail.com",
+      "jobId": "job_001",
+      "fileUrl": "https://res.cloudinary.com/dzcodbajo/raw/upload/v1746803683/cv_file/mf10uezkxuep5hi4zq1t.pdf",
+      "appliedDate": "2025-05-09T15:14:42.893Z",
+      "status": "Đang xử lý",
+      "note": "",
+      "interviewDate": null,
+      "rejectionReason": null,
+      "hiringManagerId": "manager_001",
+      "isShortlisted": false
+    },
+    {
+      "id": "application_1746803959484",
+      "userId": "e7d5",
+      "fullName": "phuc vinh",
+      "phone": "0222221212",
+      "email": "aaabh@gmail.com",
+      "jobId": "job_002",
+      "fileUrl": "https://res.cloudinary.com/dzcodbajo/raw/upload/v1746803683/cv_file/mf10uezkxuep5hi4zq1t.pdf",
+      "appliedDate": "2025-05-09T15:19:19.484Z",
+      "status": "Đang xử lý",
+      "note": "",
+      "interviewDate": null,
+      "rejectionReason": null,
+      "hiringManagerId": "manager_001",
+      "isShortlisted": false
+    },
+    {
+      "id": "application_1746807730941",
+      "userId": "d424",
+      "fullName": "vinh",
+      "phone": "12311111111",
+      "email": "vinh@gmail.com",
+      "jobId": "job_002",
+      "fileUrl": "https://res.cloudinary.com/dzcodbajo/raw/upload/v1746722298/cv_file/ryxhjd5nhbxbwynwfes9.pdf",
+      "appliedDate": "2025-05-09T16:22:10.941Z",
+      "status": "Đang xử lý",
+      "note": "",
+      "interviewDate": null,
+      "rejectionReason": null,
+      "hiringManagerId": "manager_001",
+      "isShortlisted": false
     }
   ],
   "careerAdvice": [
@@ -1851,12 +1909,6 @@
       "savedAt": "2025-05-09T05:40:01.647Z"
     },
     {
-      "id": "0a95",
-      "jobId": "job_002",
-      "userId": "d424",
-      "savedAt": "2025-05-09T05:41:17.888Z"
-    },
-    {
       "id": "1490",
       "userId": "f51f",
       "jobId": "job_003",
@@ -1873,18 +1925,6 @@
       "userId": "e7d5",
       "jobId": "job_005",
       "savedAt": "2025-05-09T10:42:03.542Z"
-    },
-    {
-      "id": "b055",
-      "userId": "e7d5",
-      "jobId": "job_006",
-      "savedAt": "2025-05-09T10:42:04.096Z"
-    },
-    {
-      "id": "1ca2",
-      "userId": "e7d5",
-      "jobId": "job_003",
-      "savedAt": "2025-05-09T10:44:48.729Z"
     },
     {
       "id": "f8fa",
@@ -1909,6 +1949,12 @@
       "userId": "e7d5",
       "jobId": "job_016",
       "savedAt": "2025-05-09T10:55:25.118Z"
+    },
+    {
+      "id": "f333",
+      "userId": "e7d5",
+      "jobId": "job_003",
+      "savedAt": "2025-05-09T15:13:13.016Z"
     }
   ]
 }
