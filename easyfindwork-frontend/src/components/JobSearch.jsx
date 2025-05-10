@@ -247,10 +247,14 @@ export default function JobSearch() {
         setIsLoading(true);
         const [jobsResponse, companiesResponse, savedJobsResponse] =
           await Promise.all([
-            axios.get("http://localhost:3000/jobs"),
-            axios.get("http://localhost:3000/companies"),
             axios.get(
-              `http://localhost:3000/savedJobs${
+              "https://easyfindwork-jsonserver-production.up.railway.app/jobs"
+            ),
+            axios.get(
+              "https://easyfindwork-jsonserver-production.up.railway.app/companies"
+            ),
+            axios.get(
+              `https://easyfindwork-jsonserver-production.up.railway.app/savedJobs${
                 user && user.id ? `?userId=${user.id}` : ""
               }`
             ),
@@ -469,12 +473,12 @@ export default function JobSearch() {
         if (isFavorite) {
           // Xóa khỏi yêu thích
           const savedJobResponse = await axios.get(
-            `http://localhost:3000/savedJobs?jobId=${jobId}&userId=${user.id}`
+            `https://easyfindwork-jsonserver-production.up.railway.app/savedJobs?jobId=${jobId}&userId=${user.id}`
           );
           const savedJob = savedJobResponse.data[0];
           if (savedJob) {
             await axios.delete(
-              `http://localhost:3000/savedJobs/${savedJob.id}`
+              `https://easyfindwork-jsonserver-production.up.railway.app/savedJobs/${savedJob.id}`
             );
             setFavorites((prev) => prev.filter((id) => id !== jobId));
             message.success({
@@ -486,10 +490,13 @@ export default function JobSearch() {
           }
         } else {
           // Thêm vào yêu thích
-          await axios.post("http://localhost:3000/savedJobs", {
-            jobId,
-            userId: user.id,
-          });
+          await axios.post(
+            "https://easyfindwork-jsonserver-production.up.railway.app/savedJobs",
+            {
+              jobId,
+              userId: user.id,
+            }
+          );
           setFavorites((prev) => [...prev, jobId]);
           message.success({
             content: "Đã thêm vào mục yêu thích",

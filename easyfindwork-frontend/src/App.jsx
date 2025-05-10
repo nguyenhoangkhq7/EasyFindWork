@@ -25,7 +25,9 @@ function App() {
   useEffect(() => {
     const userId = localStorage.getItem("userId");
     if (userId) {
-      fetch(`http://localhost:3000/users/${userId}`)
+      fetch(
+        `https://easyfindwork-jsonserver-production.up.railway.app/users/${userId}`
+      )
         .then((res) => res.json())
         .then((user) => {
           dispatch({ type: "SET_USER", user });
@@ -58,7 +60,7 @@ function App() {
         </Route>
         <Route path="login" element={<Login />} />
         <Route path="register" element={<Register />} />
-        <Route path="job-opportunities" element={<JobOpportunity/>}/>
+        <Route path="job-opportunities" element={<JobOpportunity />} />
       </Route>
     </Routes>
   );

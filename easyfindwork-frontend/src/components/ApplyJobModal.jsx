@@ -111,7 +111,10 @@ export default function ApplyJobModal({ isOpen, onClose, jobId, jobTitle }) {
         isShortlisted: false,
       };
 
-      await axios.post("http://localhost:3000/applications", applicationData);
+      await axios.post(
+        "https://easyfindwork-jsonserver-production.up.railway.app/applications",
+        applicationData
+      );
 
       setSuccessMessage("Đã nộp hồ sơ thành công!");
       setErrorMessage("");

@@ -48,20 +48,22 @@ const JobDetail = () => {
 
         // Fetch company data
         const companyResponse = await axios.get(
-          `http://localhost:3000/companies/${jobData.companyId}`
+          `https://easyfindwork-jsonserver-production.up.railway.app/companies/${jobData.companyId}`
         );
         setCompany(companyResponse.data);
 
         // Check if job is saved, only if user is logged in
         if (user?.id) {
           const savedJobsResponse = await axios.get(
-            `http://localhost:3000/savedJobs?userId=${user.id}&jobId=${id}`
+            `https://easyfindwork-jsonserver-production.up.railway.app/savedJobs?userId=${user.id}&jobId=${id}`
           );
           setIsSaved(savedJobsResponse.data.length > 0);
         }
 
         // Fetch similar jobs
-        const allJobsResponse = await axios.get(`http://localhost:3000/jobs`);
+        const allJobsResponse = await axios.get(
+          `https://easyfindwork-jsonserver-production.up.railway.app/jobs`
+        );
         const allJobs = allJobsResponse.data;
 
         const similar = allJobs
@@ -123,24 +125,29 @@ const JobDetail = () => {
     try {
       if (isSaved) {
         const savedJobsResponse = await axios.get(
-          `http://localhost:3000/savedJobs?userId=${user.id}&jobId=${id}`
+          `https://easyfindwork-jsonserver-production.up.railway.app/savedJobs?userId=${user.id}&jobId=${id}`
         );
         const savedJob = savedJobsResponse.data[0];
 
         if (savedJob) {
-          await axios.delete(`http://localhost:3000/savedJobs/${savedJob.id}`);
+          await axios.delete(
+            `https://easyfindwork-jsonserver-production.up.railway.app/savedJobs/${savedJob.id}`
+          );
           setIsSaved(false);
         } else {
           console.warn("Không tìm thấy savedJob để xóa");
           setIsSaved(false);
         }
       } else {
-        await axios.post("http://localhost:3000/savedJobs", {
-          id: `savedJob_${Date.now()}`,
-          userId: user.id,
-          jobId: id,
-          savedAt: new Date().toISOString(),
-        });
+        await axios.post(
+          "https://easyfindwork-jsonserver-production.up.railway.app/savedJobs",
+          {
+            id: `savedJob_${Date.now()}`,
+            userId: user.id,
+            jobId: id,
+            savedAt: new Date().toISOString(),
+          }
+        );
         setIsSaved(true);
       }
     } catch (err) {

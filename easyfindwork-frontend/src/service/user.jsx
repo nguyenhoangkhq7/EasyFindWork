@@ -1,5 +1,7 @@
 export const getUserWithMobilePhoneOrEmail = async (requestF) => {
-  const response = await fetch("http://localhost:3000/users");
+  const response = await fetch(
+    "https://easyfindwork-jsonserver-production.up.railway.app/users"
+  );
   const users = await response.json();
   return users.find(
     (user) => user.phone === requestF || user.email === requestF
@@ -7,13 +9,16 @@ export const getUserWithMobilePhoneOrEmail = async (requestF) => {
 };
 
 export const addUser = async (newUser) => {
-  const response = await fetch("http://localhost:3000/users", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(newUser),
-  });
+  const response = await fetch(
+    "https://easyfindwork-jsonserver-production.up.railway.app/users",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(newUser),
+    }
+  );
 
   if (!response.ok) {
     throw new Error("Không thể thêm người dùng mới");
@@ -24,13 +29,16 @@ export const addUser = async (newUser) => {
 };
 
 export const updateUser = async (id, updatedFields) => {
-  const response = await fetch(`http://localhost:3000/users/${id}`, {
-    method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(updatedFields),
-  });
+  const response = await fetch(
+    `https://easyfindwork-jsonserver-production.up.railway.app/users/${id}`,
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(updatedFields),
+    }
+  );
 
   if (!response.ok) {
     throw new Error("Không thể cập nhật người dùng");

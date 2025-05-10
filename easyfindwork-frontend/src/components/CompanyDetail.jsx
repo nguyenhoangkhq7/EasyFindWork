@@ -27,13 +27,13 @@ const CompanyDetail = () => {
         setLoading(true);
         // Fetch company details
         const companyResponse = await axios.get(
-          `http://localhost:3000/companies/${id}`
+          `https://easyfindwork-jsonserver-production.up.railway.app/companies/${id}`
         );
         setCompany(companyResponse.data);
 
         // Fetch jobs of the company
         const jobsResponse = await axios.get(
-          `http://localhost:3000/jobs?companyId=${id}`
+          `https://easyfindwork-jsonserver-production.up.railway.app/jobs?companyId=${id}`
         );
         setJobs(jobsResponse.data);
 

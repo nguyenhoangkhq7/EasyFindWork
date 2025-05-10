@@ -209,10 +209,16 @@ export default function JobPortal() {
         setIsLoading(true);
         const [jobsResponse, companiesResponse, savedJobsResponse] =
           await Promise.all([
-            axios.get("http://localhost:3000/jobs"),
-            axios.get("http://localhost:3000/companies"),
+            axios.get(
+              "https://easyfindwork-jsonserver-production.up.railway.app/jobs"
+            ),
+            axios.get(
+              "https://easyfindwork-jsonserver-production.up.railway.app/companies"
+            ),
             user?.id
-              ? axios.get(`http://localhost:3000/savedJobs?userId=${user.id}`)
+              ? axios.get(
+                  `https://easyfindwork-jsonserver-production.up.railway.app/savedJobs?userId=${user.id}`
+                )
               : Promise.resolve({ data: [] }),
           ]);
         const jobsData = jobsResponse.data.map((job) => ({
@@ -278,12 +284,12 @@ export default function JobPortal() {
         if (isFavorite) {
           // Xóa khỏi yêu thích
           const savedJobResponse = await axios.get(
-            `http://localhost:3000/savedJobs?jobId=${jobId}&userId=${user.id}`
+            `https://easyfindwork-jsonserver-production.up.railway.app/savedJobs?jobId=${jobId}&userId=${user.id}`
           );
           const savedJob = savedJobResponse.data[0];
           if (savedJob) {
             await axios.delete(
-              `http://localhost:3000/savedJobs/${savedJob.id}`
+              `https://easyfindwork-jsonserver-production.up.railway.app/savedJobs/${savedJob.id}`
             );
             setFavorites((prev) => prev.filter((id) => id !== jobId));
             setSavedJobs((prev) => prev.filter((sj) => sj.id !== savedJob.id));
@@ -304,7 +310,7 @@ export default function JobPortal() {
             savedAt: new Date().toISOString(),
           };
           const response = await axios.post(
-            "http://localhost:3000/savedJobs",
+            "https://easyfindwork-jsonserver-production.up.railway.app/savedJobs",
             newSavedJob
           );
           console.log("Đã lưu công việc:", response.data);
