@@ -30,7 +30,7 @@ const AppliedJobs = () => {
 
         // Lấy danh sách applications của user
         const appliedResponse = await axios.get(
-          `http://localhost:3000/applications?userId=${user.id}`
+          `https://easyfindwork-jsonserver-production.up.railway.app/applications?userId=${user.id}`
         );
         const appliedJobsData = appliedResponse.data;
 
@@ -45,12 +45,12 @@ const AppliedJobs = () => {
           appliedJobsData.map(async (appliedJob) => {
             try {
               const jobResponse = await axios.get(
-                `http://localhost:3000/jobs/${appliedJob.jobId}`
+                `https://easyfindwork-jsonserver-production.up.railway.app/jobs/${appliedJob.jobId}`
               );
               const job = jobResponse.data;
 
               const companyResponse = await axios.get(
-                `http://localhost:3000/companies/${job.companyId}`
+                `https://easyfindwork-jsonserver-production.up.railway.app/companies/${job.companyId}`
               );
               const company = companyResponse.data;
 
@@ -158,7 +158,7 @@ const AppliedJobs = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
               >
-                <JobApplied job={job} company= {company} />
+                <JobApplied job={job} company={company} />
               </motion.div>
             ))}
           </div>

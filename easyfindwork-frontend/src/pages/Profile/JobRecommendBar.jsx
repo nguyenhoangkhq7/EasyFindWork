@@ -1,5 +1,5 @@
-import {  useEffect, useState } from "react";
-import {  useSelector } from "react-redux";
+import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import JobItem from "../../components/JobItem";
 import { getJobSaveByUserId } from "../../service/jobsave";
 
@@ -12,24 +12,29 @@ const JobRecommendBar = () => {
     if (!user?.location) return;
 
     try {
-      const currentDate= new Date();
+      const currentDate = new Date();
       setLoading(true);
-      const response = await fetch("http://localhost:3000/jobs");
+      const response = await fetch(
+        "https://easyfindwork-jsonserver-production.up.railway.app/jobs"
+      );
       const jobs = await response.json();
       const filtered = jobs.filter(
-        (job) => job.location === user.location && job.isActive && new Date(job.deadline) >= currentDate
+        (job) =>
+          job.location === user.location &&
+          job.isActive &&
+          new Date(job.deadline) >= currentDate
       );
-      const likedJobs= (await getJobSaveByUserId(user.id)).map(x=>x.id) ||[];
+      const likedJobs =
+        (await getJobSaveByUserId(user.id)).map((x) => x.id) || [];
       const sortedJobs = filtered.sort((a, b) => {
-        const aLiked = likedJobs.includes(a.id); 
-        const bLiked = likedJobs.includes(b.id); 
-      
+        const aLiked = likedJobs.includes(a.id);
+        const bLiked = likedJobs.includes(b.id);
+
         if (aLiked && !bLiked) return -1;
         if (!aLiked && bLiked) return 1;
-      
+
         return 0;
       });
-
 
       setJobsRecommend(sortedJobs);
     } catch (error) {
@@ -51,9 +56,7 @@ const JobRecommendBar = () => {
         {loading ? (
           <p className="text-gray-500">Đang tải công việc...</p>
         ) : jobsRecommend.length > 0 ? (
-          jobsRecommend.map((job) => (
-            <JobItem key={job.id} job={job}/>
-          ))
+          jobsRecommend.map((job) => <JobItem key={job.id} job={job} />)
         ) : (
           <p className="text-gray-500">Không có công việc gợi ý.</p>
         )}

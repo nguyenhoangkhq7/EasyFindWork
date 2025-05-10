@@ -1,6 +1,6 @@
 // export const getAllJobIndustryIsActive= ()=>{
 //     let result=[]
-//     fetch("http://localhost:3000/companies")
+//     fetch("https://easyfindwork-jsonserver-production.up.railway.app/companies")
 //     .then(res=> res.json())
 //     .then(data=> data.map(c=> c.industry))
 
