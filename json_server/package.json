@@ -3,9 +3,8 @@
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
-    "start": "concurrently \"npm run json-server\" \"npm run express\"",
-    "json-server": "json-server --watch db.json --port 3000",
-    "express": "node server.js"
+    "start": "npm run json-server",
+    "json-server": "json-server --watch db.json --port 3000"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"

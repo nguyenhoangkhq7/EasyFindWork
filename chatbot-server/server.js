@@ -9,6 +9,11 @@ app.use(express.json());
 const JSON_SERVER_URL =
   "https://easyfindwork-jsonserver-production.up.railway.app";
 
+// Định nghĩa route mặc định
+app.get("/", (req, res) => {
+  res.send("Chatbot server is running ...");
+});
+
 // Endpoint tìm kiếm công việc
 app.post("/api/chatbot/search-jobs", async (req, res) => {
   const { keyword, userId } = req.body;
@@ -114,5 +119,5 @@ app.post("/api/chatbot/search-jobs", async (req, res) => {
   }
 });
 
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
