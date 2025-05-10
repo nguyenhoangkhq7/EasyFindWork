@@ -72,6 +72,14 @@ export default function JobPortal() {
     ? provinceOptions
     : provinceOptions.slice(0, 5);
 
+  const getJobStatus = useCallback((deadline) => {
+    if (!deadline) return "unknown";
+
+    const now = new Date();
+    const deadlineDate = new Date(deadline);
+    return deadlineDate > now ? "active" : "expired";
+  }, []);
+
   // Hàm chuyển đổi size thành số lượng tối thiểu để so sánh
   const parseSizeToMinNumber = (size) => {
     if (size.includes("+")) {
@@ -165,15 +173,22 @@ export default function JobPortal() {
     "Kinh doanh, Kỹ thuật": "💼",
   };
 
-  const getRandomJobs = useCallback((jobs, n) => {
-    if (!jobs || jobs.length === 0) return [];
-    const shuffled = [...jobs].sort(() => Math.random() - 0.5);
-    return shuffled.slice(0, Math.min(n, jobs.length));
-  }, []);
+  const getRandomJobs = useCallback(
+    (jobs, n) => {
+      if (!jobs || jobs.length === 0) return [];
+      // Lọc các công việc chưa hết hạn
+      const activeJobs = jobs.filter(
+        (job) => getJobStatus(job.deadline) === "active"
+      );
+      const shuffled = [...activeJobs].sort(() => Math.random() - 0.5);
+      return shuffled.slice(0, Math.min(n, activeJobs.length));
+    },
+    [getJobStatus]
+  );
 
   const suggestedJobs = useMemo(
     () => getRandomJobs(jobs, 9),
-    [jobs, getRandomJobs]
+    [jobs, getRandomJobs, getJobStatus]
   );
 
   const normalizeProvinceName = useCallback((name) => {
@@ -411,14 +426,6 @@ export default function JobPortal() {
     } else {
       return "Đã hết hạn";
     }
-  }, []);
-
-  const getJobStatus = useCallback((deadline) => {
-    if (!deadline) return "unknown";
-
-    const now = new Date();
-    const deadlineDate = new Date(deadline);
-    return deadlineDate > now ? "active" : "expired";
   }, []);
 
   const handleSearch = useCallback(() => {

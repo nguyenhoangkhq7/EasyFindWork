@@ -39,12 +39,26 @@ const { Option } = Select;
 export default function JobSearch() {
   const user = useSelector((state) => state.user); // Lấy thông tin user từ Redux
 
-  // Hàm chọn ngẫu nhiên tối đa n công việc
-  const getRandomJobs = useCallback((jobs, n) => {
-    if (!jobs || jobs.length === 0) return [];
-    const shuffled = [...jobs].sort(() => Math.random() - 0.5);
-    return shuffled.slice(0, Math.min(n, jobs.length));
+  const getJobStatus = useCallback((deadline) => {
+    if (!deadline) return "unknown";
+
+    const now = new Date();
+    const deadlineDate = new Date(deadline);
+    return deadlineDate > now ? "active" : "expired";
   }, []);
+  // Hàm chọn ngẫu nhiên tối đa n công việc
+  const getRandomJobs = useCallback(
+    (jobs, n) => {
+      if (!jobs || jobs.length === 0) return [];
+      // Lọc các công việc chưa hết hạn
+      const activeJobs = jobs.filter(
+        (job) => getJobStatus(job.deadline) === "active"
+      );
+      const shuffled = [...activeJobs].sort(() => Math.random() - 0.5);
+      return shuffled.slice(0, Math.min(n, activeJobs.length));
+    },
+    [getJobStatus]
+  );
 
   // State
   const location = useLocation();
@@ -103,8 +117,9 @@ export default function JobSearch() {
 
   const suggestedJobs = useMemo(
     () => getRandomJobs(jobs, 9),
-    [jobs, getRandomJobs]
+    [jobs, getRandomJobs, getJobStatus]
   );
+
   const jobsPerPage = 9;
 
   // Danh sách mức lương
