@@ -277,7 +277,7 @@ const MyProfile = () => {
               <h3 className="text-3xl font-bold">{user.fullName}</h3>
               {user.address ? (
                 <div className="flex items-start gap-2">
-                  <img className="w-5 h-5" src="/public/location.png" alt="" />
+                  <img className="w-5 h-5" src="/location.png" alt="" />
                   <span className="text-sm">{user.address}</span>
                 </div>
               ) : (
@@ -290,22 +290,14 @@ const MyProfile = () => {
                 <div className="flex items-start gap-2">
                   <div className="space-y-1">
                     <div className="flex items-center gap-2 text-sm">
-                      <img
-                        src="/public/email.png"
-                        alt="mail"
-                        className="w-5 h-5"
-                      />
+                      <img src="/email.png" alt="mail" className="w-5 h-5" />
                       <span>{user.email}</span>
                     </div>
                   </div>
                 </div>
                 <div className="space-y-1">
                   <div className="flex items-center gap-2 text-sm">
-                    <img
-                      src="/public/phone.png"
-                      alt="phone"
-                      className="w-5 h-5"
-                    />
+                    <img src="/phone.png" alt="phone" className="w-5 h-5" />
                     <span>{user.phone}</span>
                   </div>
                 </div>
