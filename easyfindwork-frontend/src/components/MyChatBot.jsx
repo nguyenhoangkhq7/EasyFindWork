@@ -63,7 +63,7 @@ export default function MyChatBot() {
 
               // Gọi API để tìm kiếm công việc
               const response = await axios.post(
-                "http://localhost:5000/api/chatbot/search-jobs",
+                "https://easyfindwork-chatbotserver.up.railway.app/api/chatbot/search-jobs",
                 {
                   keyword,
                   userId: "guest",
