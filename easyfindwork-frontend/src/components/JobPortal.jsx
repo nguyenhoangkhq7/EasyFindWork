@@ -186,11 +186,10 @@ export default function JobPortal() {
     [getJobStatus]
   );
 
-  const suggestedJobs = useMemo(
-    () => getRandomJobs(jobs, 9),
-    [jobs, getRandomJobs, getJobStatus]
-  );
-
+   const suggestedJobs = useMemo(
+  () => getRandomJobs(jobs, 9),
+  [jobs, getRandomJobs, getJobStatus]
+);
   const normalizeProvinceName = useCallback((name) => {
     if (!name) return name;
     const normalized = name.trim();

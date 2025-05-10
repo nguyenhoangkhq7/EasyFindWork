@@ -257,95 +257,93 @@ export default function JobSearch() {
 
   // Fetch dữ liệu và đồng bộ favorites từ server
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setIsLoading(true);
-        const [jobsResponse, companiesResponse, savedJobsResponse] =
-          await Promise.all([
-            axios.get(
-              "https://easyfindwork-jsonserver-production.up.railway.app/jobs"
-            ),
-            axios.get(
-              "https://easyfindwork-jsonserver-production.up.railway.app/companies"
-            ),
-            axios.get(
-              `https://easyfindwork-jsonserver-production.up.railway.app/savedJobs${
-                user && user.id ? `?userId=${user.id}` : ""
-              }`
-            ),
-          ]);
+  const fetchData = async () => {
+    try {
+      setIsLoading(true);
+      const [jobsResponse, companiesResponse, savedJobsResponse] =
+        await Promise.all([
+          axios.get("http://localhost:3000/jobs"),
+          axios.get("http://localhost:3000/companies"),
+          user && user.id
+            ? axios.get(`http://localhost:3000/savedJobs?userId=${user.id}`)
+            : Promise.resolve({ data: [] }), // Trả về mảng rỗng nếu chưa đăng nhập
+        ]);
 
-        const jobsData = jobsResponse.data;
-        setJobs(jobsData);
-        setFilteredJobs(jobsData);
-        setCompanies(companiesResponse.data);
+      const jobsData = jobsResponse.data;
+      setJobs(jobsData);
+      setFilteredJobs(jobsData);
+      setCompanies(companiesResponse.data);
 
-        // Đồng bộ favorites từ savedJobs cho người dùng hiện tại
+      // Chỉ đồng bộ favorites nếu đã đăng nhập
+      if (user && user.id) {
         const savedJobIds = savedJobsResponse.data.map(
           (savedJob) => savedJob.jobId
         );
         setFavorites(savedJobIds);
         localStorage.setItem("jobFavorites", JSON.stringify(savedJobIds));
-
-        const uniqueIndustries = [
-          ...new Set(jobsData.map((job) => normalizeIndustry(job.industry))),
-        ]
-          .filter(Boolean)
-          .sort((a, b) => a.localeCompare(b, "vi"));
-        setIndustries(uniqueIndustries);
-        // Tạo danh sách kinh nghiệm
-        const experiences = jobsData
-          .map((job) => extractExperience(job.requirements))
-          .filter((exp) => exp !== "Không xác định");
-        const uniqueExperiences = [...new Set(experiences)].sort((a, b) => {
-          if (a === "Không cần kinh nghiệm") return -1;
-          if (b === "Không cần kinh nghiệm") return 1;
-          const aYear = parseInt(a) || 0;
-          const bYear = parseInt(b) || 0;
-          return aYear - bYear;
-        });
-        setExperienceOptions(uniqueExperiences);
-
-        // Tạo danh sách trình độ
-        const educations = jobsData.map((job) =>
-          extractEducation(job.requirements)
-        );
-        const uniqueEducations = [...new Set(educations)].sort((a, b) => {
-          const order = [
-            "Không yêu cầu",
-            "Trung học",
-            "Trung cấp",
-            "Cao đẳng",
-            "Đại học",
-          ];
-          return order.indexOf(a) - order.indexOf(b);
-        });
-        setEducationOptions(uniqueEducations);
-
-        // Tạo danh sách tỉnh thành
-        const provinceData = provinces.map((province) => ({
-          name: province.name,
-          normalizedName: normalizeProvinceName(province.name),
-        }));
-        const sortedProvinces = provinceData.sort((a, b) =>
-          a.name.localeCompare(b.name, "vi")
-        );
-        setProvinceOptions(sortedProvinces);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        message.error("Không thể tải dữ liệu từ server. Vui lòng thử lại sau.");
-        // Fallback to localStorage if server fails
-        const savedFavorites = localStorage.getItem("jobFavorites");
-        if (savedFavorites) {
-          setFavorites(JSON.parse(savedFavorites));
-        }
-      } finally {
-        setIsLoading(false);
+      } else {
+        setFavorites([]); // Đặt favorites rỗng nếu chưa đăng nhập
+        localStorage.removeItem("jobFavorites"); // Xóa localStorage
       }
-    };
 
-    fetchData();
-  }, [normalizeProvinceName, extractExperience, extractEducation, user]);
+      const uniqueIndustries = [
+        ...new Set(jobsData.map((job) => normalizeIndustry(job.industry))),
+      ]
+        .filter(Boolean)
+        .sort((a, b) => a.localeCompare(b, "vi"));
+      setIndustries(uniqueIndustries);
+
+      // Tạo danh sách kinh nghiệm
+      const experiences = jobsData
+        .map((job) => extractExperience(job.requirements))
+        .filter((exp) => exp !== "Không xác định");
+      const uniqueExperiences = [...new Set(experiences)].sort((a, b) => {
+        if (a === "Không cần kinh nghiệm") return -1;
+        if (b === "Không cần kinh nghiệm") return 1;
+        const aYear = parseInt(a) || 0;
+        const bYear = parseInt(b) || 0;
+        return aYear - bYear;
+      });
+      setExperienceOptions(uniqueExperiences);
+
+      // Tạo danh sách trình độ
+      const educations = jobsData.map((job) =>
+        extractEducation(job.requirements)
+      );
+      const uniqueEducations = [...new Set(educations)].sort((a, b) => {
+        const order = [
+          "Không yêu cầu",
+          "Trung học",
+          "Trung cấp",
+          "Cao đẳng",
+          "Đại học",
+        ];
+        return order.indexOf(a) - order.indexOf(b);
+      });
+      setEducationOptions(uniqueEducations);
+
+      // Tạo danh sách tỉnh thành
+      const provinceData = provinces.map((province) => ({
+        name: province.name,
+        normalizedName: normalizeProvinceName(province.name),
+      }));
+      const sortedProvinces = provinceData.sort((a, b) =>
+        a.name.localeCompare(b.name, "vi")
+      );
+      setProvinceOptions(sortedProvinces);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      message.error("Không thể tải dữ liệu từ server. Vui lòng thử lại sau.");
+      setFavorites([]); // Đặt favorites rỗng nếu có lỗi
+      localStorage.removeItem("jobFavorites"); // Xóa localStorage
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  fetchData();
+}, [normalizeProvinceName, extractExperience, extractEducation, user]);
+
 
   // Lưu favorites vào localStorage
   useEffect(() => {
@@ -842,38 +840,30 @@ export default function JobSearch() {
                 className="rounded-xl shadow-sm border border-gray-100 hover:border-indigo-200 hover:shadow-lg transform hover:-translate-y-1 transition-all duration-300 overflow-hidden"
                 styles={{ body: { padding: 0 } }}
               >
-                <div className="absolute top-4 right-4 z-10">
-                  <Tooltip
-                    title={
-                      favorites.includes(job.id)
-                        ? "Xóa khỏi yêu thích"
-                        : "Thêm vào yêu thích"
-                    }
-                  >
-                    <Button
-                      shape="circle"
-                      icon={
-                        <FiHeart
-                          size={18}
-                          className={
-                            favorites.includes(job.id) ? "fill-current" : ""
-                          }
-                        />
-                      }
-                      onClick={() => toggleFavorite(job.id)}
-                      className={`flex items-center justify-center ${
-                        favorites.includes(job.id)
-                          ? "bg-red-50 text-red-500 border-red-100"
-                          : "bg-gray-50 text-gray-400 border-gray-100 hover:bg-gray-100"
-                      }`}
-                      aria-label={
-                        favorites.includes(job.id)
-                          ? "Xóa khỏi yêu thích"
-                          : "Thêm vào yêu thích"
-                      }
-                    />
-                  </Tooltip>
-                </div>
+                {user && user.id && (
+  <div className="absolute top-4 right-4 z-10">
+    <Tooltip
+      title={
+        favorites.includes(job.id) ? "Xóa khỏi yêu thích" : "Thêm vào yêu thích"
+      }
+    >
+      <Button
+        shape="circle"
+        icon={<FiHeart size={18} className={favorites.includes(job.id) ? "fill-current" : ""} />}
+        onClick={() => toggleFavorite(job.id)}
+        className={`flex items-center justify-center ${
+          favorites.includes(job.id)
+            ? "bg-red-50 text-red-500 border-red-100"
+            : "bg-gray-50 text-gray-400 border-gray-100 hover:bg-gray-100"
+        }`}
+        aria-label={
+          favorites.includes(job.id) ? "Xóa khỏi yêu thích" : "Thêm vào yêu thích"
+        }
+      />
+    </Tooltip>
+  </div>
+)}
+
                 <div className="p-5">
                   <div className="flex items-start">
                     <div className="w-14 h-14 bg-gray-50 rounded-lg flex-shrink-0 overflow-hidden border border-gray-100 flex items-center justify-center">
@@ -1009,90 +999,98 @@ export default function JobSearch() {
             </span>
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {suggestedJobs.map((job) => (
-              <Card
-                key={job.id}
-                className="relative rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 hover:-translate-y-1 overflow-hidden"
-                styles={{ body: { padding: 0 } }}
-              >
-                <div className="p-5">
-                  <div className="flex items-start">
-                    <div className="w-14 h-14 bg-gray-50 rounded-lg flex-shrink-0 overflow-hidden border border-gray-100 transition-transform duration-300 hover:scale-105">
-                      <img
-                        src={getCompanyLogo(job.companyId)}
-                        alt={getCompanyName(job.companyId)}
-                        className="w-full h-full object-cover transition-opacity duration-200"
-                        loading="lazy"
-                        onError={(e) =>
-                          (e.target.src = "/placeholder.svg?height=56&width=56")
-                        }
-                      />
-                    </div>
-                    <div className="ml-5 flex-1">
-                      <h3 className="text-lg font-semibold text-gray-900 hover:text-indigo-600 transition-colors duration-200 line-clamp-2 leading-tight">
-                        <Link to={`/job/${job.id}`} className="hover:underline">
-                          {job.title}
-                        </Link>
-                      </h3>
-                      <p className="text-sm text-gray-600 mt-2 font-medium">
-                        {getCompanyName(job.companyId)}
-                      </p>
-                      <p className="text-sm text-indigo-600 font-semibold mt-2">
-                        {job.salaryMin && job.salaryMax
-                          ? `${formatSalary(job.salaryMin)} - ${formatSalary(
-                              job.salaryMax
-                            )}`
-                          : "Thỏa thuận"}
-                      </p>
-                      <div className="flex items-center text-sm text-gray-500 mt-2">
-                        <FiMapPin className="w-4 h-4 mr-1.5 text-gray-400" />
-                        <span className="truncate">{job.location}</span>
-                      </div>
-                      <div className="border-t border-gray-100 mt-3 pt-3">
-                        <div className="flex items-center justify-between text-sm">
-                          <div className="flex items-center text-gray-500">
-                            <FiClock className="w-4 h-4 mr-1.5 text-gray-400" />
-                            <span>{getRemainingTime(job.deadline)}</span>
-                          </div>
-                          <Tag
-                            color={
-                              job.deadline &&
-                              new Date(job.deadline) > new Date()
-                                ? "green"
-                                : "red"
-                            }
-                          >
-                            {job.deadline && new Date(job.deadline) > new Date()
-                              ? "Đang tuyển"
-                              : "Hết hạn"}
-                          </Tag>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => toggleFavorite(job.id)}
-                    className={`absolute top-4 right-4 w-10 h-10 flex items-center justify-center rounded-full transition-all duration-200 ${
-                      favorites.includes(job.id)
-                        ? "bg-red-100 text-red-500 hover:bg-red-200"
-                        : "bg-gray-100 text-gray-400 hover:bg-gray-200"
-                    }`}
-                    aria-label={
-                      favorites.includes(job.id)
-                        ? "Xóa khỏi yêu thích"
-                        : "Thêm vào yêu thích"
-                    }
-                  >
-                    <FiHeart
-                      className={`w-5 h-5 ${
-                        favorites.includes(job.id) ? "fill-current" : ""
-                      }`}
-                    />
-                  </button>
-                </div>
-              </Card>
-            ))}
+  {suggestedJobs.map((job) => (
+    <Card
+      key={job.id}
+      className="relative rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 hover:-translate-y-1 overflow-hidden"
+      styles={{ body: { padding: 0 } }}
+    >
+      <div className="p-5">
+        <div className="flex items-start">
+          <div className="w-14 h-14 bg-gray-50 rounded-lg flex-shrink-0 overflow-hidden border border-gray-100 transition-transform duration-300 hover:scale-105">
+            <img
+              src={getCompanyLogo(job.companyId)}
+              alt={getCompanyName(job.companyId)}
+              className="w-full h-full object-cover transition-opacity duration-200"
+              loading="lazy"
+              onError={(e) =>
+                (e.target.src = "/placeholder.svg?height=56&width=56")
+              }
+            />
           </div>
+          <div className="ml-5 flex-1">
+            <h3 className="text-lg font-semibold text-gray-900 hover:text-indigo-600 transition-colors duration-200 line-clamp-2 leading-tight">
+              <Link to={`/job/${job.id}`} className="hover:underline">
+                {job.title}
+              </Link>
+            </h3>
+            <p className="text-sm text-gray-600 mt-2 font-medium">
+              {getCompanyName(job.companyId)}
+            </p>
+            <p className="text-sm text-indigo-600 font-semibold mt-2">
+              {job.salaryMin && job.salaryMax
+                ? `${formatSalary(job.salaryMin)} - ${formatSalary(job.salaryMax)}`
+                : "Thỏa thuận"}
+            </p>
+            <div className="flex items-center text-sm text-gray-500 mt-2">
+              <FiMapPin className="w-4 h-4 mr-1.5 text-gray-400" />
+              <span className="truncate">{job.location}</span>
+            </div>
+            <div className="border-t border-gray-100 mt-3 pt-3">
+              <div className="flex items-center justify-between text-sm">
+                <div className="flex items-center text-gray-500">
+                  <FiClock className="w-4 h-4 mr-1.5 text-gray-400" />
+                  <span>{getRemainingTime(job.deadline)}</span>
+                </div>
+                <Tag
+                  color={
+                    job.deadline && new Date(job.deadline) > new Date()
+                      ? "green"
+                      : "red"
+                  }
+                >
+                  {job.deadline && new Date(job.deadline) > new Date()
+                    ? "Đang tuyển"
+                    : "Hết hạn"}
+                </Tag>
+              </div>
+            </div>
+          </div>
+        </div>
+        <Tooltip
+          title={
+            user && user.id
+              ? favorites.includes(job.id)
+                ? "Xóa khỏi yêu thích"
+                : "Thêm vào yêu thích"
+              : "Vui lòng đăng nhập để lưu công việc yêu thích"
+          }
+        >
+          <button
+            onClick={() => toggleFavorite(job.id)}
+            className={`absolute top-4 right-4 w-10 h-10 flex items-center justify-center rounded-full transition-all duration-200 ${
+              user && user.id && favorites.includes(job.id)
+                ? "bg-red-100 text-red-500 hover:bg-red-200"
+                : "bg-gray-100 text-gray-400 hover:bg-gray-200"
+            }`}
+            aria-label={
+              user && user.id && favorites.includes(job.id)
+                ? "Xóa khỏi yêu thích"
+                : "Thêm vào yêu thích"
+            }
+            disabled={!user || !user.id} // Vô hiệu hóa nếu chưa đăng nhập
+          >
+            <FiHeart
+              className={`w-5 h-5 ${
+                user && user.id && favorites.includes(job.id) ? "fill-current" : ""
+              }`}
+            />
+          </button>
+        </Tooltip>
+      </div>
+    </Card>
+  ))}
+</div>
         </div>
       </div>
       <MyChatBot />

@@ -10,7 +10,7 @@ import OTPModal from "./OTPModal";
 import { sendOtpToEmail } from "../untils/email";
 import Swal from "sweetalert2";
 
-Modal.setAppElement("#root"); // For accessibility
+// Modal.setAppElement("#root"); // For accessibility
 
 export default function Header() {
   const [isJobDropdownOpen, setIsJobDropdownOpen] = useState(false);

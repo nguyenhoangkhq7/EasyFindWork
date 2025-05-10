@@ -8,7 +8,7 @@ import { FaTimes } from "react-icons/fa";
 import { uploadFileByUrl } from "../service/cloudinary"; // Giả định bạn đã tạo hàm này trong service/cloudinary.jsx
 import { updateUser } from "../service/user"; // Giả định bạn đã tạo hàm này trong service/userService.jsx
 
-export default function ApplyJobModal({ isOpen, onClose, jobId, jobTitle }) {
+export default function ApplyJobModal({ isOpen, onClose, jobId, jobTitle ,disabledButton}) {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -111,10 +111,11 @@ export default function ApplyJobModal({ isOpen, onClose, jobId, jobTitle }) {
         isShortlisted: false,
       };
 
-      await axios.post(
+      const res= await axios.post(
         "https://easyfindwork-jsonserver-production.up.railway.app/applications",
         applicationData
       );
+      const newJob = res.data;
 
       setSuccessMessage("Đã nộp hồ sơ thành công!");
       setErrorMessage("");
@@ -129,6 +130,9 @@ export default function ApplyJobModal({ isOpen, onClose, jobId, jobTitle }) {
         setCvOption("existing");
         setSuccessMessage("");
       }, 2000);
+      if(disabledButton){
+        disabledButton(newJob);
+      }
     } catch (error) {
       setErrorMessage("Có lỗi xảy ra, vui lòng thử lại.");
       console.error("Error applying for job:", error.response || error);

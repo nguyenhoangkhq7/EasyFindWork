@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams, Link } from "react-router-dom";
 import axios from "axios";
 import { motion } from "framer-motion";
@@ -19,6 +19,7 @@ import ApplyJobModal from "./ApplyJobModal";
 import { useSelector, useDispatch } from "react-redux";
 import { getJobById } from "../service/job";
 import Swal from "sweetalert2";
+import { getJobAppliedByUserIdAndJobId } from "../service/jobapplied";
 
 // Main JobDetail Component
 const JobDetail = () => {
@@ -33,6 +34,9 @@ const JobDetail = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("jobDetails");
   const user = useSelector((state) => state.user);
+
+  const [jobApplied, setJobApplied]= useState(null);
+  // const [buttonState, setButtonState]= useState(true);
 
   useEffect(() => {
     const fetchJobDetail = async () => {
@@ -90,6 +94,27 @@ const JobDetail = () => {
 
     fetchJobDetail();
   }, [id, user?.id]);
+
+  useEffect(() => {
+  if (user == null || job == null) {
+    return;
+  }
+
+  const fetchJB = async () => {
+    try {
+      const jb = await getJobAppliedByUserIdAndJobId(user.id, job.id);
+      if (jb) {
+        setJobApplied(jb);
+      } else {
+        setJobApplied(null); // reset nếu không có dữ liệu
+      }
+    } catch (error) {
+      console.error("Lỗi khi fetch jobApplied:", error);
+    }
+  };
+
+  fetchJB();
+}, [user, job]);
 
   const promptLogin = (actionText) => {
     Swal.fire({
@@ -188,6 +213,12 @@ const JobDetail = () => {
     return date.toLocaleDateString("vi-VN");
   };
 
+const disabledButton = (job)=>{
+  // setJobApplied(null);
+  setJobApplied(job);
+}
+
+
   return (
     <div className="relative min-h-screen">
       <motion.div
@@ -259,13 +290,14 @@ const JobDetail = () => {
                   whileHover={{ scale: user?.id ? 1.05 : 1 }}
                   whileTap={{ scale: user?.id ? 0.95 : 1 }}
                   onClick={handleApply}
+                  disabled={ jobApplied}
                   className={`px-6 py-2 rounded-lg font-medium text-white transition-colors shadow-md ${
                     user?.id
                       ? "bg-violet-400 hover:bg-violet-500"
                       : "bg-violet-300 opacity-50 cursor-not-allowed"
                   }`}
                 >
-                  Nộp hồ sơ
+                  { (jobApplied !== null)? "Đã nộp hồ sơ" : "Nộp hồ sơ"}
                 </motion.button>
                 <motion.button
                   whileHover={{ scale: 1.05 }}
@@ -584,6 +616,7 @@ const JobDetail = () => {
         onClose={() => setIsModalOpen(false)}
         jobId={id}
         jobTitle={job.title}
+        disabledButton= {disabledButton}
       />
     </div>
   );
