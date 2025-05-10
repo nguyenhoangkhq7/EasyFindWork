@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, use } from "react";
+import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import axios from "axios";
 import { motion } from "framer-motion";
@@ -15,12 +15,15 @@ import {
   FaUsers,
   FaClock,
 } from "react-icons/fa";
-import ApplyJobModal from "./ApplyJobModal"; // Nhập component ApplyJobModal
-import { useSelector } from "react-redux";
+import ApplyJobModal from "./ApplyJobModal";
+import { useSelector, useDispatch } from "react-redux";
+import { getJobById } from "../service/job";
+import Swal from "sweetalert2";
 
 // Main JobDetail Component
 const JobDetail = () => {
   const { id } = useParams();
+  const dispatch = useDispatch();
   const [job, setJob] = useState(null);
   const [company, setCompany] = useState(null);
   const [similarJobs, setSimilarJobs] = useState([]);
@@ -35,37 +38,46 @@ const JobDetail = () => {
     const fetchJobDetail = async () => {
       try {
         setLoading(true);
-        const jobResponse = await axios.get(`http://localhost:3000/jobs/${id}`);
-        setJob(jobResponse.data);
 
+        // Fetch job using getJobById from service
+        const jobData = await getJobById(id);
+        if (!jobData) {
+          throw new Error("Job not found");
+        }
+        setJob(jobData);
+
+        // Fetch company data
         const companyResponse = await axios.get(
-          `http://localhost:3000/companies/${jobResponse.data.companyId}`
+          `http://localhost:3000/companies/${jobData.companyId}`
         );
         setCompany(companyResponse.data);
 
-        const savedJobsResponse = await axios.get(
-          `http://localhost:3000/savedJobs?userId=${user.id}&jobId=${id}`
-        );
-        setIsSaved(savedJobsResponse.data.length > 0);
+        // Check if job is saved, only if user is logged in
+        if (user?.id) {
+          const savedJobsResponse = await axios.get(
+            `http://localhost:3000/savedJobs?userId=${user.id}&jobId=${id}`
+          );
+          setIsSaved(savedJobsResponse.data.length > 0);
+        }
 
+        // Fetch similar jobs
         const allJobsResponse = await axios.get(`http://localhost:3000/jobs`);
         const allJobs = allJobsResponse.data;
 
         const similar = allJobs
           .filter((j) => j.id !== id)
-          .filter((j) => j.industry === jobResponse.data.industry)
-          .filter((j) => j.location === jobResponse.data.location)
+          .filter((j) => j.industry === jobData.industry)
+          .filter((j) => j.location === jobData.location)
           .filter(
             (j) =>
-              (j.salaryMin >= jobResponse.data.salaryMin * 0.8 &&
-                j.salaryMin <= jobResponse.data.salaryMax * 1.2) ||
-              (j.salaryMax >= jobResponse.data.salaryMin * 0.8 &&
-                j.salaryMax <= jobResponse.data.salaryMax * 1.2)
+              (j.salaryMin >= jobData.salaryMin * 0.8 &&
+                j.salaryMin <= jobData.salaryMax * 1.2) ||
+              (j.salaryMax >= jobData.salaryMin * 0.8 &&
+                j.salaryMax <= jobData.salaryMax * 1.2)
           )
           .slice(0, 3);
 
         setSimilarJobs(similar);
-
         setLoading(false);
       } catch (err) {
         setError("Có lỗi xảy ra khi tải thông tin công việc");
@@ -75,27 +87,52 @@ const JobDetail = () => {
     };
 
     fetchJobDetail();
-  }, [id]);
+  }, [id, user?.id]);
+
+  const promptLogin = (actionText) => {
+    Swal.fire({
+      title: "Yêu cầu đăng nhập",
+      text: `Bạn cần đăng nhập để ${actionText}!`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Đăng nhập",
+      cancelButtonText: "Hủy",
+      confirmButtonColor: "#6366f1",
+      cancelButtonColor: "#ef4444",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        dispatch({ type: "OPEN_LOGIN_MODAL" });
+      }
+    });
+  };
 
   const handleApply = () => {
+    if (!user?.id) {
+      promptLogin("nộp hồ sơ");
+      return;
+    }
     setIsModalOpen(true);
   };
 
   const handleSaveJob = async () => {
+    if (!user?.id) {
+      promptLogin("lưu công việc");
+      return;
+    }
+
     try {
       if (isSaved) {
-        // Lấy ID của savedJob dựa trên userId và jobId
         const savedJobsResponse = await axios.get(
           `http://localhost:3000/savedJobs?userId=${user.id}&jobId=${id}`
         );
-        const savedJob = savedJobsResponse.data[0]; // Lấy bản ghi đầu tiên (nếu có)
+        const savedJob = savedJobsResponse.data[0];
 
         if (savedJob) {
           await axios.delete(`http://localhost:3000/savedJobs/${savedJob.id}`);
           setIsSaved(false);
         } else {
           console.warn("Không tìm thấy savedJob để xóa");
-          setIsSaved(false); // Cập nhật trạng thái nếu không tìm thấy
+          setIsSaved(false);
         }
       } else {
         await axios.post("http://localhost:3000/savedJobs", {
@@ -108,7 +145,12 @@ const JobDetail = () => {
       }
     } catch (err) {
       console.error("Lỗi khi lưu/bỏ lưu công việc:", err);
-      alert("Có lỗi xảy ra khi lưu/bỏ lưu công việc");
+      Swal.fire({
+        title: "Lỗi",
+        text: "Có lỗi xảy ra khi lưu/bỏ lưu công việc",
+        icon: "error",
+        confirmButtonColor: "#6366f1",
+      });
     }
   };
 
@@ -131,7 +173,7 @@ const JobDetail = () => {
   }
 
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat("vi-VN").format(amount/1000000);
+    return new Intl.NumberFormat("vi-VN").format(amount / 1000000);
   };
 
   const formatDate = (dateString) => {
@@ -207,10 +249,14 @@ const JobDetail = () => {
 
               <div className="mt-6 flex flex-col sm:flex-row gap-3">
                 <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
+                  whileHover={{ scale: user?.id ? 1.05 : 1 }}
+                  whileTap={{ scale: user?.id ? 0.95 : 1 }}
                   onClick={handleApply}
-                  className="bg-violet-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-violet-700 transition-colors shadow-md"
+                  className={`px-6 py-2 rounded-lg font-medium text-white transition-colors shadow-md ${
+                    user?.id
+                      ? "bg-violet-400 hover:bg-violet-500"
+                      : "bg-violet-300 opacity-50 cursor-not-allowed"
+                  }`}
                 >
                   Nộp hồ sơ
                 </motion.button>
@@ -220,8 +266,8 @@ const JobDetail = () => {
                   onClick={handleSaveJob}
                   className={`px-6 py-2 rounded-lg font-medium border transition-colors ${
                     isSaved
-                      ? "bg-yellow-100 text-yellow-700 border-yellow-300 hover:bg-yellow-200"
-                      : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
+                      ? "bg-yellow-200 text-yellow-800 border-yellow-300 hover:bg-yellow-300"
+                      : "bg-gray-200 text-gray-600 border-gray-300 hover:bg-gray-300"
                   }`}
                 >
                   {isSaved ? "Đã lưu" : "Lưu công việc"}
@@ -284,21 +330,27 @@ const JobDetail = () => {
                         <FaUserTie className="text-violet-500 mt-1 mr-3" />
                         <div>
                           <p className="text-gray-500">Cấp bậc</p>
-                          <p className="font-medium">Chuyên viên nhân viên</p>
+                          <p className="font-medium">
+                            {job.level || "Chuyên viên nhân viên"}
+                          </p>
                         </div>
                       </div>
                       <div className="flex items-start">
                         <FaVenusMars className="text-violet-500 mt-1 mr-3" />
                         <div>
                           <p className="text-gray-500">Yêu cầu giới tính</p>
-                          <p className="font-medium">Nữ</p>
+                          <p className="font-medium">
+                            {job.sex || "Không yêu cầu"}
+                          </p>
                         </div>
                       </div>
                       <div className="flex items-start">
                         <FaClock className="text-violet-500 mt-1 mr-3" />
                         <div>
                           <p className="text-gray-500">Hình thức làm việc</p>
-                          <p className="font-medium">Toàn thời gian cố định</p>
+                          <p className="font-medium">
+                            {job.workType || "Toàn thời gian cố định"}
+                          </p>
                         </div>
                       </div>
                       <div className="flex items-start">
@@ -313,7 +365,7 @@ const JobDetail = () => {
                         <div>
                           <p className="text-gray-500">Yêu cầu kinh nghiệm</p>
                           <p className="font-medium">
-                            Không yêu cầu kinh nghiệm
+                            {job.experience || "Ưu tiên có kinh nghiệm"}
                           </p>
                         </div>
                       </div>

@@ -1,265 +1,575 @@
-import React, { useState } from "react";
-import Modal from "react-modal";
-import { addUser, getUserWithMobilePhoneOrEmail } from "../../service/user";
-import { useDispatch, useSelector } from "react-redux";
+"use client";
 
-const Login = () => {
-  const [placeholderText, setPlaceholderText] = useState("Nhập Số điện thoại");
-  const [loginWithMobile, setLoginMobile] = useState(true);
-  const [modalIsOpen, setShowModal] = useState(false);
-  const [inputValue, setInputValue] = useState("");
-  const [error, setError] = useState("");
-  const [isShowInfor, setShowInfor] = useState(false);
+import { useState, useEffect } from "react";
+import { useParams, Link, useNavigate } from "react-router-dom";
+import axios from "axios";
+import { motion } from "framer-motion";
+import {
+  FaCalendarAlt,
+  FaMapMarkerAlt,
+  FaVenusMars,
+  FaBriefcase,
+  FaUserTie,
+  FaBuilding,
+  FaMoneyBillWave,
+  FaUsers,
+  FaClock,
+} from "react-icons/fa";
+import ApplyJobModal from "../../components/ApplyJobModal";
+import { useSelector } from "react-redux";
+import { getJobById } from "../../service/job"; // Corrected path
+import Swal from "sweetalert2";
 
-  const [errorName, setErrorName] = useState();
-  const [errorEmail, setErrorEmail] = useState();
-
+// Main JobDetail Component
+const JobDetail = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [job, setJob] = useState(null);
+  const [company, setCompany] = useState(null);
+  const [similarJobs, setSimilarJobs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [isSaved, setIsSaved] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("jobDetails");
   const user = useSelector((state) => state.user);
-  const dispatch = useDispatch();
 
-  const openModal = () => {
-    reload();
-    setShowModal(true);
-  };
-  const closeModal = () => {
-    setShowModal(false);
-    reload();
-  };
+  useEffect(() => {
+    const fetchJobDetail = async () => {
+      try {
+        setLoading(true);
 
-  const handleLoginWithMethod = () => {
-    setLoginMobile(!loginWithMobile);
-    setPlaceholderText(!loginWithMobile ? "Nhập Số điện thoại" : "Nhập Email");
-    setInputValue("");
-    setError("");
-  };
+        // Fetch job using getJobById from service
+        const jobData = await getJobById(id);
+        if (!jobData) {
+          throw new Error("Job not found");
+        }
+        setJob(jobData);
 
-  const handleInputChange = (e) => {
-    setInputValue(e.target.value);
-    setError("");
-  };
+        // Fetch company data
+        const companyResponse = await axios.get(
+          `http://localhost:3000/companies/${jobData.companyId}`
+        );
+        setCompany(companyResponse.data);
 
-  const handleInputName = (e) => {
-    setErrorName("");
-  };
+        // Check if job is saved, only if user is logged in
+        if (user && user.id) {
+          const savedJobsResponse = await axios.get(
+            `http://localhost:3000/savedJobs?userId=${user.id}&jobId=${id}`
+          );
+          setIsSaved(savedJobsResponse.data.length > 0);
+        } else {
+          setIsSaved(false); // Ensure isSaved is false for non-logged-in users
+        }
 
-  const handleContinue = async (e) => {
-    e.preventDefault();
-    if (loginWithMobile) {
-      const phoneRegex = /^[0-9]{10}$/;
-      if (!phoneRegex.test(inputValue)) {
-        setError("Số điện thoại không hợp lệ. Vui lòng nhập 10 chữ số.");
-        return;
+        // Fetch similar jobs
+        const allJobsResponse = await axios.get(`http://localhost:3000/jobs`);
+        const allJobs = allJobsResponse.data;
+
+        const similar = allJobs
+          .filter((j) => j.id !== id)
+          .filter((j) => j.industry === jobData.industry)
+          .filter((j) => j.location === jobData.location)
+          .filter(
+            (j) =>
+              (j.salaryMin >= jobData.salaryMin * 0.8 &&
+                j.salaryMin <= jobData.salaryMax * 1.2) ||
+              (j.salaryMax >= jobData.salaryMin * 0.8 &&
+                j.salaryMax <= jobData.salaryMax * 1.2)
+          )
+          .slice(0, 3);
+
+        setSimilarJobs(similar);
+        setLoading(false);
+      } catch (err) {
+        setError("Có lỗi xảy ra khi tải thông tin công việc");
+        setLoading(false);
+        console.error(err);
       }
-      const user = await getUserWithMobilePhoneOrEmail(inputValue);
-      console.log(user);
-      if (user == null) {
-        setShowInfor(true);
-        return;
-      }
-      if (user != null) {
-        dispatch({
-          type: "LOGIN",
-          user: user,
-        });
-      }
-    } else {
-    }
+    };
+
+    fetchJobDetail();
+  }, [id, user?.id]);
+
+  const handleApply = () => {
+    setIsModalOpen(true);
   };
 
-  const handleCompleted = (e) => {
-    e.preventDefault();
-    const fullName = e.target.elements.fullName.value.trim();
-    const email = e.target.elements.email.value.trim();
-    const phone = e.target.elements.phone.value.trim();
-    const nameRegex = /^([A-Za-zÀ-ỹà-ỹ]+)(\s[A-Za-zÀ-ỹà-ỹ]+)*$/;
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!nameRegex.test(fullName)) {
-      setErrorName("Tên không chứa số và kí tự đặc biệt.");
-      return;
-    }
-    if (!emailRegex.test(email)) {
-      setErrorEmail("Chưa đúng định dạng email.");
-      return;
-    }
-    const user = { fullName, email, phone };
-    try {
-      const result = addUser(user);
-      dispatch({
-        type: "LOGIN",
-        user: user,
+  const handleSaveJob = async () => {
+    if (!user || !user.id) {
+      Swal.fire({
+        title: "Yêu cầu đăng nhập",
+        text: "Bạn cần đăng nhập để lưu công việc!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Đăng nhập",
+        cancelButtonText: "Hủy",
+        confirmButtonColor: "#6366f1",
+        cancelButtonColor: "#ef4444",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          navigate("/login"); // Redirect to Login page
+        }
       });
-      console.log(user);
-    } catch (error) {
-      console.error("Errol add user");
+      return;
     }
-    // đăng nhập thành cong chuyển trang tài khoản
+
+    try {
+      if (isSaved) {
+        const savedJobsResponse = await axios.get(
+          `http://localhost:3000/savedJobs?userId=${user.id}&jobId=${id}`
+        );
+        const savedJob = savedJobsResponse.data[0];
+
+        if (savedJob) {
+          await axios.delete(`http://localhost:3000/savedJobs/${savedJob.id}`);
+          setIsSaved(false);
+        } else {
+          console.warn("Không tìm thấy savedJob để xóa");
+          setIsSaved(false);
+        }
+      } else {
+        await axios.post("http://localhost:3000/savedJobs", {
+          id: `savedJob_${Date.now()}`,
+          userId: user.id,
+          jobId: id,
+          savedAt: new Date().toISOString(),
+        });
+        setIsSaved(true);
+      }
+    } catch (err) {
+      console.error("Lỗi khi lưu/bỏ lưu công việc:", err);
+      Swal.fire({
+        title: "Lỗi",
+        text: "Có lỗi xảy ra khi lưu/bỏ lưu công việc",
+        icon: "error",
+        confirmButtonColor: "#6366f1",
+      });
+    }
   };
 
-  const reload = () => {
-    setError("");
-    setErrorEmail("");
-    setErrorName("");
-    setLoginMobile(true);
-    setShowInfor(false);
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-violet-600"></div>
+      </div>
+    );
+  }
+
+  if (error || !job || !company) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="text-red-500 text-xl">
+          {error || "Không tìm thấy thông tin công việc"}
+        </div>
+      </div>
+    );
+  }
+
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat("vi-VN").format(amount / 1000000);
   };
-  // console.log("dang nhap: ", user);
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("vi-VN");
+  };
 
   return (
-    <>
-      <div className="w-full flex justify-center items-center bg-gray-100">
-        <button
-          onClick={openModal}
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+    <div className="relative min-h-screen">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+        className={`max-w-6xl mx-auto p-6 bg-gray-50 ${
+          isModalOpen ? "pointer-events-none" : ""
+        }`}
+      >
+        <motion.div
+          initial={{ y: -20 }}
+          animate={{ y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="bg-white p-6 rounded-xl shadow-lg mb-6 border border-gray-100"
         >
-          Open Modal
-        </button>
-
-        <Modal
-          isOpen={modalIsOpen}
-          onRequestClose={closeModal}
-          contentLabel="Login Modal"
-          className="w-[60%] h-[80vh] bg-white rounded-3xl shadow-lg overflow-hidden flex relative top-1/2 transform -translate-y-1/2 mx-auto"
-        >
-          <button
-            onClick={closeModal}
-            className="absolute top-3 left-3 text-2xl text-gray-500 hover:text-gray-700 z-10"
-          >
-            ✕
-          </button>
-
-          {/* Cột trái */}
-          <div className="w-1/2 p-8 flex flex-col justify-center">
-            <h2 className="text-xl font-semibold mb-2 text-center">
-              Người tìm việc
-            </h2>
-            <h3 className="text-2xl font-bold mb-4 text-center">
-              Đăng nhập hoặc Đăng ký
-            </h3>
-
-            {!isShowInfor && (
-              <form onSubmit={handleContinue}>
-                <input
-                  type={loginWithMobile ? "tel" : "email"}
-                  placeholder={placeholderText}
-                  value={inputValue}
-                  onChange={handleInputChange}
-                  className="w-full border border-gray-300 p-3 rounded mb-2"
-                />
-                {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
-                <button className="w-full bg-purple-600 text-white p-3 rounded hover:bg-purple-700">
-                  Tiếp tục
-                </button>
-              </form>
-            )}
-
-            {/* modal nhập thông tin người dùng khi dăng nhập bằng sdt */}
-            {isShowInfor && (
-              <form onSubmit={handleCompleted}>
-                <div className="mb-2">
-                  <label className="block mb-1 font-medium" htmlFor="fullName">
-                    Họ và tên
-                  </label>
-                  <input
-                    id="fullName"
-                    type="text"
-                    placeholder="Nhập họ và tên"
-                    className="w-full border border-gray-300 p-3 rounded"
-                    onChange={handleInputName}
-                  />
-                  {errorName && (
-                    <p className="text-red-500 text-sm mb-2">{errorName}</p>
-                  )}
+          <div className="flex flex-col md:flex-row gap-6">
+            <div className="flex-shrink-0">
+              <img
+                src={company.logo || "/placeholder.svg"}
+                alt={company.name}
+                className="w-24 h-24 object-contain border p-2 rounded-lg shadow-sm"
+              />
+            </div>
+            <div className="flex-grow">
+              <div className="flex flex-col md:flex-row md:justify-between">
+                <div>
+                  <h1 className="text-2xl font-bold text-gray-800">
+                    {job.title}
+                  </h1>
+                  <Link
+                    to={`/company/${company.id}`}
+                    className="text-lg text-violet-600 hover:underline"
+                  >
+                    {company.name}
+                  </Link>
                 </div>
-
-                <div className="mb-2">
-                  <label className="block mb-1 font-medium" htmlFor="phone">
-                    Số điện thoại
-                  </label>
-                  <input
-                    id="phone"
-                    type="tel"
-                    value={inputValue}
-                    disabled
-                    className="w-full border border-gray-300 p-3 rounded bg-gray-100 text-gray-500"
-                  />
+                <div className="mt-4 md:mt-0">
+                  <p className="text-gray-500 text-sm">
+                    Ngày cập nhật: {formatDate(new Date().toISOString())}
+                  </p>
                 </div>
+              </div>
 
-                <div className="mb-4">
-                  <label className="block mb-1 font-medium" htmlFor="email">
-                    Email
-                  </label>
-                  <input
-                    id="email"
-                    type="email"
-                    placeholder="Nhập email của bạn"
-                    className="w-full border border-gray-300 p-3 rounded"
-                  />
-                  {errorEmail && (
-                    <p className="text-red-500 text-sm mb-2">{errorEmail}</p>
-                  )}
-                </div>
-                <button className="w-full bg-purple-600 text-white p-3 rounded hover:bg-purple-700">
-                  Hoàn tất
-                </button>
-              </form>
-            )}
-
-            {!isShowInfor && (
-              <>
-                <div className="text-center text-gray-400 my-2">Hoặc</div>
-
-                <button
-                  onClick={handleLoginWithMethod}
-                  className="w-full border border-gray-300 p-3 rounded flex items-center gap-2 justify-center"
-                >
-                  <img
-                    src={
-                      loginWithMobile
-                        ? "../../../public/email.png"
-                        : "../../../public/phone.png"
-                    }
-                    alt="icon"
-                    className="w-5 h-5"
-                  />
-                  <span>
-                    {loginWithMobile
-                      ? "Đăng nhập bằng Email"
-                      : "Đăng nhập bằng Số điện thoại"}
+              <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="flex items-center">
+                  <FaMoneyBillWave className="text-green-500 mr-2" />
+                  <span className="text-gray-700">
+                    Mức lương: {formatCurrency(job.salaryMin)} -{" "}
+                    {formatCurrency(job.salaryMax)} triệu
                   </span>
+                </div>
+                <div className="flex items-center">
+                  <FaMapMarkerAlt className="text-red-500 mr-2" />
+                  <span className="text-gray-700">
+                    Khu vực tuyển: {job.location}
+                  </span>
+                </div>
+                <div className="flex items-center">
+                  <FaCalendarAlt className="text-blue-500 mr-2" />
+                  <span className="text-gray-700">
+                    Hạn nộp hồ sơ: {formatDate(job.deadline)}
+                  </span>
+                </div>
+              </div>
+
+              <div className="mt-6 flex flex-col sm:flex-row gap-3">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={handleApply}
+                  className="bg-violet-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-violet-700 transition-colors shadow-md"
+                >
+                  Nộp hồ sơ
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={handleSaveJob}
+                  className={`px-6 py-2 rounded-lg font-medium border transition-colors ${
+                    isSaved
+                      ? "bg-yellow-100 text-yellow-700 border-yellow-300 hover:bg-yellow-200"
+                      : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
+                  }`}
+                >
+                  {isSaved ? "Đã lưu" : "Lưu công việc"}
+                </motion.button>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
+        <div className="flex flex-col lg:flex-row gap-6">
+          <motion.div
+            initial={{ x: -20, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="lg:w-2/3"
+          >
+            <div className="mb-6">
+              <div className="flex border-b border-gray-200">
+                <button
+                  onClick={() => setActiveTab("jobDetails")}
+                  className={`px-4 py-2 font-medium transition-colors ${
+                    activeTab === "jobDetails"
+                      ? "text-violet-600 border-b-2 border-violet-600"
+                      : "text-gray-500 hover:text-gray-700"
+                  }`}
+                >
+                  Chi tiết tuyển dụng
                 </button>
+                <button
+                  onClick={() => setActiveTab("company")}
+                  className={`px-4 py-2 font-medium transition-colors ${
+                    activeTab === "company"
+                      ? "text-violet-600 border-b-2 border-violet-600"
+                      : "text-gray-500 hover:text-gray-700"
+                  }`}
+                >
+                  Công Ty
+                </button>
+              </div>
+            </div>
+
+            {activeTab === "jobDetails" && (
+              <>
+                <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
+                  <h2 className="text-xl font-bold mb-4 text-gray-800">
+                    Thông tin chung
+                  </h2>
+                  <div className="bg-violet-50 p-6 rounded-lg">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="flex items-start">
+                        <FaCalendarAlt className="text-violet-500 mt-1 mr-3" />
+                        <div>
+                          <p className="text-gray-500">Ngày đăng</p>
+                          <p className="font-medium">
+                            {formatDate(job.postedDate)}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-start">
+                        <FaUserTie className="text-violet-500 mt-1 mr-3" />
+                        <div>
+                          <p className="text-gray-500">Cấp bậc</p>
+                          <p className="font-medium">
+                            {job.level || "Chuyên viên nhân viên"}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-start">
+                        <FaVenusMars className="text-violet-500 mt-1 mr-3" />
+                        <div>
+                          <p className="text-gray-500">Yêu cầu giới tính</p>
+                          <p className="font-medium">
+                            {job.sex || "Không yêu cầu"}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-start">
+                        <FaClock className="text-violet-500 mt-1 mr-3" />
+                        <div>
+                          <p className="text-gray-500">Hình thức làm việc</p>
+                          <p className="font-medium">
+                            {job.workType || "Toàn thời gian cố định"}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-start">
+                        <FaUsers className="text-violet-500 mt-1 mr-3" />
+                        <div>
+                          <p className="text-gray-500">Số lượng tuyển</p>
+                          <p className="font-medium">{job.quantity}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start">
+                        <FaBriefcase className="text-violet-500 mt-1 mr-3" />
+                        <div>
+                          <p className="text-gray-500">Yêu cầu kinh nghiệm</p>
+                          <p className="font-medium">
+                            {job.experience || "Ưu tiên có kinh nghiệm"}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="mt-6 flex items-start">
+                      <FaBuilding className="text-violet-500 mt-1 mr-3" />
+                      <div>
+                        <p className="text-gray-500">Ngành nghề</p>
+                        <p className="font-medium">{job.industry}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <motion.div
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ duration: 0.5, delay: 0.4 }}
+                  className="bg-white rounded-xl shadow-lg p-6 mb-6"
+                >
+                  <h2 className="text-xl font-bold mb-4 text-gray-800">
+                    Mô tả công việc
+                  </h2>
+                  <div className="prose max-w-none">
+                    <ul className="list-disc pl-5 space-y-2 text-gray-700">
+                      {job.description.split("\n").map((line, index) => (
+                        <li key={index}>{line}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </motion.div>
+
+                <motion.div
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ duration: 0.5, delay: 0.6 }}
+                  className="bg-white rounded-xl shadow-lg p-6 mb-6"
+                >
+                  <h2 className="text-xl font-bold mb-4 text-gray-800">
+                    Yêu cầu công việc
+                  </h2>
+                  <div className="prose max-w-none">
+                    <ul className="list-disc pl-5 space-y-2 text-gray-700">
+                      {job.requirements.split("\n").map((line, index) => (
+                        <li key={index}>{line}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </motion.div>
+
+                <motion.div
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ duration: 0.5, delay: 0.8 }}
+                  className="bg-white rounded-xl shadow-lg p-6"
+                >
+                  <h2 className="text-xl font-bold mb-4 text-gray-800">
+                    Quyền lợi được hưởng
+                  </h2>
+                  <div className="prose max-w-none">
+                    <ul className="list-disc pl-5 space-y-2 text-gray-700">
+                      {job.benefits.split("\n").map((line, index) => (
+                        <li key={index}>{line}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </motion.div>
               </>
             )}
-            {/* phần chân */}
-            <p className="text-xs text-gray-500 mt-4 leading-snug">
-              Bằng việc đăng nhập, tôi đồng ý chia sẻ thông tin cá nhân của mình
-              với nhà tuyển dụng theo các{" "}
-              <a href="#" className="text-blue-600 underline" target="_blank">
-                Điều khoản sử dụng
-              </a>
-              ,{" "}
-              <a href="#" className="text-blue-600 underline" target="_blank">
-                Chính sách bảo mật
-              </a>{" "}
-              và{" "}
-              <a href="#" className="text-blue-600 underline" target="_blank">
-                Chính sách dữ liệu cá nhân
-              </a>
-              .
-            </p>
-          </div>
 
-          {/* Cột phải */}
-          <div className="w-1/2 flex items-center justify-center p-4 bg-[#F4F4F4]">
-            <img
-              src="../../../public/banner-dangnhap.png"
-              alt="Banner"
-              className="max-h-full max-w-full object-contain"
-            />
-          </div>
-        </Modal>
-      </div>
-    </>
+            {activeTab === "company" && (
+              <motion.div
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.5 }}
+                className="bg-white rounded-xl shadow-lg p-6"
+              >
+                <h2 className="text-xl font-bold mb-4 text-gray-800">
+                  {company.name}
+                </h2>
+                <div className="space-y-4">
+                  <div className="flex items-start">
+                    <FaBuilding className="text-violet-500 mt-1 mr-3" />
+                    <div>
+                      <p className="text-gray-500">Ngành nghề</p>
+                      <p className="font-medium">{company.industry}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start">
+                    <FaMapMarkerAlt className="text-red-500 mt-1 mr-3" />
+                    <div>
+                      <p className="text-gray-500">Địa chỉ</p>
+                      <p className="font-medium">{company.address}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start">
+                    <FaUsers className="text-violet-500 mt-1 mr-3" />
+                    <div>
+                      <p className="text-gray-500">Quy mô</p>
+                      <p className="font-medium">{company.size}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start">
+                    <FaCalendarAlt className="text-blue-500 mt-1 mr-3" />
+                    <div>
+                      <p className="text-gray-500">Ngày thành lập</p>
+                      <p className="font-medium">
+                        {formatDate(company.createdAt)}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="prose max-w-none">
+                    <h3 className="text-lg font-semibold mb-2 text-gray-800">
+                      Giới thiệu công ty
+                    </h3>
+                    <p className="text-gray-700">{company.description}</p>
+                  </div>
+                  <Link
+                    to={`/company/${company.id}`}
+                    className="block text-center mt-4 text-violet-600 hover:underline"
+                  >
+                    Xem trang công ty →
+                  </Link>
+                </div>
+              </motion.div>
+            )}
+          </motion.div>
+
+          {activeTab === "jobDetails" && (
+            <motion.div
+              initial={{ x: 20, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+              className="lg:w-1/3"
+            >
+              <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
+                <h2 className="text-xl font-bold mb-4 text-gray-800">
+                  {company.name}
+                </h2>
+                <div className="flex items-center mb-4">
+                  <FaMapMarkerAlt className="text-red-500 mr-2 flex-shrink-0" />
+                  <p className="text-gray-700">Địa chỉ: {company.address}</p>
+                </div>
+                <div className="flex items-center mb-4">
+                  <FaUsers className="text-violet-500 mr-2 flex-shrink-0" />
+                  <p className="text-gray-700">Quy mô: {company.size}</p>
+                </div>
+                <Link
+                  to={`/company/${company.id}`}
+                  className="block text-center mt-4 text-violet-600 hover:underline"
+                >
+                  Xem trang công ty →
+                </Link>
+              </div>
+
+              <motion.div
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.5, delay: 0.7 }}
+                className="bg-white rounded-xl shadow-lg p-6"
+              >
+                <h2 className="text-xl font-bold mb-4 text-gray-800">
+                  Việc làm tương tự
+                </h2>
+                {similarJobs.length > 0 ? (
+                  <div className="space-y-4">
+                    {similarJobs.map((similarJob) => (
+                      <motion.div
+                        key={similarJob.id}
+                        whileHover={{ scale: 1.02 }}
+                        className="border-b pb-4 last:border-b-0"
+                      >
+                        <Link
+                          to={`/job/${similarJob.id}`}
+                          className="block hover:bg-gray-50 p-2 rounded transition-colors"
+                        >
+                          <h3 className="font-medium text-violet-600">
+                            {similarJob.title}
+                          </h3>
+                          <p className="text-gray-600 text-sm">
+                            {company.name}
+                          </p>
+                          <div className="flex justify-between mt-2 text-sm">
+                            <span className="text-gray-500">
+                              {similarJob.location}
+                            </span>
+                            <span className="text-green-600">
+                              {formatCurrency(similarJob.salaryMin)} -{" "}
+                              {formatCurrency(similarJob.salaryMax)} triệu
+                            </span>
+                          </div>
+                        </Link>
+                      </motion.div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-gray-500 text-sm">
+                    Không tìm thấy việc làm tương tự.
+                  </p>
+                )}
+              </motion.div>
+            </motion.div>
+          )}
+        </div>
+      </motion.div>
+
+      <ApplyJobModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        jobId={id}
+        jobTitle={job.title}
+      />
+    </div>
   );
 };
 
-export default Login;
+export default JobDetail;

@@ -8,23 +8,16 @@ import { useNavigate } from "react-router-dom";
 import { getIndustryJobIsActive } from "../service/job";
 import OTPModal from "./OTPModal";
 import { sendOtpToEmail } from "../untils/email";
+import Swal from "sweetalert2";
+
+Modal.setAppElement("#root"); // For accessibility
 
 export default function Header() {
   const [isJobDropdownOpen, setIsJobDropdownOpen] = useState(false);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
-  const [avatarUrl, setAvatarUrl] = useState();
-  const [otpCode, setOtpCode]= useState();
+  const [otpCode, setOtpCode] = useState();
 
   let timeoutId = null;
-
-  useEffect(() => {
-    fetch("http://localhost:3000/users")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.avatarUrl) setAvatarUrl(data.avatarUrl);
-      })
-      .catch(() => setAvatarUrl("/images/avatar.png"));
-  }, []);
 
   const handleMouseEnterJob = () => {
     if (timeoutId) clearTimeout(timeoutId);
@@ -48,42 +41,42 @@ export default function Header() {
     }, 200);
   };
 
-  // xử lí modal
-
+  // Modal logic
   const [placeholderText, setPlaceholderText] = useState("Nhập Số điện thoại");
   const [loginWithMobile, setLoginMobile] = useState(true);
-  const [modalIsOpen, setShowModal] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const [error, setError] = useState("");
   const [isShowInfor, setShowInfor] = useState(false);
-  const [isShowOTPModal, setShowOTPModal]= useState(false);
-  const [usserSingIn, setUserSignIn]= useState(null);
+  const [isShowOTPModal, setShowOTPModal] = useState(false);
+  const [usserSingIn, setUserSignIn] = useState(null);
   const [emailReceivedOtp, setEmailReceiveOTP] = useState("");
 
   const [errorName, setErrorName] = useState();
   const [errorEmail, setErrorEmail] = useState();
 
-  const [jobIndustry, setJobIndustry]= useState();
+  const [jobIndustry, setJobIndustry] = useState();
 
   const user = useSelector((state) => state.user);
+  const modal = useSelector((state) => state.modal);
   const dispatch = useDispatch();
 
   const openModal = () => {
     reload();
-    setShowModal(true);
+    dispatch({ type: "OPEN_LOGIN_MODAL" });
   };
+
   const closeModal = () => {
-    setShowModal(false);
+    dispatch({ type: "CLOSE_LOGIN_MODAL" });
     reload();
   };
 
-  const openOtpModal= ()=>{
+  const openOtpModal = () => {
     setShowOTPModal(true);
   };
-  const closeOtpModal=()=>{
+
+  const closeOtpModal = () => {
     setShowOTPModal(false);
-  }
-  
+  };
 
   const handleLoginWithMethod = () => {
     setLoginMobile(!loginWithMobile);
@@ -97,12 +90,13 @@ export default function Header() {
     setError("");
   };
 
-  const handleInputName = (e) => {
+  const handleInputName = () => {
     setErrorName("");
   };
-  const handleInputPhoneChange= (e)=>{
+
+  const handleInputPhoneChange = (e) => {
     setError("");
-  }
+  };
 
   const handleContinue = async (e) => {
     e.preventDefault();
@@ -113,21 +107,18 @@ export default function Header() {
     if (isPhoneLogin && !phoneRegex.test(inputValue)) {
       setError("Số điện thoại không hợp lệ. Vui lòng nhập 10 chữ số.");
       return;
-    }
-
-    else if(!isPhoneLogin && inputValue==""){
+    } else if (!isPhoneLogin && inputValue === "") {
       setError("Vui lòng nhập email.");
       return;
     }
 
     const user_now = await getUserWithMobilePhoneOrEmail(inputValue);
     if (!user_now) {
-      setShowInfor(true); // Chỉ show form nếu đang dùng số điện thoại
+      setShowInfor(true);
       setEmailReceiveOTP(inputValue);
       return;
     }
 
-    // Nếu tìm thấy user, dispatch login và đóng modal
     dispatch({
       type: "LOGIN",
       user: user_now,
@@ -137,7 +128,7 @@ export default function Header() {
 
   const generateOTP = () => Math.floor(1000 + Math.random() * 9000).toString();
 
-  const handleCompleted =async (e) => {
+  const handleCompleted = async (e) => {
     e.preventDefault();
     const fullName = e.target.elements.fullName.value.trim();
     const email = e.target.elements.email.value.trim();
@@ -152,58 +143,54 @@ export default function Header() {
     }
     const new_user = { fullName, email, phone };
     setUserSignIn(new_user);
-    console.log("new",usserSingIn);
-    
-    // đăng nhập bằng sdt
+
+    // Phone login
     if (loginWithMobile) {
       if (!emailRegex.test(email)) {
         setErrorEmail("Chưa đúng định dạng email.");
         return;
       }
-      const checkUser=await getUserWithMobilePhoneOrEmail(email);
-      if(checkUser!=null){
+      const checkUser = await getUserWithMobilePhoneOrEmail(email);
+      if (checkUser != null) {
         setErrorEmail("Email đã được sử dụng.");
         return;
       }
-      
+
       await addNewUserWhenSignIn(new_user);
       closeModal();
-    } 
-    // đăng nhập bằng email 
+    }
+    // Email login
     else {
       if (!phoneRegex.test(phone)) {
         setError("Số điện thoại không hợp lệ. Vui lòng nhập 10 chữ số.");
         return;
       }
-      const checkUser= await getUserWithMobilePhoneOrEmail(phone);
-      if(checkUser!=null){
-        // console.log(checkUser);
-        setError("Số điện thoãi đã được sử dụng.");
+      const checkUser = await getUserWithMobilePhoneOrEmail(phone);
+      if (checkUser != null) {
+        setError("Số điện thoại đã được sử dụng.");
         return;
       }
-      //xử lí thêm user
-      
-      const otp_gener= generateOTP();
+
+      const otp_gener = generateOTP();
       setOtpCode(otp_gener);
-      sendOtpToEmail(emailReceivedOtp, otp_gener);
-      console.log("ma otp: ",otp_gener);
-      
+      await sendOtpToEmail(emailReceivedOtp, otp_gener);
+      console.log("ma otp: ", otp_gener);
+
       openOtpModal();
     }
-    
   };
 
-  const addNewUserWhenSignIn=async (new_user)=> {
-      try {
-        const result = await addUser(new_user);
-        dispatch({
-          type: "LOGIN",
-          user: result,
-        });
-      } catch (error) {
-        console.error("Errol add user");
-      }
-  }
+  const addNewUserWhenSignIn = async (new_user) => {
+    try {
+      const result = await addUser(new_user);
+      dispatch({
+        type: "LOGIN",
+        user: result,
+      });
+    } catch (error) {
+      console.error("Error adding user:", error);
+    }
+  };
 
   const reload = () => {
     setError("");
@@ -214,18 +201,15 @@ export default function Header() {
     setPlaceholderText("Nhập số điện thoại");
   };
 
-
   const navigate = useNavigate();
   const handleLogout = () => {
     dispatch({
       type: "LOGOUT",
     });
-    navigate("/"); 
+    navigate("/");
   };
 
-  // end xử lí modal
-
-  // xử lí cơ hội việc làm
+  // Job industry fetching
   useEffect(() => {
     const fetchJobIndustry = async () => {
       try {
@@ -233,48 +217,44 @@ export default function Header() {
         setJobIndustry(jobIsActive);
       } catch (error) {
         console.error("Error fetching job industries:", error);
-        setJobIndustry([]); // fallback tránh undefined
+        setJobIndustry([]);
       }
     };
-  
+
     fetchJobIndustry();
   }, []);
-  // end xử lí cơ hội việc làm
 
-  // xử lí otp
-const handleOtp = async (otp) => {
-    if(otp==otpCode){
+  // OTP handling
+  const handleOtp = async (otp) => {
+    if (otp == otpCode) {
       closeModal();
       closeOtpModal();
-      addNewUserWhenSignIn(usserSingIn);
-      // console.log(usserSingIn);
-    }
-    else{
+      await addNewUserWhenSignIn(usserSingIn);
+    } else {
       Swal.fire({
         icon: "error",
         title: "Đăng kí thất bại...",
         text: "Vui lòng thử lại!",
-        footer: '<a href="#">Why do I have this issue?</a>'
+        footer: '<a href="#">Why do I have this issue?</a>',
       });
     }
   };
-  // end xử lí otp
 
   return (
     <div className="w-full shadow-md">
       <OTPModal
-              isOpen={isShowOTPModal}
-              onClose={closeOtpModal}
-              email={emailReceivedOtp}
-              otpCode={otpCode}
-              sentParent={handleOtp}
-              onBack={closeOtpModal}
-            />
+        isOpen={isShowOTPModal}
+        onClose={closeOtpModal}
+        email={emailReceivedOtp}
+        otpCode={otpCode}
+        sentParent={handleOtp}
+        onBack={closeOtpModal}
+      />
       {/* Top banner */}
       <div className="flex items-center justify-between px-6 py-3 bg-gradient-to-r from-blue-50 to-gray-50">
         <div className="flex items-center gap-3">
           <img
-            src="https://placehold.co/40x40?text=EFW"
+            src="/logo.png"
             alt="Logo"
             className="w-10 h-10 object-contain rounded-full shadow-sm"
           />
@@ -283,7 +263,7 @@ const handleOtp = async (otp) => {
           </span>
         </div>
         <Link
-          to="/apply"
+          to="/job-search"
           className="px-6 py-2 text-white bg-violet-600 rounded-full hover:bg-violet-700 transition-all duration-300 transform hover:scale-105 shadow-md"
         >
           Ứng tuyển
@@ -323,18 +303,17 @@ const handleOtp = async (otp) => {
                 }`}
               />
             </button>
-            {(isJobDropdownOpen && jobIndustry) && (
-
+            {isJobDropdownOpen && jobIndustry && (
               <div className="absolute top-full left-0 mt-0 bg-white text-gray-800 rounded-xl shadow-2xl p-4 w-64 z-10 animate-fadeIn">
                 <div className="max-h-96 overflow-y-auto">
-                  {jobIndustry.map((item, index)=>(
+                  {jobIndustry.map((item, index) => (
                     <JobOpportunityLink
                       key={index}
                       item={item}
                       handleMouseEnterJob={handleMouseEnterJob}
                       handleMouseLeaveJob={handleMouseLeaveJob}
                     />
-                ))}
+                  ))}
                 </div>
               </div>
             )}
@@ -360,7 +339,7 @@ const handleOtp = async (otp) => {
                 <div className="flex items-center gap-3 cursor-pointer">
                   <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-white shadow-md group-hover:border-yellow-400 transition-all duration-200">
                     <img
-                      src={user.avatar}
+                      src={user.avatar || "/images/avatar.png"}
                       alt="User avatar"
                       className="w-full h-full object-cover"
                     />
@@ -388,7 +367,7 @@ const handleOtp = async (otp) => {
                       Tài khoản
                     </Link>
                     <button
-                      className=" w-full flex items-center gap-2 px-4 py-3 text-sm font-medium hover:bg-violet-100 rounded-lg transition-all duration-300 hover:text-violet-700"
+                      className="w-full flex items-center gap-2 px-4 py-3 text-sm font-medium hover:bg-violet-100 rounded-lg transition-all duration-300 hover:text-violet-700"
                       onMouseEnter={handleMouseEnterUser}
                       onMouseLeave={handleMouseLeaveUser}
                       onClick={handleLogout}
@@ -402,16 +381,20 @@ const handleOtp = async (otp) => {
             )}
 
             {user == null && (
-              <>
-                <button onClick={openModal}>Đăng nhập/Đăng kí</button>
-              </>
+              <button
+                onClick={openModal}
+                className="text-sm font-medium hover:text-yellow-400 transition-colors duration-200"
+              >
+                Đăng nhập/Đăng kí
+              </button>
             )}
           </div>
         </div>
       </div>
+
       {/* MODAL LOGIN */}
       <Modal
-        isOpen={modalIsOpen}
+        isOpen={modal.openLoginModal}
         onRequestClose={closeModal}
         contentLabel="Login Modal"
         className="w-[60%] h-[80vh] bg-white rounded-3xl shadow-lg overflow-hidden flex relative top-1/2 transform -translate-y-1/2 mx-auto"
@@ -447,7 +430,7 @@ const handleOtp = async (otp) => {
             </form>
           )}
 
-          {/* modal nhập thông tin người dùng khi dăng nhập bằng sdt */}
+          {/* Modal nhập thông tin người dùng khi đăng nhập bằng sdt */}
           {isShowInfor && (
             <form onSubmit={handleCompleted}>
               <div className="mb-2">
@@ -493,7 +476,7 @@ const handleOtp = async (otp) => {
                   type="email"
                   placeholder="Nhập email của bạn"
                   value={!loginWithMobile ? inputValue : undefined}
-                  disabled={!loginWithMobile ? true : false}
+                  disabled={!loginWithMobile}
                   className={`w-full border border-gray-300 p-3 rounded ${
                     !loginWithMobile ? "bg-gray-100 text-gray-500" : ""
                   }`}
@@ -518,11 +501,7 @@ const handleOtp = async (otp) => {
                 className="w-full border border-gray-300 p-3 rounded flex items-center gap-2 justify-center"
               >
                 <img
-                  src={
-                    loginWithMobile
-                      ? "../../public/email.png"
-                      : "../../public/phone.png"
-                  }
+                  src={loginWithMobile ? "/email.png" : "/phone.png"}
                   alt="icon"
                   className="w-5 h-5"
                 />
@@ -534,7 +513,7 @@ const handleOtp = async (otp) => {
               </button>
             </>
           )}
-          {/* phần chân */}
+          {/* Phần chân */}
           <p className="text-xs text-gray-500 mt-4 leading-snug">
             Bằng việc đăng nhập, tôi đồng ý chia sẻ thông tin cá nhân của mình
             với nhà tuyển dụng theo các{" "}
@@ -556,7 +535,7 @@ const handleOtp = async (otp) => {
         {/* Cột phải */}
         <div className="w-1/2 flex items-center justify-center p-4 bg-[#F4F4F4]">
           <img
-            src="../../../public/banner-dangnhap.png"
+            src="/banner-dangnhap.png"
             alt="Banner"
             className="max-h-full max-w-full object-contain"
           />
@@ -566,7 +545,11 @@ const handleOtp = async (otp) => {
   );
 }
 
-const JobOpportunityLink = ({ item, handleMouseEnterJob, handleMouseLeaveJob }) => {
+const JobOpportunityLink = ({
+  item,
+  handleMouseEnterJob,
+  handleMouseLeaveJob,
+}) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -587,4 +570,3 @@ const JobOpportunityLink = ({ item, handleMouseEnterJob, handleMouseLeaveJob }) 
     </div>
   );
 };
-
